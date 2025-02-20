@@ -1,4 +1,4 @@
-import BaseUrl from "@utils/get-base-url";
+import BaseUrl from "@utils/base-url";
 
 export async function getHospitalsList(
   currentPage: number = 1,

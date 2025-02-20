@@ -2,22 +2,21 @@ import { NextResponse } from "next/server";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 import { Patient, Transaction } from "@models/index";
 import { Types } from "mongoose";
-import { authenticateUser } from "@lib/auth";
+import { auth } from "@lib/auth";
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("Authorization");
   try {
     const url = new URL(request.url);
     const status = url.searchParams.get("status");
     const isPending = status === "pending";
 
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
 
-    const patient_id = new Types.ObjectId(id);
+    const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id);

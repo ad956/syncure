@@ -31,6 +31,12 @@ import {
 } from "@lib/patient/misc";
 import processPayment from "@lib/razorpay/process-payment";
 
+interface BookAppointmentProps {
+  patientId: string;
+  name: string;
+  email: string;
+}
+
 export default function BookAppointment({
   patientId,
   name,

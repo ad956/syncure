@@ -3,22 +3,20 @@ import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 import { Types } from "mongoose";
 import { render } from "@react-email/render";
 import { AppointmentBookedTemplate, sendEmail } from "@lib/emails";
-
-import { authenticateUser } from "@lib/auth";
 import sendNotification from "@lib/novu";
 import { Patient, BookedAppointment, Doctor } from "@models/index";
+import { auth } from "@lib/auth";
 
 // getting patient's approved appointments
-export async function GET(request: Request) {
-  const authHeader = request.headers.get("Authorization");
+export async function GET() {
   try {
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
 
-    const patient_id = new Types.ObjectId(id);
+    const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id);
@@ -65,8 +63,6 @@ export async function GET(request: Request) {
 
 // booking an appointment
 export async function POST(req: Request) {
-  const authHeader = req.headers.get("Authorization");
-
   try {
     const {
       state,
@@ -78,13 +74,13 @@ export async function POST(req: Request) {
       appointment_charge,
     }: BookingAppointmentType = await req.json();
 
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
 
-    const patient_id = new Types.ObjectId(id);
+    const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id);

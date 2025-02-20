@@ -5,7 +5,6 @@ import { Button, Image } from "@nextui-org/react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import getBaseUrl from "@utils/get-base-url";
 import { IoQrCodeOutline, IoSettingsOutline } from "react-icons/io5";
 import {
   MdOutlineCurrencyRupee,
@@ -16,6 +15,7 @@ import { CiHospital1 } from "react-icons/ci";
 import { FaHospital } from "react-icons/fa";
 import { IconType } from "react-icons";
 import { LiaUserNurseSolid, LiaUserSolid } from "react-icons/lia";
+import BaseUrl from "@utils/base-url";
 
 // Define icon mapping
 const iconMapping: Record<string, IconType> = {
@@ -43,7 +43,6 @@ interface SidebarProps {
 
 export default function Sidebar({ userType }: SidebarProps) {
   const pathname = usePathname();
-  const BaseURL = getBaseUrl();
 
   const sidebarConfig: SidebarItem[] = getSidebarConfig(userType);
 
@@ -75,7 +74,7 @@ export default function Sidebar({ userType }: SidebarProps) {
         {sidebarConfig.map((item, index) => (
           <Button
             key={item.title}
-            href={`${BaseURL}/${userType}/${item.uri}`}
+            href={`${BaseUrl}/${userType}/${item.uri}`}
             isIconOnly
             as={Link}
             radius="full"

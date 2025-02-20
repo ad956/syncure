@@ -44,12 +44,6 @@ type BookAppointmentHospital = {
   appointment_charge: string;
 };
 
-type BookAppointmentProps = {
-  patientId: string;
-  name: string;
-  email: string;
-};
-
 type MedicalDetailsProps = {
   medicalDetails: MedicalHistory[];
 };

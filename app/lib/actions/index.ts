@@ -2,13 +2,14 @@
 
 import { logout } from "@session";
 import { redirect } from "next/navigation";
+import BaseUrl from "@utils/base-url";
 
 export async function loginAction(formData: FormData): Promise<any> {
   const usernameOrEmail = formData.get("usernameOrEmail");
   const password = formData.get("password");
   const role = formData.get("role");
 
-  const endpoint = "/api/auth/login";
+  const endpoint = `${BaseUrl}/api/auth/login`;
 
   try {
     const response = await fetch(endpoint, {
@@ -38,7 +39,7 @@ export async function signupAction(formData: FormData): Promise<any> {
     role: formData.get("role"),
   };
 
-  const endpoint = "/api/auth/signup";
+  const endpoint = `${BaseUrl}/api/auth/signup`;
 
   try {
     const response = await fetch(endpoint, {

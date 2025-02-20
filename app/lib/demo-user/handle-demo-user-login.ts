@@ -1,3 +1,4 @@
+import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 
 const handleDemoUserLogin = async (
@@ -24,8 +25,21 @@ const handleDemoUserLogin = async (
       return;
     }
 
-    toast.success("Login successful, redirecting...", { id: "demoLogin" });
-    redirectDemoUser(role);
+    const isLoggedIn = await signIn("credentials", {
+      usernameOrEmail: result.user.email,
+      role: role,
+      otp: result.user.otp,
+      action: "demo-login",
+      redirect: false,
+    });
+
+    if (isLoggedIn) {
+      toast.success("Login successful, redirecting...", { id: "demoLogin" });
+      redirectDemoUser(role);
+      return;
+    } else {
+      throw new Error("Error while logging in as demo user");
+    }
   } catch (error) {
     console.error("Demo login error:", error);
     toast.error("An unexpected error occurred. Please try again.", {
