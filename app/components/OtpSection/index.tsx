@@ -11,15 +11,15 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import verifyOtp from "@lib/auth/verify-otp";
+import { signIn } from "next-auth/react";
 
-type userDataType = {
+interface userDataType {
   userData: {
     usernameOrEmail: string;
     role: string;
     action: string;
   };
-};
+}
 
 export default function OtpSection({ userData }: userDataType) {
   const [isOpen, setIsOpen] = useState(true);
@@ -77,14 +77,15 @@ export default function OtpSection({ userData }: userDataType) {
 
   const handleSubmit = async () => {
     const otpString = otp.join("");
-    const response = await verifyOtp(
-      userData.usernameOrEmail,
-      userData.role,
-      userData.action,
-      otpString
-    );
+    const response = await signIn("credentials", {
+      usernameOrEmail: userData.usernameOrEmail,
+      role: userData.role,
+      otp: otpString,
+      action: userData.action,
+      redirect: false,
+    });
 
-    if (response.error) {
+    if (response?.error) {
       setShowError(response.error);
       resetOtpInputs();
     } else {
