@@ -5,6 +5,7 @@ import logUserActivity from "@lib/logs";
 import {
   dbConfig,
   errorHandler,
+  generateSecureOTP,
   getModelByRole,
   STATUS_CODES,
 } from "@utils/index";
@@ -36,8 +37,12 @@ export async function POST(req: Request) {
     // get a user model with matching role
     const UserModel = getModelByRole(role);
 
+    const generatedOTP = generateSecureOTP();
+
     // find a user which has the same ObjectId as demo users
-    const userData = await UserModel.findById(demoUser.referenceId);
+    const userData = await UserModel.findByIdAndUpdate(demoUser.referenceId, {
+      otp: generatedOTP,
+    });
 
     if (!userData) {
       return errorHandler("Demo user data not found", STATUS_CODES.NOT_FOUND);
@@ -60,6 +65,10 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         success: true,
+        user: {
+          email: userData.email,
+          otp: generatedOTP,
+        },
         message: "Demo User logged in successfully.",
       },
       { status: 200 }
