@@ -1,12 +1,11 @@
+import BaseUrl from "@utils/base-url";
+
 export default async function getPatientData(): Promise<Patient> {
-  const endpoint = "/api/patient";
+  const endpoint = `${BaseUrl}/api/patient`;
 
   try {
     const response = await fetch(endpoint, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     const result = await response.json();
@@ -15,7 +14,9 @@ export default async function getPatientData(): Promise<Patient> {
       throw new Error(result.error?.message || "Failed to fetch patient data");
     }
 
-    return result.data!;
+    console.log("data " + result);
+
+    return result;
   } catch (error) {
     console.error("An error occurred while fetching patient data:", error);
     throw error;

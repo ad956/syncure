@@ -1,4 +1,4 @@
-import BaseUrl from "@utils/get-base-url";
+import BaseUrl from "@utils/base-url";
 
 export default async function getTransactions(): Promise<TransactionDetails[]> {
   const endpoint = `${BaseUrl}/api/admin/transactions`;

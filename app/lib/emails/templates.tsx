@@ -35,7 +35,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                 >
                   <img
                     alt="patient-fitness-tracker-logo"
-                    src="https://res.cloudinary.com/doahnjt5z/image/upload/v1736323154/syncure/syncure_png_logo.png"
+                    src="https://res.cloudinary.com/doahnjt5z/image/upload/v1736323154/pft/pft_png_logo.png"
                     height="30px"
                     style={{ marginTop: "15px", marginRight: "10px" }}
                   />

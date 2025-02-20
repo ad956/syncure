@@ -3,7 +3,7 @@ import { JWTExpired, JWTInvalid } from "jose/errors";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const secretKey = process.env.JWT_SECRET;
+const secretKey = "secret"; //process.env.JWT_SECRET;
 const key = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: any) {

@@ -1,6 +1,6 @@
 "use server";
 
-// import BaseUrl from "@utils/get-base-url"; // ${BaseUrl}
+// import BaseUrl from "@utils/base-url"; // ${BaseUrl}
 
 export async function getTilesData(): Promise<TilesDataType> {
   const endpoint = `/api/admin/dashboard/tiles`;
