@@ -28,8 +28,7 @@
       "@receptionist/*": ["./app/(pages)/receptionist/*"],
       "@models/*": ["./app/models/*"],
       "@lib/*": ["./app/lib/*"],
-      "@session": ["./app/lib/session/index.ts"],
-      "@middlewares/*": ["./middlewares/*"]
+      "@session": ["./app/lib/session/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
