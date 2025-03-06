@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import AnimatedBackground from "@components/AnimatedBackground";
-import { AccessDenied, LoginForm, PinVerification } from "@admin/components";
+import AccessDenied from "@admin/components/AccessDenied";
+import LoginForm from "@admin/components/LoginForm";
+import PinVerification from "@admin/components/PinVerification";
 
 export default function AdminLoginPage() {
   const [isPinVerified, setIsPinVerified] = useState(false);

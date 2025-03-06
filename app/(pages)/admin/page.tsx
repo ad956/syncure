@@ -3,14 +3,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { getRecentUsersData, getTilesData } from "@lib/admin";
 import SpinnerLoader from "@components/SpinnerLoader";
-import {
-  AppointmentBar,
-  HospitalApprovalList,
-  MonthlyRevenueChart,
-  RecentActivity,
-  StatisticsCards,
-  UserDistributionPie,
-} from "./components";
+import AppointmentBar from "./components/AppointmentBar";
+import HospitalApprovalList from "./components/HospitalApprovalList";
+import MonthlyRevenueChart from "./components/MonthlyRevenueChart";
+import RecentActivity from "./components/RecentActivity";
+import StatisticsCards from "./components/StatisticsCards";
+import UserDistributionPie from "./components/UserPie";
 
 export default function Admin() {
   const [tilesData, setTilesData] = useState<TilesDataType | null>(null);

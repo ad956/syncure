@@ -1,4 +1,5 @@
-import { Sidebar, Headbar } from "@components/index";
+import Headbar from "@components/Headbar";
+import Sidebar from "@components/Sidebar";
 
 import type { Metadata } from "next";
 import { getReceptionistData } from "@lib/receptionist";

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Sidebar, Header } from "./components";
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
 import { getAdminData } from "@lib/admin";
 
 export const metadata: Metadata = {

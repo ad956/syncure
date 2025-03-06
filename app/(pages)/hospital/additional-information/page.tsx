@@ -12,7 +12,7 @@ import {
 import { motion } from "framer-motion";
 import { getHospitalDetails } from "@lib/hospital";
 import useQuery from "@hooks/useQuery";
-import { SpinnerLoader } from "@components/index";
+import SpinnerLoader from "@components/SpinnerLoader";
 import {
   LuBuilding2,
   LuClock,

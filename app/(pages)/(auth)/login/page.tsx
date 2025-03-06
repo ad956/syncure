@@ -2,7 +2,9 @@
 import { useState, type ChangeEvent, useEffect } from "react";
 import { AiTwotoneEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { carouselData, roles } from "@constants/index";
-import { BrandLogo, Carousel, OtpSection } from "@components/index";
+import BrandLogo from "@components/BrandLogo";
+import Carousel from "@components/Carousel";
+import OtpSection from "@components/OtpSection";
 import {
   Button,
   Input,
