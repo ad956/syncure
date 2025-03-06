@@ -1,9 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Button, Divider, User } from "@nextui-org/react";
 import { CiLogin } from "react-icons/ci";
-import { logoutAction } from "@lib/actions";
 import Notifications from "../Notifications";
 import Image from "next/image";
+import { signOut } from "@lib/auth";
 
 type HeadbarProps = {
   user: User;
@@ -12,7 +14,7 @@ type HeadbarProps = {
 
 const USERS_WITH_ADD_BUTTON = ["patient", "receptionist"];
 
-export default async function Headbar({ user, role }: HeadbarProps) {
+export default function Headbar({ user, role }: HeadbarProps) {
   return (
     <div className="bg-[#f3f6fd] p-4 flex flex-row justify-between">
       <div className="flex items-center w-3/5">
@@ -50,11 +52,15 @@ export default async function Headbar({ user, role }: HeadbarProps) {
         />
         <Divider orientation="vertical" className="h-8" />
 
-        <form action={logoutAction} className="">
-          <Button size="sm" type="submit" isIconOnly className="bg-transparent">
-            <CiLogin size={25} />
-          </Button>
-        </form>
+        <Button
+          size="sm"
+          type="submit"
+          isIconOnly
+          className="bg-transparent"
+          onClick={() => signOut({ redirectTo: "/login" })}
+        >
+          <CiLogin size={25} />
+        </Button>
       </div>
     </div>
   );
