@@ -3,7 +3,7 @@
 import { Divider, User, Button, Image } from "@nextui-org/react";
 import Link from "next/link";
 import Notifications from "@components/Notifications";
-import { logoutAction } from "@lib/actions";
+import { signOut } from "@lib/auth";
 import { CiLogin } from "react-icons/ci";
 
 interface HeaderProps {
@@ -65,16 +65,15 @@ export default function Header({ admin }: HeaderProps) {
         />
         <Divider orientation="vertical" className="h-8 bg-gray-300" />
 
-        <form action={logoutAction}>
-          <Button
-            size="sm"
-            type="submit"
-            isIconOnly
-            className="bg-gray-100 hover:bg-gray-200 text-gray-600"
-          >
-            <CiLogin size={25} />
-          </Button>
-        </form>
+        <Button
+          size="sm"
+          type="submit"
+          isIconOnly
+          className="bg-gray-100 hover:bg-gray-200 text-gray-600"
+          onClick={() => signOut({ redirectTo: "/login" })}
+        >
+          <CiLogin size={25} />
+        </Button>
       </div>
     </div>
   );
