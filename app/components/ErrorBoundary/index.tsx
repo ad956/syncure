@@ -1,5 +1,6 @@
 "use client";
-import { logoutAction } from "@lib/actions";
+
+import { signOut } from "@lib/auth";
 import { Button, Image } from "@nextui-org/react";
 import React, { ErrorInfo, ReactNode } from "react";
 
@@ -37,7 +38,7 @@ class ErrorBoundary extends React.Component<
 
   handleLogout = async () => {
     console.log("Logging out...");
-    await logoutAction();
+    signOut({ redirectTo: "/login" });
   };
 
   render(): ReactNode {
