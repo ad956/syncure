@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Button, Divider, User } from "@nextui-org/react";
 import { CiLogin } from "react-icons/ci";
@@ -52,15 +50,16 @@ export default function Headbar({ user, role }: HeadbarProps) {
         />
         <Divider orientation="vertical" className="h-8" />
 
-        <Button
-          size="sm"
-          type="submit"
-          isIconOnly
-          className="bg-transparent"
-          onClick={() => signOut({ redirectTo: "/login" })}
+        <form
+          action={async () => {
+            "use server";
+            await signOut();
+          }}
         >
-          <CiLogin size={25} />
-        </Button>
+          <Button size="sm" type="submit" isIconOnly className="bg-transparent">
+            <CiLogin size={25} />
+          </Button>
+        </form>
       </div>
     </div>
   );
