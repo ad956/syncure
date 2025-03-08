@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+// to help clean-up demo user's data
 export function POST() {
   try {
     const user = {

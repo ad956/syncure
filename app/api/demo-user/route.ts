@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import DemoUser from "@models/demo-user";
-import { setSession } from "@session";
-import logUserActivity from "@lib/logs";
 import {
   dbConfig,
   errorHandler,
@@ -48,9 +46,6 @@ export async function POST(req: Request) {
       return errorHandler("Demo user data not found", STATUS_CODES.NOT_FOUND);
     }
 
-    // setting session for demo user (stores jwt token in cookie named session)
-    await setSession(userData._id, role);
-
     const userLog = {
       username: userData.username,
       name: `${userData.firstname} ${userData.lastname}`,
@@ -58,9 +53,6 @@ export async function POST(req: Request) {
       role: userData.role,
       action: "demouser-login",
     };
-
-    // log activity
-    await logUserActivity(userLog, req);
 
     return NextResponse.json(
       {
