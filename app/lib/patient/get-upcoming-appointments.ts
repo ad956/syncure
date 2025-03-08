@@ -1,24 +1,52 @@
-import BaseUrl from "@utils/base-url";
-// import { headers } from "next/headers";
+import { Patient, BookedAppointment, Doctor } from "@models/index";
+import dbConfig from "@utils/db";
+import { Types } from "mongoose";
+import { auth } from "../auth";
 
-export default async function getUpcomingAppointments(): Promise<bookedAppointments> {
-  const endpoint = `${BaseUrl}/api/patient/appointment`;
-
+export default async function getUpcomingAppointments() {
   try {
-    const response = await fetch(endpoint, {
-      method: "GET",
-      // headers: headers(),
-    });
+    const session = await auth();
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        result.error?.message || "Failed to fetch upcoming appointments"
-      );
+    if (!session) {
+      throw new Error("Unauthorized");
     }
 
-    return result;
+    const patient_id = new Types.ObjectId(session.user.id);
+    await dbConfig();
+
+    const patient = await Patient.findById(patient_id);
+    if (!patient) {
+      throw new Error("Patient not found");
+    }
+
+    const appointments = await BookedAppointment.find({
+      patient_id: patient._id,
+      approved: "approved",
+    });
+
+    const doctorIds = appointments.map((appointment) => appointment.doctor_id);
+    const doctors = await Doctor.find(
+      { _id: { $in: doctorIds } },
+      { firstname: 1, lastname: 1, specialty: 1, profile: 1 }
+    );
+
+    const updatedAppointments = appointments.map((appointment) => {
+      const appointmentObj = appointment.toObject();
+      const doctor = doctors.find(
+        (doc) => doc._id.toString() === appointmentObj.doctor_id.toString()
+      );
+
+      if (doctor) {
+        appointmentObj.doctor = {
+          name: `${doctor.firstname} ${doctor.lastname}`,
+          profile: doctor.profile,
+          specialty: doctor.specialty,
+        };
+      }
+      return appointmentObj;
+    });
+
+    return JSON.parse(JSON.stringify(updatedAppointments));
   } catch (error) {
     console.error("Error fetching upcoming appointments:", error);
     throw error;

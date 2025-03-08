@@ -1,7 +1,5 @@
 "use server";
 
-import { logout } from "@session";
-import { redirect } from "next/navigation";
 import BaseUrl from "@utils/base-url";
 
 export async function loginAction(formData: FormData): Promise<any> {
@@ -57,9 +55,4 @@ export async function signupAction(formData: FormData): Promise<any> {
     console.error("An error occurred during signup:", error);
     throw error;
   }
-}
-
-export async function logoutAction() {
-  await logout();
-  redirect("/");
 }

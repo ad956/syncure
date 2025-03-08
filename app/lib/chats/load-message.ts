@@ -15,7 +15,7 @@ export default async function loadMessages(
       throw new Error(result.message || "Error loading messages");
     }
 
-    return result.data;
+    return result;
   } catch (error) {
     console.error("An error occurred while loading messages:", error);
     throw error;

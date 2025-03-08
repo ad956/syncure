@@ -15,7 +15,7 @@ export default async function getPendingBills(): Promise<[PendingBill]> {
       throw new Error(result.error?.message || "Failed to fetch pending bills");
     }
 
-    return result.data!;
+    return result;
   } catch (error) {
     console.error(
       "An error occurred while fetching pending bills of patient : ",

@@ -12,7 +12,7 @@ export default async function fetchRooms(): Promise<any> {
       throw new Error(result.message || "Error fetching chat rooms");
     }
 
-    if (Array.isArray(result.data)) return result.data;
+    if (Array.isArray(result)) return result;
   } catch (error) {
     console.error("An error occurred while fetching rooms:", error);
     throw error;

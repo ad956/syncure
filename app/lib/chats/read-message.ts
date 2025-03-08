@@ -14,7 +14,7 @@ export default async function readMessage(roomId: string): Promise<any> {
       throw new Error(result.message || "Error marking messages as read");
     }
 
-    if (Array.isArray(result.data)) return result.data;
+    if (Array.isArray(result)) return result;
   } catch (error) {
     console.error("An error occurred while marking message as read:", error);
     throw error;

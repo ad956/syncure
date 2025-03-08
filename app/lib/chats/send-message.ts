@@ -20,7 +20,7 @@ export default async function sendMessage({
       throw new Error(result.message || "Error sending message");
     }
 
-    if (Array.isArray(result.data)) return result.data;
+    if (Array.isArray(result)) return result;
   } catch (error) {
     console.error("An error occurred while sending message:", error);
     throw error;

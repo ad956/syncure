@@ -14,7 +14,7 @@ export default async function createChatRoom(receiverId: string): Promise<any> {
       throw new Error(result.message || "Error creating chat room");
     }
 
-    return result.data;
+    return result;
   } catch (error) {
     console.error("An error occurred while creating chat room:", error);
     throw error;

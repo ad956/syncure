@@ -1,6 +1,6 @@
-import NextAuth, { User } from "next-auth";
+import BaseUrl from "@utils/base-url";
+import NextAuth, { type NextAuthConfig, User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { allowedRoles, dbConfig, getModelByRole } from "@utils/index";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -23,41 +23,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("Missing required fields.");
         }
 
-        if (!allowedRoles.includes(role)) {
-          throw new Error("Invalid role.");
-        }
-
         try {
-          await dbConfig();
-          const UserModel = getModelByRole(role);
+          const response = await fetch(`${BaseUrl}/api/auth/verify-otp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(credentials),
+          });
 
-          const user = await UserModel.findOne(
-            {
-              $or: [
-                { email: credentials.usernameOrEmail },
-                { username: credentials.usernameOrEmail },
-              ],
-            },
-            "_id username firstname lastname otp email profile"
-          );
-
-          if (!user) {
-            throw new Error("User not found.");
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "OTP verification failed.");
           }
 
-          if (user.otp !== credentials.otp) {
-            throw new Error("OTP verification failed.");
-          }
-
-          // Clear OTP after successful login
-          await UserModel.findByIdAndUpdate(user._id, { otp: "" });
+          const user = await response.json();
 
           return {
-            id: user._id.toString(),
+            id: user.id,
             email: user.email,
-            name: `${user.firstname} ${user.lastname}`,
-            image: user.profile,
-            role,
+            name: user.name,
+            image: user.image,
+            role: user.role,
           };
         } catch (error) {
           console.error("Authentication error:", error);
@@ -88,6 +73,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
+
+    authorized: async ({ auth }) => {
+      return !!auth;
+    },
   },
   pages: {
     signIn: "/login",
@@ -98,4 +87,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.AUTH_SECRET,
-});
+} satisfies NextAuthConfig);
