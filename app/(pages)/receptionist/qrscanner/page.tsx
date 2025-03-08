@@ -4,8 +4,9 @@ import React, { useRef } from "react";
 import QrScanner from "qr-scanner";
 import { Button, Card, CardBody, CardHeader } from "@nextui-org/react";
 import toast, { Toaster } from "react-hot-toast";
-import { scanQRCode } from "@lib/receptionist";
+import scanQRCode from "@lib/receptionist/scan-qr-code";
 
+// todo : search on based on mobile as well
 const QRScanner = () => {
   const [scanResult, setScanResult] = React.useState("");
   const videoRef = useRef<HTMLVideoElement>(null);

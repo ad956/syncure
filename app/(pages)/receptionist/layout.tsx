@@ -2,7 +2,7 @@ import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
 
 import type { Metadata } from "next";
-import { getReceptionistData } from "@lib/receptionist";
+import getReceptionistData from "@lib/receptionist/get-receptionist-data";
 
 export const metadata: Metadata = {
   title: "Syncure",
@@ -15,7 +15,6 @@ export default async function ReceptionistLayout({
   children: React.ReactNode;
 }>) {
   const receptionist: Receptionist = await getReceptionistData();
-
   return (
     <main className="h-screen flex">
       <Sidebar userType="receptionist" />
