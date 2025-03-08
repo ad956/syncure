@@ -1,24 +1,39 @@
-import BaseUrl from "@utils/base-url";
-import { headers } from "next/headers";
+import Receptionist from "@models/receptionist";
+import { cache } from "react";
+import { auth } from "../auth";
+import { Types } from "mongoose";
+import dbConfig from "@utils/db";
 
-export default async function getReceptionistData(): Promise<Receptionist> {
-  const endpoint = `${BaseUrl}/api/receptionist`;
-
+const getReceptionistData = cache(async () => {
   try {
-    const response = await fetch(endpoint, {
-      // headers: {
-      //   "Cache-Control": "no-cache",
-      // },
-      headers: headers(),
-    });
+    const session = await auth();
+    if (!session?.user?.id) {
+      throw new Error("Unauthorized");
+    }
+    const receptionist_id = new Types.ObjectId(session.user.id);
 
-    const result = await response.json();
+    await dbConfig();
 
-    if (result.error) throw new Error(result.error.message);
+    const projection = {
+      role: 0,
+      otp: 0,
+      password: 0,
+      current_hospital: 0,
+    };
 
-    return result;
+    const receptionistData = await Receptionist.findById(
+      receptionist_id,
+      projection
+    );
+
+    if (!receptionistData) {
+      throw new Error("Receptionist not found");
+    }
+    return JSON.parse(JSON.stringify(receptionistData));
   } catch (error) {
-    console.error("Error fetching receptionist data:", error);
+    console.error("Error in getReceptionistData:", error);
     throw error;
   }
-}
+});
+
+export default getReceptionistData;
