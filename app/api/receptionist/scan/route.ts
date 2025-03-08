@@ -1,19 +1,18 @@
 import { NextResponse } from "next/server";
 import { BookedAppointment, Patient } from "@models/index";
-import { authenticateUser } from "@lib/auth";
+import { auth } from "@lib/auth";
 import { Types } from "mongoose";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 
 export async function POST(req: Request) {
-  const authHeader = req.headers.get("Authorization");
   try {
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
+    const { email } = session.user;
 
-    const { email } = await req.json();
     console.log(email);
 
     await dbConfig();

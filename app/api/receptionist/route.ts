@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
-import { authenticateUser } from "@lib/auth";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 import Receptionist from "@models/receptionist";
 import { Types } from "mongoose";
+import { auth } from "@/lib/auth";
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("Authorization");
   try {
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    console.log("session : " + session);
+
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
+    const { id, role } = session.user;
 
     const receptionist_id = new Types.ObjectId(id);
     await dbConfig();

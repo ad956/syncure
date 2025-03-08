@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateUser } from "@lib/auth";
+import { auth } from "@lib/auth";
 import Admin from "@models/admin";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 import { Types } from "mongoose";
-import { getSession } from "@/lib/session";
 
 export async function GET(req: NextRequest) {
   try {
-    const { id, role } = await authenticateUser();
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
 
-    const admin_id = new Types.ObjectId(id);
+    const admin_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const adminData = await Admin.findById(admin_id);

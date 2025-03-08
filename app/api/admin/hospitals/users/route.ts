@@ -2,25 +2,23 @@ import { Patient, Receptionist, Hospital, Doctor } from "@models/index";
 import { Types } from "mongoose";
 import { NextResponse } from "next/server";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
-import { authenticateUser } from "@lib/auth";
+import { auth } from "@lib/auth";
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("Authorization");
-
-  // parse query parameters for pagination
-  const url = new URL(request.url);
-  const page = parseInt(url.searchParams.get("page") || "1");
-  const limit = parseInt(url.searchParams.get("limit") || "10");
-  const skip = (page - 1) * limit;
-
-  const hospitalId = url.searchParams.get("hospitalId");
-
   try {
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
+
+    // parse query parameters for pagination
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = parseInt(url.searchParams.get("limit") || "10");
+    const skip = (page - 1) * limit;
+
+    const hospitalId = url.searchParams.get("hospitalId");
 
     await dbConfig();
 

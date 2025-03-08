@@ -1,24 +1,22 @@
 import { NextResponse } from "next/server";
 import { BookedAppointment, Receptionist } from "@models/index";
 import { Types } from "mongoose";
-import { authenticateUser } from "@lib/auth";
+import { auth } from "@lib/auth";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 
 // get approved appointments
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("Authorization");
-
-  const { searchParams } = new URL(request.url);
-  const patient_id = searchParams.get("patient_id");
-
   try {
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
 
-    const receptionist_id = new Types.ObjectId(id);
+    const { searchParams } = new URL(request.url);
+    const patient_id = searchParams.get("patient_id");
+
+    const receptionist_id = new Types.ObjectId(session.user.id);
 
     if (!patient_id) {
       return errorHandler("Patient ID is required", STATUS_CODES.BAD_REQUEST);
@@ -42,17 +40,15 @@ export async function GET(request: Request) {
 
 // approving appointments
 export async function POST(request: Request) {
-  const authHeader = request.headers.get("Authorization");
-
   try {
-    const { patient_id } = await request.json();
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
 
-    const receptionist_id = new Types.ObjectId(id);
+    const { patient_id } = await request.json();
+    const receptionist_id = new Types.ObjectId(session.user.id);
 
     await dbConfig();
 

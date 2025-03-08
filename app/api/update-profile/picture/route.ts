@@ -6,20 +6,19 @@ import {
   STATUS_CODES,
 } from "@utils/index";
 import { Types } from "mongoose";
-import { authenticateUser } from "@lib/auth";
 import { revalidateTag } from "next/cache";
+import { auth } from "@lib/auth";
 
 export async function PUT(request: Request) {
-  const authHeader = request.headers.get("Authorization");
   try {
-    const profile_pic = await request.json();
+    const session = await auth();
 
-    const { id, role } = await authenticateUser(authHeader);
-
-    // check for missing user ID or role
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
+
+    const { id, role } = session.user;
+    const profile_pic = await request.json();
 
     const user_id = new Types.ObjectId(id);
     await dbConfig();

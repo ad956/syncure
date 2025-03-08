@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 import Transaction from "@models/transaction";
 import { Types } from "mongoose";
-import { authenticateUser } from "@lib/auth";
+import { auth } from "@lib/auth";
 
 interface pendingTransactionReqBody {
   txnDocumentId: string;
@@ -12,8 +12,13 @@ interface pendingTransactionReqBody {
 
 // saving transaction details in db
 export async function POST(req: Request) {
-  const authHeader = req.headers.get("Authorization");
   try {
+    const session = await auth();
+
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+    }
+
     const {
       transaction_id,
       patient_id,
@@ -23,12 +28,6 @@ export async function POST(req: Request) {
       amount,
       status,
     }: TransactionType = await req.json();
-
-    const { id, role } = await authenticateUser(authHeader);
-
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
-    }
 
     await dbConfig();
 
@@ -63,9 +62,13 @@ export async function POST(req: Request) {
 
 // save pending transaction
 export async function PUT(req: Request) {
-  const authHeader = req.headers.get("Authorization");
-
   try {
+    const session = await auth();
+
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+    }
+
     const { txnDocumentId, transaction_id, status }: pendingTransactionReqBody =
       await req.json();
 
@@ -74,12 +77,6 @@ export async function PUT(req: Request) {
         "TxnDocumentId, Transaction ID and status are required",
         STATUS_CODES.BAD_REQUEST
       );
-    }
-
-    const { id, role } = await authenticateUser(authHeader);
-
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
     }
 
     await dbConfig();

@@ -8,6 +8,8 @@ export async function GET() {
   try {
     const session = await auth();
 
+    console.log("session : " + session);
+
     if (!session) {
       return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
@@ -27,6 +29,8 @@ export async function GET() {
     if (!patientData) {
       return errorHandler("Patient not found", STATUS_CODES.NOT_FOUND);
     }
+
+    console.table(patientData);
 
     return NextResponse.json(patientData, { status: 200 });
   } catch (error: any) {

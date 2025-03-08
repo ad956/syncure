@@ -1,20 +1,18 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { authenticateUser } from "@lib/auth";
+import { auth } from "@lib/auth";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 
 export async function GET(request: Request): Promise<Response> {
-  const authHeader = request.headers.get("Authorization");
-
-  const url = new URL(request.url);
-  const page = parseInt(url.searchParams.get("page") || "1");
-  const limit = parseInt(url.searchParams.get("limit") || "10");
-
   try {
-    const { id, role } = await authenticateUser(authHeader);
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = parseInt(url.searchParams.get("limit") || "10");
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    const session = await auth();
+
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
 
     await dbConfig();
