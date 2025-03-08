@@ -9,7 +9,7 @@ import {
   STATUS_CODES,
   allowedRoles,
 } from "@utils/index";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 interface LoginBody {
   usernameOrEmail: string;
