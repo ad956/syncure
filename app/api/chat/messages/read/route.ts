@@ -3,18 +3,19 @@ import { NextResponse } from "next/server";
 import { Message } from "@models/index";
 import { Types } from "mongoose";
 import { errorHandler, STATUS_CODES } from "@utils/index";
-import authenticateUser from "@lib/auth/authenticate-user";
+import { auth } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    console.log("user is there ; " + session?.user.email);
+
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
 
-    const _id = new Types.ObjectId(id);
+    const _id = new Types.ObjectId(session.user.id);
 
     await dbConfig();
     const { roomId } = await req.json();

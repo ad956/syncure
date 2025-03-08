@@ -1,24 +1,23 @@
 import { NextResponse } from "next/server";
 import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 import { Types } from "mongoose";
-import { authenticateUser } from "@lib/auth";
 import { Doctor, Patient } from "@models/index";
+import { auth } from "@lib/auth";
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("Authorization");
-
   try {
-    const { id, role } = await authenticateUser(authHeader);
+    const session = await auth();
 
-    if (!id || !role) {
-      return errorHandler("Missing user ID or role", STATUS_CODES.BAD_REQUEST);
+    console.log("user is there ; " + session?.user.email);
+
+    if (!session) {
+      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
     }
-
-    const _id = new Types.ObjectId(id); // for patient || doctor
+    const _id = new Types.ObjectId(session.user.id); // for patient || doctor
     await dbConfig();
 
     // when patient wants to start a chat with doctor
-    if (role === "patient") {
+    if (session.user.role === "patient") {
       // find all doctors who have this patient_id in their patients array
       const doctors = await Doctor.find(
         { patients: { $in: [_id] } },
