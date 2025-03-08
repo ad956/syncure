@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
+import dbConfig from "@utils/db";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
 import { Patient } from "@models/index";
 import { Types } from "mongoose";
 import { auth } from "@lib/auth";

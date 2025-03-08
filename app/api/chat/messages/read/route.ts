@@ -1,9 +1,12 @@
-import dbConfig from "@utils/db";
 import { NextResponse } from "next/server";
 import { Message } from "@models/index";
 import { Types } from "mongoose";
-import { errorHandler, STATUS_CODES } from "@utils/index";
-import { auth } from "@/lib/auth";
+
+import dbConfig from "@utils/db";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
+
+import { auth } from "@lib/auth";
 
 export async function POST(req: Request) {
   try {

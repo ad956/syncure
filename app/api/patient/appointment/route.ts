@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 import { Types } from "mongoose";
 import { render } from "@react-email/render";
 import { AppointmentBookedTemplate, sendEmail } from "@lib/emails";
 import sendNotification from "@lib/novu";
 import { Patient, BookedAppointment, Doctor } from "@models/index";
 import { auth } from "@lib/auth";
+import dbConfig from "@utils/db";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
 
 // getting patient's approved appointments
 export async function GET() {

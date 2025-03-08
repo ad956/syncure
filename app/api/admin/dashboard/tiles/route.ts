@@ -1,7 +1,11 @@
-import { Hospital, Patient, Doctor, Receptionist } from "@models/index";
-import { auth } from "@lib/auth";
 import { NextResponse } from "next/server";
-import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
+import { Hospital, Patient, Doctor, Receptionist } from "@models/index";
+
+import { auth } from "@lib/auth";
+
+import dbConfig from "@utils/db";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
 
 export async function GET(request: Request) {
   try {

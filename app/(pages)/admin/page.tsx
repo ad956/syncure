@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { getRecentUsersData, getTilesData } from "@lib/admin";
+import {
+  getRecentUsersData,
+  getTilesData,
+} from "@lib/admin/get-dashboard-data";
 import SpinnerLoader from "@components/SpinnerLoader";
 import AppointmentBar from "./components/AppointmentBar";
 import HospitalApprovalList from "./components/HospitalApprovalList";

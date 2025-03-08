@@ -1,4 +1,5 @@
-import { getHospitalData, getHospitalDetails } from "@/lib/hospital";
+import getHospitalData from "@lib/hospital/get-hospital-data";
+import getHospitalDetails from "@lib/hospital/get-hospital-details";
 import { Avatar, Card, Divider, Progress } from "@nextui-org/react";
 import { CiHospital1 } from "react-icons/ci";
 import {

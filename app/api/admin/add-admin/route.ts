@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import Admin from "@models/admin";
-import {
-  dbConfig,
-  errorHandler,
-  hashPassword,
-  STATUS_CODES,
-} from "@utils/index";
+
+import dbConfig from "@utils/db";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
+import hashPassword from "@utils/hash-password";
+
 import { auth } from "@lib/auth";
+
 import { NewAdminTemplate, sendEmail } from "@lib/emails";
 import { render } from "@react-email/render";
 

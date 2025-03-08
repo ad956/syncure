@@ -1,4 +1,4 @@
-import { getDoctorData } from "@lib/doctor";
+import getDoctorData from "@lib/doctor/get-doctor-data";
 import ChatScreen from "@components/ChatScreen";
 
 export default async function Doctor() {

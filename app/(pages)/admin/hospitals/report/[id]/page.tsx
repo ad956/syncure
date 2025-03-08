@@ -13,7 +13,7 @@ import {
 import { ResponsivePie } from "@nivo/pie";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveBar } from "@nivo/bar";
-import { getHospitalDetails } from "@lib/admin";
+import { getHospitalDetails } from "@lib/admin/get-hospitals";
 import SpinnerLoader from "@components/SpinnerLoader";
 
 function HospitalReports({ params }: { params: { id: string } }) {

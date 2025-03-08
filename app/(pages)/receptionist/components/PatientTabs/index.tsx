@@ -18,7 +18,7 @@ import {
   ModalFooter,
 } from "@nextui-org/react";
 import { getFormattedDate } from "@utils/get-date";
-import { approveAppointment } from "@lib/receptionist";
+import approveAppointment from "@lib/receptionist/approve-appointment";
 import toast, { Toaster } from "react-hot-toast";
 
 interface PatientTabsProps {

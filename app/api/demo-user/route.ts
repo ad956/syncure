@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import DemoUser from "@models/demo-user";
-import {
-  dbConfig,
-  errorHandler,
-  generateSecureOTP,
-  getModelByRole,
-  STATUS_CODES,
-} from "@utils/index";
+
+import dbConfig from "@utils/db";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
+import { generateSecureOTP } from "@utils/generate-otp";
+import getModelByRole from "@utils/get-model-by-role";
 
 export async function POST(req: Request) {
   await dbConfig();

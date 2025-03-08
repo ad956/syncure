@@ -1,9 +1,13 @@
-import dbConfig from "@utils/db";
 import { NextResponse } from "next/server";
 import { Patient, Doctor, Message, Room } from "@models/index";
 import { pusherServer } from "@lib/pusher";
 import { Types } from "mongoose";
-import { capitalizedRole, errorHandler, STATUS_CODES } from "@utils/index";
+
+import dbConfig from "@utils/db";
+import capitalizedRole from "@utils/capitalized-role";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
+
 import { auth } from "@lib/auth";
 
 export async function GET(req: Request) {
