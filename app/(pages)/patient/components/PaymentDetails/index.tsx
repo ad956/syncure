@@ -3,12 +3,10 @@
 import React from "react";
 import { getFormattedDate } from "@utils/get-date";
 import { Chip, User, Card } from "@nextui-org/react";
-import {
-  PaginationControls,
-  SearchInput,
-  StatusFilter,
-  TransactionsTable,
-} from "@components/index";
+import PaginationControls from "@components/PaginationControls";
+import SearchInput from "@components/SearchInput";
+import StatusFilter from "@components/StatusFilter";
+import TransactionsTable from "@components/TransactionsTable";
 import useFilterTransaction from "@hooks/useFilterTransaction";
 
 const statusColorMap: any = {

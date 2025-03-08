@@ -17,11 +17,9 @@ import {
   Textarea,
   Spinner,
 } from "@nextui-org/react";
-import {
-  bookAppointment,
-  pendingAppointmentsRequest,
-  saveAppointmentTransaction,
-} from "@lib/patient";
+import bookAppointment from "@lib/patient/book-appointment";
+import pendingAppointmentsRequest from "@lib/patient/pending-appointments-request";
+import saveAppointmentTransaction from "@lib/patient/save-appointment-transaction";
 import toast, { Toaster } from "react-hot-toast";
 import {
   getCities,
@@ -236,13 +234,11 @@ export default function BookAppointment({
       hospital: selectedHospital,
       disease: selectedDisease,
       note: additionalNote,
+      transaction_id: paymentResult.transaction_id,
+      appointment_charge: selectedHospital.appointment_charge,
     };
 
-    const response = await bookAppointment(
-      bookAppointmentData,
-      paymentResult.transaction_id,
-      selectedHospital.appointment_charge
-    );
+    const response = await bookAppointment(bookAppointmentData);
     if (response.error) {
       console.error("Error booking apppointment:", response.error);
       toast.error(response.error);

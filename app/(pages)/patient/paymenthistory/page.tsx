@@ -1,5 +1,5 @@
-import { PaymentDetails } from "../components";
-import { getPaymentsHistory } from "@lib/patient";
+import PaymentDetails from "../components/PaymentDetails";
+import getPaymentsHistory from "@lib/patient/get-payments-history";
 
 export default async function PaymentHistory() {
   const response = await getPaymentsHistory();

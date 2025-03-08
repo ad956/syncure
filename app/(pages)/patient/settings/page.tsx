@@ -1,4 +1,4 @@
-import { getPatientData } from "@lib/patient";
+import getPatientData from "@lib/patient/get-patient-data";
 import ProfileSettings from "@components/ProfileSettings";
 
 export default async function Settings() {

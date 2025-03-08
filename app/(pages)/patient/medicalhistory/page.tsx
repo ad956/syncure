@@ -1,5 +1,5 @@
-import { getPatientMedicalHistory } from "@lib/patient";
-import { MedicalDetails } from "../components";
+import getPatientMedicalHistory from "@lib/patient/get-patient-medical-history";
+import MedicalDetails from "../components/MedicalDetails";
 
 export default async function MedicalHistory() {
   const response = await getPatientMedicalHistory();

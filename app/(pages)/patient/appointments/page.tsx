@@ -1,6 +1,6 @@
 import { Card, Image } from "@nextui-org/react";
-import { BookAppointment } from "../components";
-import { getPatientData } from "@lib/patient";
+import BookAppointment from "../components/BookAppointment";
+import getPatientData from "@lib/patient/get-patient-data";
 
 export default async function Appointments() {
   const patient = await getPatientData();
