@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Avatar, Button } from "@nextui-org/react";
 import useQuery from "@hooks/useQuery";
-import { createChatRoom, startNewChatList } from "@lib/chats";
+import { createChatRoom } from "@lib/chats";
 import SpinnerLoader from "../SpinnerLoader";
 import toast from "react-hot-toast";
 
@@ -15,7 +15,7 @@ const StartNewChat = ({
     isLoading,
     error,
     refetch,
-  } = useQuery<ChatListUser[]>(startNewChatList);
+  } = useQuery<ChatListUser[]>("/api/chat/start-newchat-list");
 
   if (isLoading) return <SpinnerLoader />;
 
@@ -26,9 +26,9 @@ const StartNewChat = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {error || "No Active doctors found"}
+        {error?.message || "No Active doctors found"}
 
-        <Button onClick={refetch}>Try Again</Button>
+        <Button onClick={() => refetch()}>Try Again</Button>
       </motion.div>
     );
   }
