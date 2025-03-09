@@ -360,13 +360,11 @@ export function AppointmentBookedTemplate({
   email,
   bookedAppointmentData,
   transaction_id,
-  appointment_charge,
 }: {
   name: string;
   email: string;
   bookedAppointmentData: bookingAppointment;
   transaction_id: string | null;
-  appointment_charge: string;
 }) {
   return (
     <Layout>
@@ -438,7 +436,8 @@ export function AppointmentBookedTemplate({
                 {getFormattedDate(new Date())}
               </p>
               <p>
-                <strong>Amount Paid:</strong> {appointment_charge}
+                <strong>Amount Paid:</strong>{" "}
+                {bookedAppointmentData.hospital.appointment_charge}
               </p>
               <p>
                 <strong>Hospital Name:</strong>{" "}
