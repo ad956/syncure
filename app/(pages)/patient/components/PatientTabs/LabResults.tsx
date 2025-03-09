@@ -10,7 +10,6 @@ import {
   Image,
 } from "@nextui-org/react";
 import useQuery from "@hooks/useQuery";
-import getLabResults from "@lib/patient/get-lab-results";
 import SpinnerLoader from "@components/SpinnerLoader";
 import { LiaRedoAltSolid } from "react-icons/lia";
 import { motion } from "framer-motion";
@@ -21,7 +20,7 @@ const LabResults: React.FC = () => {
     isLoading,
     error,
     refetch,
-  } = useQuery<LabResult[]>(getLabResults, []);
+  } = useQuery<LabResult[]>("/api/patient/dashboard/labresults");
 
   if (isLoading) {
     return <SpinnerLoader />;
@@ -44,10 +43,10 @@ const LabResults: React.FC = () => {
 
         {error ? (
           <div className="ml-4 flex items-center gap-1">
-            <p className="text-md font-medium text-red-500">{error}</p>
+            <p className="text-md font-medium text-red-500">{error.message}</p>
             <LiaRedoAltSolid
               className="cursor-pointer h-5 w-5 text-red-500 hover:text-red-600"
-              onClick={refetch}
+              onClick={() => refetch()}
             />
           </div>
         ) : (
@@ -57,7 +56,7 @@ const LabResults: React.FC = () => {
             </p>
             <LiaRedoAltSolid
               className="cursor-pointer h-5 w-5 text-gray-500 hover:text-gray-600"
-              onClick={refetch}
+              onClick={() => refetch()}
             />
           </div>
         )}
