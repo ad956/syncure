@@ -66,15 +66,9 @@ export async function GET() {
 // booking an appointment
 export async function POST(req: Request) {
   try {
-    const {
-      state,
-      city,
-      hospital,
-      disease,
-      note,
-      transaction_id,
-      appointment_charge,
-    }: BookingAppointmentType = await req.json();
+    const data: BookingAppointmentType = await req.json();
+
+    const { state, city, hospital, disease, note, transaction_id } = data;
 
     const session = await auth();
 
@@ -120,7 +114,6 @@ export async function POST(req: Request) {
       disease,
       note,
       transaction_id,
-      appointment_charge,
     };
 
     // sending email to patient confirming request
@@ -133,12 +126,11 @@ export async function POST(req: Request) {
           email: patient.email,
           bookedAppointmentData,
           transaction_id,
-          appointment_charge,
         })
       ),
       from: {
         name: "Syncure",
-        address: "support@patientfitnesstracker.com",
+        address: "support@syncure.com",
       },
     });
 
