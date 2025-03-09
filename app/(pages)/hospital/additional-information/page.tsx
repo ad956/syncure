@@ -10,7 +10,6 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { motion } from "framer-motion";
-import { getHospitalDetails } from "@lib/hospital";
 import useQuery from "@hooks/useQuery";
 import SpinnerLoader from "@components/SpinnerLoader";
 import {
@@ -51,7 +50,7 @@ export default function EditHospitalDetails() {
     data: hospitalInfo,
     isLoading,
     error,
-  } = useQuery<HospitalDetailsType>(getHospitalDetails);
+  } = useQuery<HospitalDetailsType>("/api/hospital/additional-details");
 
   const [formData, setFormData] = useState(hospitalInfo);
 
