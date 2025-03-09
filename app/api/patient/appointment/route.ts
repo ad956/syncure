@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
 import { Types } from "mongoose";
 import { render } from "@react-email/render";
 import { AppointmentBookedTemplate, sendEmail } from "@lib/emails";
 import sendNotification from "@lib/novu";
 import { Patient, BookedAppointment, Doctor } from "@models/index";
 import { auth } from "@lib/auth";
+import dbConfig from "@utils/db";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
 
 // getting patient's approved appointments
 export async function GET() {
@@ -64,15 +66,9 @@ export async function GET() {
 // booking an appointment
 export async function POST(req: Request) {
   try {
-    const {
-      state,
-      city,
-      hospital,
-      disease,
-      note,
-      transaction_id,
-      appointment_charge,
-    }: BookingAppointmentType = await req.json();
+    const data: BookingAppointmentType = await req.json();
+
+    const { state, city, hospital, disease, note, transaction_id } = data;
 
     const session = await auth();
 
@@ -118,7 +114,6 @@ export async function POST(req: Request) {
       disease,
       note,
       transaction_id,
-      appointment_charge,
     };
 
     // sending email to patient confirming request
@@ -131,12 +126,11 @@ export async function POST(req: Request) {
           email: patient.email,
           bookedAppointmentData,
           transaction_id,
-          appointment_charge,
         })
       ),
       from: {
         name: "Syncure",
-        address: "support@patientfitnesstracker.com",
+        address: "support@syncure.com",
       },
     });
 

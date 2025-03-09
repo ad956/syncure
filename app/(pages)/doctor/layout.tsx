@@ -1,6 +1,6 @@
 import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
-import { getDoctorData } from "@lib/doctor";
+import getDoctorData from "@lib/doctor/get-doctor-data";
 
 import type { Metadata } from "next";
 

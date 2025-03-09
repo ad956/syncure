@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import logUserActivity from "@lib/logs";
-import {
-  allowedRoles,
-  dbConfig,
-  errorHandler,
-  getModelByRole,
-  STATUS_CODES,
-} from "@utils/index";
+
+import dbConfig from "@utils/db";
+
+import { errorHandler } from "@utils/error-handler";
+import { allowedRoles, STATUS_CODES } from "@utils/constants";
+
+import getModelByRole from "@utils/get-model-by-role";
 
 type bodyType = {
   usernameOrEmail: string;

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { errorHandler, STATUS_CODES } from "@utils/index";
+
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
 
 const generatedSignature = (
   razorpayOrderId: string,

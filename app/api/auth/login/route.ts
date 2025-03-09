@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import { OtpTemplate, sendEmail } from "@lib/emails";
 import { render } from "@react-email/render";
-import {
-  dbConfig,
-  errorHandler,
-  generateSecureOTP,
-  getModelByRole,
-  STATUS_CODES,
-  allowedRoles,
-} from "@utils/index";
+
+import dbConfig from "@utils/db";
+import { generateSecureOTP } from "@utils/generate-otp";
+import getModelByRole from "@utils/get-model-by-role";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES, allowedRoles } from "@utils/constants";
+
 import bcrypt from "bcryptjs";
 
 interface LoginBody {

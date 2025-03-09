@@ -6,43 +6,28 @@ declare global {
   }
 }
 
-import { ChangeEvent, ChangeEventHandler, useEffect, useState } from "react";
-import {
-  Select,
-  SelectItem,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  Button,
-  Textarea,
-  Spinner,
-} from "@nextui-org/react";
-import bookAppointment from "@lib/patient/book-appointment";
-import pendingAppointmentsRequest from "@lib/patient/pending-appointments-request";
-import saveAppointmentTransaction from "@lib/patient/save-appointment-transaction";
+import { ChangeEvent, useState } from "react";
+import { Button } from "@nextui-org/react";
 import toast, { Toaster } from "react-hot-toast";
-import {
-  getCities,
-  getDiseases,
-  getHospitals,
-  getStates,
-} from "@lib/patient/misc";
-import processPayment from "@lib/razorpay/process-payment";
 
-interface BookAppointmentProps {
-  patientId: string;
-  name: string;
-  email: string;
-}
+import { StateSelector } from "./StateSelector";
+import { CitySelector } from "./CitySelector";
+import { HospitalSelector } from "./HospitalSelector";
+import { DiseaseSelector } from "./DiseaseSelector";
+import { AdditionalNote } from "./AdditionalNote";
+
+import useQuery from "@hooks/useQuery";
+import checkPendingAppointments from "@lib/patient/check-pending-appointments";
+import processPayment from "@lib/razorpay/process-payment";
+import saveAppointmentTransaction from "@lib/patient/save-appointment-transaction";
+import bookAppointment from "@lib/patient/book-appointment";
 
 export default function BookAppointment({
   patientId,
   name,
   email,
 }: BookAppointmentProps) {
-  const [states, setStates] = useState<string[]>([]);
   const [selectedState, setSelectedState] = useState("");
-  const [cities, setCities] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedHospital, setSelectedHospital] =
     useState<BookAppointmentHospital>({
@@ -51,17 +36,12 @@ export default function BookAppointment({
       appointment_charge: "",
     });
   const [selectedDisease, setSelectedDisease] = useState("");
-  const [loadingStates, setLoadingStates] = useState(false);
-  const [loadingCities, setLoadingCities] = useState(false);
-  const [loadingHospitals, setLoadingHospitals] = useState(false);
-  const [loadingDiseases, setLoadingDiseases] = useState(false);
   const [isOpenPopover, setIsOpenPopover] = useState(false);
   const [isOpenHospitalPopover, setIsOpenHospitalPopover] = useState(false);
   const [isOpenDiseasePopover, setIsOpenDiseasePopover] = useState(false);
-  const [hospitals, setHospitals] = useState<BookAppointmentHospital[]>([]);
-  const [diseases, setDiseases] = useState<string[]>([]);
   const [additionalNote, setAdditionalNote] = useState("");
   const [noteError, setNoteError] = useState("");
+
   const handleStateChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedState = e.target.value;
     setSelectedState(selectedState);
@@ -74,83 +54,17 @@ export default function BookAppointment({
     setIsOpenPopover(false);
   };
 
-  useEffect(() => {
-    setLoadingStates(true);
-    fetchStates();
-  }, []);
-
-  useEffect(() => {
-    if (selectedState) {
-      setLoadingCities(true);
-      fetchCities();
-    }
-  }, [selectedState]);
-
-  useEffect(() => {
-    if (selectedCity) {
-      setLoadingHospitals(true);
-      fetchHospitals();
-    }
-  }, [selectedCity]);
-
-  useEffect(() => {
-    if (selectedHospital) {
-      setLoadingDiseases(true);
-      fetchDiseases();
-    }
-  }, [selectedHospital]);
-
-  const fetchStates = async () => {
-    try {
-      const statesData = await getStates();
-      setStates(statesData);
-    } catch (error: any) {
-      console.error("Error fetching states :", error);
-      toast.error(error.message);
-    } finally {
-      setLoadingStates(false);
-    }
-  };
-  const fetchCities = async () => {
-    try {
-      const citiesData = await getCities(selectedState);
-      setCities(citiesData);
-    } catch (error: any) {
-      console.error("Error fetching cities:", error);
-      toast.error(error.message);
-    } finally {
-      setLoadingCities(false);
-    }
+  const handleHospitalChange = (hospital: BookAppointmentHospital): void => {
+    setSelectedHospital(hospital);
+    setIsOpenHospitalPopover(false);
   };
 
-  const fetchHospitals = async () => {
-    try {
-      const hospitalsData = await getHospitals(selectedState, selectedCity);
-
-      setHospitals(hospitalsData);
-    } catch (error: any) {
-      console.error("Error fetching hospitals:", error);
-      toast.error(error.message);
-    } finally {
-      setLoadingHospitals(false);
-    }
+  const handleDiseaseChange = (e: ChangeEvent<HTMLSelectElement>): void => {
+    setSelectedDisease(e.target.value);
+    setIsOpenDiseasePopover(false);
   };
 
-  const fetchDiseases = async () => {
-    try {
-      const diseasesData = await getDiseases();
-      setDiseases(diseasesData);
-    } catch (error: any) {
-      console.error("Error fetching diseases:", error);
-      toast.error(error.message);
-    } finally {
-      setLoadingDiseases(false);
-    }
-  };
-
-  const handleAdditionalNoteChange: ChangeEventHandler<HTMLInputElement> = (
-    e
-  ) => {
+  const handleAdditionalNoteChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAdditionalNote(value);
     if (value.length < 10 || value.length > 100) {
@@ -160,95 +74,100 @@ export default function BookAppointment({
     }
   };
 
-  function handleHospitalChange(e: ChangeEvent<HTMLSelectElement>): void {
-    const selectedId = e.target.value;
+  const handleAppointmentButtonClick = async (): Promise<void> => {
+    const loadingToast = toast.loading("Checking appointment status...");
 
-    const selectedHospitalObj: BookAppointmentHospital | undefined =
-      hospitals.find((hospital) => hospital.hospital_id === selectedId);
+    try {
+      // Check for existing pending appointments
+      const result = await checkPendingAppointments(
+        selectedHospital.hospital_id
+      );
 
-    if (selectedHospitalObj) {
-      setSelectedHospital({
-        hospital_id: selectedId,
-        hospital_name: selectedHospitalObj.hospital_name,
-        appointment_charge: selectedHospitalObj.appointment_charge,
-      });
-    }
-    setIsOpenHospitalPopover(false);
-  }
+      if (result.hasPendingAppointment) {
+        toast.dismiss(loadingToast);
+        toast.error("You already have a pending appointment request");
+        return;
+      }
 
-  function handleDiseaseChange(e: ChangeEvent<HTMLSelectElement>): void {
-    setSelectedDisease(e.target.value);
-    setIsOpenDiseasePopover(false);
-  }
+      // Update toast to indicate payment is starting
+      toast.loading("Initiating payment...", { id: loadingToast });
 
-  async function handleAppointmentButtonClick(): Promise<void> {
-    toast.loading("Please wait");
+      setTimeout(() => {
+        toast.dismiss(loadingToast);
+      }, 2500);
 
-    // checks for existing pending appointment request
-    const result = await pendingAppointmentsRequest(
-      selectedHospital.hospital_id
-    );
+      // Process payment
+      let paymentResult;
+      try {
+        paymentResult = await processPayment(
+          name,
+          email,
+          "Payment for appointment booking",
+          selectedHospital.appointment_charge
+        );
 
-    if (result.hasPendingAppointment) {
+        // If we reach here, payment process completed (success or failure)
+      } catch (paymentError) {
+        // Payment was cancelled or failed
+        toast.error("Payment was cancelled or could not be processed");
+        return;
+      }
+
+      if (!paymentResult.success) {
+        toast.error(paymentResult.message, {
+          duration: 3000,
+          position: "bottom-center",
+        });
+        return;
+      }
+
+      // Re-create the loading toast for the next steps
+      const postPaymentToast = toast.loading("Recording transaction...");
+
+      // Save transaction details
+      await saveAppointmentTransaction(
+        paymentResult.transaction_id,
+        patientId,
+        selectedHospital.hospital_id,
+        selectedDisease,
+        additionalNote,
+        selectedHospital.appointment_charge,
+        paymentResult.success ? "Success" : "Failed"
+      );
+
+      // Update toast for appointment booking
+      toast.loading("Finalizing appointment...", { id: postPaymentToast });
+
+      // Book appointment after payment
+      const bookAppointmentData = {
+        state: selectedState,
+        city: selectedCity,
+        hospital: selectedHospital,
+        disease: selectedDisease,
+        note: additionalNote,
+        transaction_id: paymentResult.transaction_id,
+      };
+
+      const response = await bookAppointment(bookAppointmentData);
+
+      toast.dismiss(postPaymentToast);
+
+      if (response.error) {
+        console.error("Error booking appointment:", response.error);
+        toast.error(response.error);
+        return;
+      }
+
+      clearSelected();
+      toast.success(response.message);
+    } catch (error) {
       toast.dismiss();
-      toast.error("You already have a pending appointment request");
-      return;
+      toast.error("An error occurred while processing your request");
+      console.error("Error:", error);
     }
+  };
 
-    toast.dismiss();
-    // razorpay payment processing
-    const paymentResult = await processPayment(
-      name,
-      email,
-      "Payment for appointment booking",
-      selectedHospital.appointment_charge
-    );
-
-    toast.loading("Please wait");
-
-    // request to save transaction details
-    await saveAppointmentTransaction(
-      paymentResult.transaction_id,
-      patientId,
-      selectedHospital.hospital_id,
-      selectedDisease,
-      additionalNote,
-      selectedHospital.appointment_charge,
-      paymentResult.success ? "Success" : "Failed"
-    );
-
-    toast.dismiss();
-
-    if (!paymentResult.success) {
-      toast.error(paymentResult.message, {
-        duration: 3000,
-        position: "bottom-center",
-      });
-      return;
-    }
-
-    // booking appointment after payment
-    const bookAppointmentData = {
-      state: selectedState,
-      city: selectedCity,
-      hospital: selectedHospital,
-      disease: selectedDisease,
-      note: additionalNote,
-      transaction_id: paymentResult.transaction_id,
-      appointment_charge: selectedHospital.appointment_charge,
-    };
-
-    const response = await bookAppointment(bookAppointmentData);
-    if (response.error) {
-      console.error("Error booking apppointment:", response.error);
-      toast.error(response.error);
-      return;
-    }
-    clearSelected();
-    toast.success(response.message);
-  }
-
-  function clearSelected() {
+  const clearSelected = () => {
     setSelectedState("");
     setSelectedCity("");
     setSelectedHospital({
@@ -257,16 +176,17 @@ export default function BookAppointment({
       appointment_charge: "",
     });
     setSelectedDisease("");
+    setAdditionalNote("");
     setNoteError("");
     setIsOpenPopover(false);
     setIsOpenHospitalPopover(false);
     setIsOpenDiseasePopover(false);
-  }
+  };
 
   const isButtonDisabled =
     !selectedState ||
     !selectedCity ||
-    !selectedHospital ||
+    !selectedHospital.hospital_id ||
     !selectedDisease ||
     !additionalNote ||
     noteError !== "";
@@ -276,176 +196,43 @@ export default function BookAppointment({
       <Toaster />
       <p className="text-lg font-bold">Book an appointment</p>
       <div className="flex flex-col flex-wrap md:flex-row items-center gap-5">
-        <Select
-          isRequired
-          label="Select State"
-          placeholder="Select your state"
-          className="max-w-xs"
-          variant="bordered"
-          value={selectedState}
-          onChange={handleStateChange}
-          endContent={
-            loadingStates ? (
-              <Spinner color="primary" size="sm" className="bottom-1/2" />
-            ) : (
-              ""
-            )
-          }
-          scrollShadowProps={{
-            isEnabled: true,
-          }}
-        >
-          {states.map((item) => (
-            <SelectItem key={item} value={item}>
-              {item}
-            </SelectItem>
-          ))}
-        </Select>
+        <StateSelector
+          selectedState={selectedState}
+          onStateChange={handleStateChange}
+        />
 
-        <Popover
-          placement="right"
-          isOpen={isOpenPopover && !selectedState}
-          onOpenChange={(open) => setIsOpenPopover(open)}
-        >
-          <PopoverTrigger>
-            <Select
-              isRequired
-              label="Select City"
-              placeholder="Select your city"
-              className="max-w-xs"
-              variant="bordered"
-              value={selectedCity}
-              onChange={handleCityChange}
-              disabled={loadingCities || !selectedState}
-              scrollShadowProps={{
-                isEnabled: true,
-              }}
-              endContent={
-                loadingCities ? (
-                  <Spinner color="primary" size="sm" className="bottom-1/2" />
-                ) : (
-                  ""
-                )
-              }
-            >
-              {cities.map((city) => (
-                <SelectItem key={city} value={city}>
-                  {city}
-                </SelectItem>
-              ))}
-            </Select>
-          </PopoverTrigger>
-          <PopoverContent>
-            <div className="px-1 py-2">
-              <div className="text-small font-bold">
-                Please select a state first
-              </div>
-              <div className="text-tiny">
-                You must select a state before selecting a city.
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <CitySelector
+          selectedState={selectedState}
+          selectedCity={selectedCity}
+          onCityChange={handleCityChange}
+          isOpenPopover={isOpenPopover}
+          setIsOpenPopover={setIsOpenPopover}
+        />
 
-        <Popover
-          placement="right"
-          isOpen={isOpenHospitalPopover && !selectedCity}
-          onOpenChange={(open) => setIsOpenHospitalPopover(open)}
-        >
-          <PopoverTrigger>
-            <Select
-              isRequired
-              label="Select Hospital"
-              placeholder="Select your preferred hospital"
-              className="max-w-xs"
-              variant="bordered"
-              value={selectedHospital.hospital_name}
-              onChange={handleHospitalChange}
-              disabled={loadingCities || !selectedState}
-              scrollShadowProps={{
-                isEnabled: true,
-              }}
-              endContent={
-                loadingHospitals ? (
-                  <Spinner color="primary" size="sm" className="bottom-1/2" />
-                ) : (
-                  ""
-                )
-              }
-            >
-              {hospitals.map((item) => (
-                <SelectItem key={item.hospital_id} value={item.hospital_id}>
-                  {item.hospital_name}
-                </SelectItem>
-              ))}
-            </Select>
-          </PopoverTrigger>
-          <PopoverContent>
-            <div className="px-1 py-2">
-              <div className="text-small font-bold">
-                Please select a city first
-              </div>
-              <div className="text-tiny">
-                You must select a city before selecting a hospital.
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-        <Popover
-          placement="right"
-          isOpen={isOpenDiseasePopover && !selectedHospital}
-          onOpenChange={(open) => setIsOpenDiseasePopover(open)}
-        >
-          <PopoverTrigger>
-            <Select
-              isRequired
-              label="Select Disease"
-              placeholder="Select your disease"
-              className="max-w-xs"
-              variant="bordered"
-              value={selectedDisease}
-              onChange={handleDiseaseChange}
-              disabled={loadingHospitals || !selectedHospital}
-              scrollShadowProps={{
-                isEnabled: true,
-              }}
-              endContent={
-                loadingDiseases ? (
-                  <Spinner color="primary" size="sm" className="bottom-1/2" />
-                ) : (
-                  ""
-                )
-              }
-            >
-              {diseases.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </Select>
-          </PopoverTrigger>
-          <PopoverContent>
-            <div className="px-1 py-2">
-              <div className="text-small font-bold">
-                Please select a Hospital first
-              </div>
-              <div className="text-tiny">
-                You must select a hospital before selecting a disease.
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <HospitalSelector
+          selectedState={selectedState}
+          selectedCity={selectedCity}
+          selectedHospital={selectedHospital}
+          onHospitalChange={handleHospitalChange}
+          isOpenHospitalPopover={isOpenHospitalPopover}
+          setIsOpenHospitalPopover={setIsOpenHospitalPopover}
+        />
+
+        <DiseaseSelector
+          selectedHospital={selectedHospital}
+          selectedDisease={selectedDisease}
+          onDiseaseChange={handleDiseaseChange}
+          isOpenDiseasePopover={isOpenDiseasePopover}
+          setIsOpenDiseasePopover={setIsOpenDiseasePopover}
+        />
       </div>
-      <Textarea
-        isRequired
-        isInvalid={noteError !== ""}
-        variant="bordered"
-        label="Additional Note"
-        placeholder="Enter your description"
-        errorMessage={noteError}
-        className="max-w-lg self-center mt-5"
+
+      <AdditionalNote
+        additionalNote={additionalNote}
+        noteError={noteError}
         onChange={handleAdditionalNoteChange}
       />
+
       <Button
         radius="full"
         className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg max-w-40 self-center"

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import CityStateHospital from "@models/city-state-hospitals";
-import { dbConfig, errorHandler, STATUS_CODES } from "@utils/index";
+
+import dbConfig from "@utils/db";
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

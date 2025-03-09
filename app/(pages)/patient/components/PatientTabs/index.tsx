@@ -2,13 +2,13 @@
 
 import React, { useState } from "react";
 import { Tabs, Tab, Card } from "@nextui-org/react";
-import PendingBills from "../PendingBills";
-// import LabResults from "../LabResults";
 import { Toaster } from "react-hot-toast";
 import { IoFlaskOutline } from "react-icons/io5";
 import { RiStethoscopeLine } from "react-icons/ri";
 import { MdReceiptLong } from "react-icons/md";
 import ChatScreen from "@components/ChatScreen";
+import PendingBills from "./PendingBills";
+import LabResults from "./LabResults";
 
 interface PatientTabsProps {
   patient: Patient;
@@ -94,7 +94,7 @@ export default function PatientTabs({ patient }: PatientTabsProps) {
             </div>
           }
         >
-          {/* <LabResults /> */}
+          <LabResults />
         </Tab>
       </Tabs>
       <Toaster />

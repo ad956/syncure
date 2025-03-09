@@ -23,7 +23,7 @@ import {
   AiOutlineStop as BlockIcon,
 } from "react-icons/ai";
 import SpinnerLoader from "@components/SpinnerLoader";
-import { getHospitalDetails } from "@lib/admin";
+import { getHospitalDetails } from "@lib/admin/get-hospitals";
 import { FaExclamationCircle } from "react-icons/fa";
 
 function UserManagement({ params }: { params: { id: string } }) {

@@ -1,4 +1,4 @@
-export default async function pendingAppointmentsRequest(
+export default async function checkPendingAppointments(
   hospital_id: string
 ): Promise<{ hasPendingAppointment: boolean }> {
   const endpoint = "/api/patient/appointment/pending";
@@ -20,7 +20,7 @@ export default async function pendingAppointmentsRequest(
       );
     }
 
-    return result.data!;
+    return result;
   } catch (error) {
     console.error(
       "An error occurred while fetching pending appointment requests:",

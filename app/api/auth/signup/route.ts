@@ -8,14 +8,15 @@ import {
   patientadditionalDetails,
   receptionistadditionalDetails,
 } from "@constants/index";
-import {
-  dbConfig,
-  generateSecureOTP,
-  getModelByRole,
-  hashPassword,
-  STATUS_CODES,
-  errorHandler,
-} from "@utils/index";
+
+import dbConfig from "@utils/db";
+
+import { errorHandler } from "@utils/error-handler";
+import { STATUS_CODES } from "@utils/constants";
+import { generateSecureOTP } from "@utils/generate-otp";
+
+import getModelByRole from "@utils/get-model-by-role";
+import hashPassword from "@utils/hash-password";
 
 type SignupBody = {
   firstname: string;

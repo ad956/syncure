@@ -1,24 +1,32 @@
-export default async function getDoctorData(): Promise<Doctor> {
-  const endpoint = "/api/doctor";
+import { cache } from "react";
+import Doctor from "@models/doctor";
+import dbConfig from "@utils/db";
+import { Types } from "mongoose";
+import { auth } from "../auth";
 
+const getDoctorData = cache(async () => {
   try {
-    const response = await fetch(endpoint, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-cache",
-    });
+    const session = await auth();
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error?.message || "Failed to fetch doctor data");
+    if (!session) {
+      throw new Error("Unauthorized");
     }
 
-    return result.data;
+    const doctor_id = new Types.ObjectId(session.user.id);
+
+    await dbConfig();
+
+    const doctorData = await Doctor.findById(doctor_id);
+
+    if (!doctorData) {
+      throw new Error("Doctor not found");
+    }
+
+    return JSON.parse(JSON.stringify(doctorData));
   } catch (error) {
     console.error("An error occurred while fetching doctor data:", error);
     throw error;
   }
-}
+});
+
+export default getDoctorData;
