@@ -14,7 +14,7 @@ export default function UpcomingAppointment() {
         <CardHeader>
           <p className="flex items-center gap-2">
             <LuCalendar className="h-5 w-5" />
-            Today's Appointments
+            Today&#39;s Appointments
           </p>
         </CardHeader>
         <CardBody>
