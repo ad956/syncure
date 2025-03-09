@@ -9,9 +9,7 @@ export default async function bookAppointment(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        bookAppointmentData,
-      }),
+      body: JSON.stringify(bookAppointmentData),
     });
 
     const result = await response.json();
