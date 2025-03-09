@@ -1,45 +1,18 @@
-"use client";
+import useSWR, { SWRResponse } from "swr";
 
-import { useState, useEffect } from "react";
+export default function useQuery<T = any>(url: string | null) {
+  const fetcher = (...args: [string]) =>
+    fetch(...args).then((res) => res.json()) as Promise<T>;
 
-interface UseQueryResult<T> {
-  data: T | null;
-  isLoading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-}
-
-function useQuery<T>(
-  fetchFn: () => Promise<T>,
-  initialData: T | null = null
-): UseQueryResult<T> {
-  const [data, setData] = useState<T | null>(initialData);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const result = await fetchFn();
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data, error, isLoading, mutate }: SWRResponse<T, Error> = useSWR<
+    T,
+    Error
+  >(url, fetcher);
 
   return {
     data,
     isLoading,
     error,
-    refetch: fetchData,
+    refetch: mutate,
   };
 }
-
-export default useQuery;
