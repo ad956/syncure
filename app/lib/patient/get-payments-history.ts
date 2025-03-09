@@ -17,7 +17,7 @@ export default async function getPaymentsHistory(): Promise<[Payment]> {
       );
     }
 
-    return result.data!;
+    return result;
   } catch (error) {
     console.error("Error fetching payments:", error);
     throw error;
