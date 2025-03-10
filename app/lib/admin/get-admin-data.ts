@@ -1,25 +1,30 @@
-// import BaseUrl from "@utils/base-url";
+import { cache } from "react";
+import dbConfig from "@utils/db";
+import { Types } from "mongoose";
+import Admin from "@models/admin";
+import { auth } from "../auth";
 
-export default async function getAdminData(): Promise<Admin> {
-  const endpoint = `/api/admin`;
-
+const getAdminData = cache(async () => {
   try {
-    const response = await fetch(endpoint, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      cache: "no-cache",
-    });
+    const session = await auth();
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch admin data: ${response.statusText}`);
+    if (!session) {
+      throw new Error("Unauthorized");
     }
 
-    return await response.json();
+    const admin_id = new Types.ObjectId(session.user.id);
+    await dbConfig();
+
+    const adminData = await Admin.findById(admin_id);
+
+    if (!adminData) {
+      throw new Error("Admin not found");
+    }
+    return JSON.parse(JSON.stringify(adminData));
   } catch (error) {
     console.error("An error occurred while fetching admin data:", error);
     throw error;
   }
-}
+});
+
+export default getAdminData;
