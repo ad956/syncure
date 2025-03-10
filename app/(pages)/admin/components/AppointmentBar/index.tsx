@@ -34,7 +34,7 @@ const WeeklyData = [
   },
 ];
 
-const AppointmentGraph = ({ data }: any) => (
+const AppointmentBar = ({ data }: any) => (
   <Card className="h-[400px]">
     <CardHeader className="border-b border-gray-200 p-6">
       <h3 className="text-2xl font-semibold text-gray-800">
@@ -91,4 +91,4 @@ const AppointmentGraph = ({ data }: any) => (
   </Card>
 );
 
-export default AppointmentGraph;
+export default AppointmentBar;

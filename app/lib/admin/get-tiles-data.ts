@@ -1,18 +1,14 @@
-import { NextResponse } from "next/server";
-import { Hospital, Patient, Doctor, Receptionist } from "@models/index";
-
-import { auth } from "@lib/auth";
-
+import { cache } from "react";
 import dbConfig from "@utils/db";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
+import { auth } from "../auth";
+import { Hospital, Patient, Receptionist, Doctor } from "@models/index";
 
-export async function GET(request: Request) {
+const getTilesData = cache(async () => {
   try {
     const session = await auth();
 
     if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+      throw new Error("Unauthorized");
     }
 
     await dbConfig();
@@ -84,12 +80,11 @@ export async function GET(request: Request) {
       },
     };
 
-    return NextResponse.json(result, { status: 200 });
-  } catch (error: any) {
-    console.error("Error fetching tiles data:", error);
-    return errorHandler(
-      error.message || "Internal Server Error",
-      STATUS_CODES.SERVER_ERROR
-    );
+    return JSON.parse(JSON.stringify(result));
+  } catch (error) {
+    console.error("An error occurred while fetching tiles data:", error);
+    throw error;
   }
-}
+});
+
+export default getTilesData;

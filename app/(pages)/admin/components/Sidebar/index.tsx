@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Image } from "@nextui-org/react";
+import { Image, Spacer } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 import { FiHome, FiUserPlus, FiSettings, FiHeart } from "react-icons/fi";
 import { TbCurrencyRupee } from "react-icons/tb";
@@ -36,7 +36,14 @@ const Sidebar = () => {
   return (
     <aside className="h-screen flex-col border-r bg-white w-16 shadow-sm">
       <nav className="flex flex-col items-center gap-6 px-2 py-5">
-        <Image src="/icons/patient.svg" height={35} width={35} alt="Syncure" />
+        <Image
+          src="/icons/patient.svg"
+          className="mt-1"
+          height={35}
+          width={35}
+          alt="Syncure"
+        />
+        <Spacer y={5} />
         {SidebarConfig.map((item, index) => (
           <SidebarIcon
             key={item.title}

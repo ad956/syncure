@@ -1,24 +1,32 @@
-export default async function getHospitalData(): Promise<Hospital> {
-  const endpoint = "/api/hospital";
+import { cache } from "react";
+import { Types } from "mongoose";
+import dbConfig from "@utils/db";
+import Hospital from "@models/hospital";
+import { auth } from "../auth";
 
+const getHospitalData = cache(async () => {
   try {
-    const response = await fetch(endpoint, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-cache",
-    });
+    const session = await auth();
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error?.message || "Failed to fetch hospital data");
+    if (!session) {
+      throw new Error("Unauthorized");
     }
 
-    return result.data;
+    const hospital_id = new Types.ObjectId(session.user.id);
+
+    await dbConfig();
+
+    const hospitalData = await Hospital.findById(hospital_id);
+
+    if (!hospitalData) {
+      throw new Error("Hospital not found");
+    }
+
+    return JSON.parse(JSON.stringify(hospitalData));
   } catch (error) {
     console.error("An error occurred while fetching hospital data:", error);
     throw error;
   }
-}
+});
+
+export default getHospitalData;

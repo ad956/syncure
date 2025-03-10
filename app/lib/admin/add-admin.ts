@@ -1,7 +1,5 @@
-import BaseUrl from "@utils/base-url";
-
 export default async function addAdmin(formData: FormData): Promise<any> {
-  const endpoint = `${BaseUrl}/api/admin/add-admin`;
+  const endpoint = `/api/admin/add-admin`;
 
   try {
     const formDataObject = Object.fromEntries(formData.entries());
