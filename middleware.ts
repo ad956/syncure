@@ -10,8 +10,6 @@ const PRIVATE_ROUTES = [
 ];
 
 export default auth((req) => {
-  console.log("path : " + req.nextUrl.pathname);
-  console.log("uname : " + req.auth?.user.name);
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
