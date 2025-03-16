@@ -8,17 +8,17 @@ import { auth } from "@lib/auth";
 import { revalidateTag } from "next/cache";
 
 export async function PUT(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  const { id, role } = session.user;
+  const updateData: PersonalInfoBody = await req.json();
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
-    const { id, role } = session.user;
-
     const user_id = new Types.ObjectId(id);
-    const updateData: PersonalInfoBody = await req.json();
 
     await dbConfig();
 

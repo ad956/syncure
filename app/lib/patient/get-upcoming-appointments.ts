@@ -4,13 +4,13 @@ import { Types } from "mongoose";
 import { auth } from "../auth";
 
 export default async function getUpcomingAppointments() {
+  const session = await auth();
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
     const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 

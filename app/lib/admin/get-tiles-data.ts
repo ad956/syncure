@@ -1,16 +1,9 @@
 import { cache } from "react";
 import dbConfig from "@utils/db";
-import { auth } from "../auth";
 import { Hospital, Patient, Receptionist, Doctor } from "@models/index";
 
 const getTilesData = cache(async () => {
   try {
-    const session = await auth();
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
     await dbConfig();
 
     // Start of the current month and the previous month

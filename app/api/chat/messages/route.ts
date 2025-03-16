@@ -11,17 +11,17 @@ import { STATUS_CODES } from "@utils/constants";
 import { auth } from "@lib/auth";
 
 export async function GET(req: Request) {
+  const session = await auth();
+
+  console.log("user is there ; " + session?.user.email);
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+  const { searchParams } = new URL(req.url);
   try {
-    const session = await auth();
-
-    console.log("user is there ; " + session?.user.email);
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
     await dbConfig();
 
-    const { searchParams } = new URL(req.url);
     const roomId = searchParams.get("roomId");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "50");
@@ -45,14 +45,14 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const session = await auth();
+
+  console.log("user is there ; " + session?.user.email);
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
   try {
-    const session = await auth();
-
-    console.log("user is there ; " + session?.user.email);
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
     const _id = new Types.ObjectId(session.user.id);
 
     await dbConfig();

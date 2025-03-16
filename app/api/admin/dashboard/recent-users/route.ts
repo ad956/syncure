@@ -6,8 +6,8 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
 export async function GET(request: Request): Promise<Response> {
+  const url = new URL(request.url);
   try {
-    const url = new URL(request.url);
     const page = parseInt(url.searchParams.get("page") || "1");
     const limit = parseInt(url.searchParams.get("limit") || "10");
 

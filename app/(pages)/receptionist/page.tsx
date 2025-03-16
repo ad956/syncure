@@ -36,10 +36,13 @@ import {
   StatItem,
   WaitingRoomStatus,
 } from "./components/Graphs";
+import { auth } from "@lib/auth";
 
 export default async function ReceptionistPage() {
-  const receptionist = await getReceptionistData();
-  const pendingPatients = await getPendingAppointments();
+  const session = await auth();
+  const receptionist = await getReceptionistData(session?.user.id);
+
+  const pendingPatients = await getPendingAppointments(session?.user.id);
 
   const pendingAppointments = pendingPatients.patientDetails.length;
   const approvedAppointments = receptionist.dailyCount.approved;

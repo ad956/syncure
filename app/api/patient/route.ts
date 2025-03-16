@@ -8,15 +8,14 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
 export async function GET() {
+  const session = await auth();
+
+  console.log("session : " + session);
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
   try {
-    const session = await auth();
-
-    console.log("session : " + session);
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
     const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 

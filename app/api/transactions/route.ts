@@ -14,23 +14,23 @@ interface pendingTransactionReqBody {
 
 // saving transaction details in db
 export async function POST(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  const {
+    transaction_id,
+    patient_id,
+    hospital_id,
+    disease,
+    description,
+    amount,
+    status,
+  }: TransactionType = await req.json();
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
-    const {
-      transaction_id,
-      patient_id,
-      hospital_id,
-      disease,
-      description,
-      amount,
-      status,
-    }: TransactionType = await req.json();
-
     await dbConfig();
 
     const transactionData = {
@@ -64,16 +64,16 @@ export async function POST(req: Request) {
 
 // save pending transaction
 export async function PUT(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  const { txnDocumentId, transaction_id, status }: pendingTransactionReqBody =
+    await req.json();
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
-    const { txnDocumentId, transaction_id, status }: pendingTransactionReqBody =
-      await req.json();
-
     if (!txnDocumentId || !transaction_id || !status) {
       return errorHandler(
         "TxnDocumentId, Transaction ID and status are required",

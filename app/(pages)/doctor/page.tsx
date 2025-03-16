@@ -1,7 +1,10 @@
 import getDoctorData from "@lib/doctor/get-doctor-data";
 import Dashboard from "./components/Dashboard";
+import { auth } from "@lib/auth";
 
 export default async function Doctor() {
-  const doctor = await getDoctorData();
+  const session = await auth();
+  const doctor = await getDoctorData(session?.user.id);
+
   return <Dashboard doctor={doctor} />;
 }

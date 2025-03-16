@@ -7,13 +7,13 @@ import { Types } from "mongoose";
 import { auth } from "@lib/auth";
 
 export async function GET() {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
     const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 

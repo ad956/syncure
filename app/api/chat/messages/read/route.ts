@@ -9,15 +9,14 @@ import { STATUS_CODES } from "@utils/constants";
 import { auth } from "@lib/auth";
 
 export async function POST(req: Request) {
+  const session = await auth();
+
+  console.log("user is there ; " + session?.user.email);
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
   try {
-    const session = await auth();
-
-    console.log("user is there ; " + session?.user.email);
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
     const _id = new Types.ObjectId(session.user.id);
 
     await dbConfig();

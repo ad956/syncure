@@ -8,15 +8,16 @@ import { revalidateTag } from "next/cache";
 import { auth } from "@lib/auth";
 
 export async function PUT(request: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  const profile_pic = await request.json();
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
     const { id, role } = session.user;
-    const profile_pic = await request.json();
 
     const user_id = new Types.ObjectId(id);
     await dbConfig();

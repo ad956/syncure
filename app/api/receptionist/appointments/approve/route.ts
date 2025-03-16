@@ -8,16 +8,16 @@ import { STATUS_CODES } from "@utils/constants";
 
 // get approved appointments
 export async function GET(request: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  const { searchParams } = new URL(request.url);
+  const patient_id = searchParams.get("patient_id");
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
-    const { searchParams } = new URL(request.url);
-    const patient_id = searchParams.get("patient_id");
-
     const receptionist_id = new Types.ObjectId(session.user.id);
 
     if (!patient_id) {
@@ -42,14 +42,15 @@ export async function GET(request: Request) {
 
 // approving appointments
 export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  const { patient_id } = await request.json();
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
-    const { patient_id } = await request.json();
     const receptionist_id = new Types.ObjectId(session.user.id);
 
     await dbConfig();

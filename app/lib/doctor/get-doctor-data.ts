@@ -2,17 +2,10 @@ import { cache } from "react";
 import Doctor from "@models/doctor";
 import dbConfig from "@utils/db";
 import { Types } from "mongoose";
-import { auth } from "../auth";
 
-const getDoctorData = cache(async () => {
+const getDoctorData = cache(async (doctorId: string | undefined) => {
   try {
-    const session = await auth();
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
-    const doctor_id = new Types.ObjectId(session.user.id);
+    const doctor_id = new Types.ObjectId(doctorId);
 
     await dbConfig();
 

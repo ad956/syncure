@@ -8,15 +8,15 @@ import { Types } from "mongoose";
 import { auth } from "@lib/auth";
 
 export async function POST(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  const { hospital_id }: { hospital_id: string } = await req.json();
+
   try {
-    const { hospital_id }: { hospital_id: string } = await req.json();
-
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
     const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 

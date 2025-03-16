@@ -2,19 +2,12 @@ import { cache } from "react";
 import dbConfig from "@utils/db";
 import { Types } from "mongoose";
 import { Admin, Transaction, Patient, Hospital } from "@models/index";
-import { auth } from "../auth";
 
-const getTransactions = cache(async () => {
+const getTransactions = cache(async (adminId: string | undefined) => {
   try {
-    const session = await auth();
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
     await dbConfig();
 
-    const admin_id: any = new Types.ObjectId(session.user.id);
+    const admin_id: any = new Types.ObjectId(adminId);
     const adminData = await Admin.findById(admin_id);
 
     if (!adminData) {

@@ -2,20 +2,13 @@ import { cache } from "react";
 import { Types } from "mongoose";
 import dbConfig from "@utils/db";
 import { Patient, Transaction } from "@models/index";
-import { auth } from "../auth";
 
-const getPaymentsHistory = cache(async () => {
+const getPaymentsHistory = cache(async (patientId: string | undefined) => {
   try {
     const status = "";
     const isPending = ""; //status === "pending";
 
-    const session = await auth();
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
-    const patient_id = new Types.ObjectId(session.user.id);
+    const patient_id = new Types.ObjectId(patientId);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id);

@@ -9,16 +9,15 @@ import { Types } from "mongoose";
 import { auth } from "@lib/auth";
 
 export async function PUT(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+  const { id, role } = session.user;
+  const { currentPassword, newPassword }: SecurityBody = await req.json();
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-    const { id, role } = session.user;
-
     const user_id = new Types.ObjectId(id);
-    const { currentPassword, newPassword }: SecurityBody = await req.json();
 
     if (!currentPassword || !newPassword) {
       return errorHandler(

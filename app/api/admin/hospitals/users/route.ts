@@ -9,15 +9,15 @@ import { STATUS_CODES } from "@utils/constants";
 import { auth } from "@lib/auth";
 
 export async function GET(request: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  // parse query parameters for pagination
+  const url = new URL(request.url);
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
-    // parse query parameters for pagination
-    const url = new URL(request.url);
     const page = parseInt(url.searchParams.get("page") || "1");
     const limit = parseInt(url.searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;

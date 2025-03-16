@@ -7,16 +7,16 @@ import { Types } from "mongoose";
 import { auth } from "@lib/auth";
 
 export async function GET(request: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+  const url = new URL(request.url);
+  const status = url.searchParams.get("status");
+
   try {
-    const url = new URL(request.url);
-    const status = url.searchParams.get("status");
     const isPending = status === "pending";
-
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
 
     const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();

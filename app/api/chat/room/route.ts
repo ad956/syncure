@@ -11,15 +11,14 @@ import { auth } from "@lib/auth";
 
 // get all rooms AKA chat-list
 export async function GET(req: Request) {
+  const session = await auth();
+
+  console.log("user is there ; " + session?.user.email);
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
   try {
-    const session = await auth();
-
-    console.log("user is there ; " + session?.user.email);
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
     const _id = new Types.ObjectId(session.user.id);
     const role = capitalizedRole(session.user.role);
 
@@ -56,15 +55,14 @@ export async function GET(req: Request) {
 
 // create a room AKA chat
 export async function POST(req: Request) {
+  const session = await auth();
+
+  console.log("user is there ; " + session?.user.email);
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
   try {
-    const session = await auth();
-
-    console.log("user is there ; " + session?.user.email);
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
     const senderId = new Types.ObjectId(session.user.id); // Sender (logged-in user) ID
     const role = session.user.role;
     await dbConfig();

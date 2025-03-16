@@ -6,9 +6,11 @@ import PatientTabs from "./components/PatientTabs";
 
 import getPatientData from "@lib/patient/get-patient-data";
 import getUpcomingAppointments from "@lib/patient/get-upcoming-appointments";
+import { auth } from "@lib/auth";
 
 export default async function PatientPage() {
-  const patient = await getPatientData();
+  const session = await auth();
+  const patient = await getPatientData(session?.user.id);
   const upcomingAppointments = await getUpcomingAppointments();
 
   return (

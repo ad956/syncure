@@ -1,6 +1,7 @@
 import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
 import getDoctorData from "@lib/doctor/get-doctor-data";
+import { auth } from "@lib/auth";
 
 import type { Metadata } from "next";
 
@@ -14,7 +15,8 @@ export default async function DoctorLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const doctor = await getDoctorData();
+  const session = await auth();
+  const doctor = await getDoctorData(session?.user.id);
 
   return (
     <main className="h-screen flex">

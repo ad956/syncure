@@ -7,16 +7,17 @@ import { Types } from "mongoose";
 import { auth } from "@/lib/auth";
 
 export async function GET(request: Request) {
+  const session = await auth();
+
+  console.log("session : " + session);
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+
+  const { id, role } = session.user;
+
   try {
-    const session = await auth();
-
-    console.log("session : " + session);
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-    const { id, role } = session.user;
-
     const receptionist_id = new Types.ObjectId(id);
     await dbConfig();
 

@@ -1,17 +1,12 @@
 import { Patient, MedicalHistory } from "@models/index";
 import dbConfig from "@utils/db";
 import { Types } from "mongoose";
-import { auth } from "../auth";
 
-export default async function getPatientMedicalHistory() {
+export default async function getPatientMedicalHistory(
+  patientId: string | undefined
+) {
   try {
-    const session = await auth();
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
-    const patient_id = new Types.ObjectId(session.user.id);
+    const patient_id = new Types.ObjectId(patientId);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id, { _id: 1 }).exec();

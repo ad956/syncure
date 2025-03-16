@@ -11,13 +11,12 @@ import { STATUS_CODES } from "@utils/constants";
 
 // getting patient's approved appointments
 export async function GET() {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
   try {
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
-
     const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
@@ -65,16 +64,15 @@ export async function GET() {
 
 // booking an appointment
 export async function POST(req: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  }
+  const data: BookingAppointmentType = await req.json();
+
   try {
-    const data: BookingAppointmentType = await req.json();
-
     const { state, city, hospital, disease, note, transaction_id } = data;
-
-    const session = await auth();
-
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-    }
 
     const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();

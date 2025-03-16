@@ -4,13 +4,13 @@ import dbConfig from "@utils/db";
 import Patient from "@models/patient";
 
 export default async function getDoctorsChatList() {
+  const session = await auth();
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
   try {
-    const session = await auth();
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
     const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 

@@ -1,9 +1,11 @@
 import getPatientData from "@lib/patient/get-patient-data";
 import { Card, Link, User } from "@nextui-org/react";
 import QRCode from "../components/QR";
+import { auth } from "@lib/auth";
 
 export default async function QRCodePage() {
-  const patient = await getPatientData();
+  const session = await auth();
+  const patient = await getPatientData(session?.user.id);
 
   return (
     <Card

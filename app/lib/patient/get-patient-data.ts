@@ -1,16 +1,11 @@
 import { cache } from "react";
-import { auth } from "../auth";
 import Patient from "@models/patient";
 import dbConfig from "@utils/db";
 import { Types } from "mongoose";
 
-const getPatientData = cache(async () => {
+const getPatientData = cache(async (userId: string | undefined) => {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
-    const patient_id = new Types.ObjectId(session.user.id);
+    const patient_id = new Types.ObjectId(userId);
     await dbConfig();
     const projection = {
       role: 0,
