@@ -9,10 +9,9 @@ import getModelByRole from "@utils/get-model-by-role";
 
 export async function POST(req: Request) {
   await dbConfig();
+  const { role } = await req.json();
 
   try {
-    const { role } = await req.json();
-
     // validate the incoming body
     if (!role || typeof role !== "string") {
       return errorHandler(
