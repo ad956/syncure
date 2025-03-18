@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@lib/auth";
 
+const secret = process.env.AUTH_SECRET;
+
 const PRIVATE_ROUTES = [
   "/patient",
   "/receptionist",
