@@ -17,7 +17,7 @@ export default async function resetPassword(
 
     if (result.error) return { error: result.error.message };
 
-    return result.data!;
+    return result;
   } catch (error) {
     console.error("Error updating password:", error);
     throw error;

@@ -1,6 +1,4 @@
-"use client";
-
-import { Divider, User, Button, Image } from "@nextui-org/react";
+import { Divider, User, Button } from "@nextui-org/react";
 import Link from "next/link";
 import Notifications from "@components/Notifications";
 import { signOut } from "@lib/auth";
@@ -65,15 +63,16 @@ export default function Header({ admin }: HeaderProps) {
         />
         <Divider orientation="vertical" className="h-8 bg-gray-300" />
 
-        <Button
-          size="sm"
-          type="submit"
-          isIconOnly
-          className="bg-gray-100 hover:bg-gray-200 text-gray-600"
-          onClick={() => signOut({ redirectTo: "/login" })}
+        <form
+          action={async () => {
+            "use server";
+            await signOut();
+          }}
         >
-          <CiLogin size={25} />
-        </Button>
+          <Button size="sm" type="submit" isIconOnly className="bg-transparent">
+            <CiLogin size={25} />
+          </Button>
+        </form>
       </div>
     </div>
   );

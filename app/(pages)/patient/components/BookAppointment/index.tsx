@@ -16,7 +16,6 @@ import { HospitalSelector } from "./HospitalSelector";
 import { DiseaseSelector } from "./DiseaseSelector";
 import { AdditionalNote } from "./AdditionalNote";
 
-import useQuery from "@hooks/useQuery";
 import checkPendingAppointments from "@lib/patient/check-pending-appointments";
 import processPayment from "@lib/razorpay/process-payment";
 import saveAppointmentTransaction from "@lib/patient/save-appointment-transaction";

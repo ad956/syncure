@@ -41,13 +41,12 @@ export default auth((req) => {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
-
   // Continue with the request
   return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    "/((?!login|signup|admin-login|api/demo-user|_next/static|_next/image|.*\\.png$|.*\\.svg$|.*\\.gif$|.*\\.ico$|.*\\.jpg$|.*\\.webp$|error).*)",
+    "/((?!login|signup|admin-login|api/demo-user|api/states|api/get-hospitals|api/city|_next/static|_next/image|.*\\.png$|.*\\.svg$|.*\\.gif$|.*\\.ico$|.*\\.jpg$|.*\\.webp$|error).*)",
   ],
 };
