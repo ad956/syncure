@@ -14,7 +14,7 @@ export default async function updateAddress(filteredFields: any): Promise<any> {
 
     if (result.error) return { error: result.error.message };
 
-    return result.data!;
+    return result;
   } catch (error) {
     console.error("Error updating address information:", error);
     throw error;

@@ -16,7 +16,7 @@ export default async function updatePersonal(
 
     if (result.error) return { error: result.error.message };
 
-    return result.data!;
+    return result;
   } catch (error) {
     console.error("Error updating personal information:", error);
     throw error;

@@ -16,7 +16,7 @@ export default async function updateProfilePicture(
 
     if (result.error) return { error: result.error.message };
 
-    return result.data!;
+    return result;
   } catch (error) {
     console.error("Error updating profile picture:", error);
     throw error;
