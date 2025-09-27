@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
+import { auth } from "@lib/auth";
 import logUserActivity from "@lib/logs";
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { allowedRoles, STATUS_CODES } from "@utils/constants";
 import getModelByRole from "@utils/get-model-by-role";
-import { cookies } from "next/headers";
-import { SignJWT } from "jose";
 
 export async function POST(req: Request) {
   try {
@@ -66,32 +65,12 @@ export async function POST(req: Request) {
     };
     await logUserActivity(userlog, req);
 
-    // Create JWT token manually
-    const secret = new TextEncoder().encode(
-      process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "your-secret-key-here"
-    );
-
-    const token = await new SignJWT({
-      user: {
-        id: user._id.toString(),
+    // Use Better Auth to create session
+    const session = await auth.api.signInEmail({
+      body: {
         email: user.email,
-        name: `${user.firstname} ${user.lastname}`,
-        image: user.profile,
-        role: userRole,
-      }
-    })
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime("7d")
-      .sign(secret);
-
-    // Set cookie
-    const cookieStore = cookies();
-    cookieStore.set("better-auth.session_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+        password: body.password,
+      },
     });
 
     return NextResponse.json({
@@ -101,7 +80,8 @@ export async function POST(req: Request) {
         name: `${user.firstname} ${user.lastname}`,
         image: user.profile,
         role: userRole,
-      }
+      },
+      session
     });
 
   } catch (error) {

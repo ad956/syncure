@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { auth } from "@lib/auth";
 
 const PRIVATE_ROUTES = [
   "/patient",
@@ -18,32 +18,25 @@ export async function middleware(req: NextRequest) {
   );
 
   if (isPrivateRoute) {
-    const token = req.cookies.get("better-auth.session_token")?.value;
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
 
-    if (!token) {
+    if (!session) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    try {
-      const secret = new TextEncoder().encode(
-        process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "your-secret-key-here"
-      );
-      
-      const { payload } = await jwtVerify(token, secret);
-      const userRole = payload.user?.role;
+    const userRole = session.user.role;
+    const requestedRoute = nextUrl.pathname;
 
-      if (!userRole) {
-        return NextResponse.redirect(new URL("/login", req.url));
-      }
+    const isAuthorized = PRIVATE_ROUTES.some(
+      (route) =>
+        requestedRoute.startsWith(route) &&
+        requestedRoute.includes(`/${userRole}`)
+    );
 
-      const requestedRoute = nextUrl.pathname;
-      const isAuthorized = requestedRoute.startsWith(`/${userRole}`);
-
-      if (!isAuthorized) {
-        return NextResponse.redirect(new URL("/unauthorized", req.url));
-      }
-    } catch (error) {
-      return NextResponse.redirect(new URL("/login", req.url));
+    if (!isAuthorized) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
   

@@ -38,7 +38,8 @@ class ErrorBoundary extends React.Component<
 
   handleLogout = async () => {
     console.log("Logging out...");
-    document.cookie = "better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    const { signOut } = await import('@lib/auth/client');
+    await signOut();
     window.location.href = '/login';
   };
 

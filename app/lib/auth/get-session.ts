@@ -1,21 +1,9 @@
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
+import { auth } from "@lib/auth";
 
 export async function getSession() {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("better-auth.session_token")?.value;
-
-    if (!token) {
-      return null;
-    }
-
-    const secret = new TextEncoder().encode(
-      process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "your-secret-key-here"
-    );
-
-    const { payload } = await jwtVerify(token, secret);
-    return payload;
+    const session = await auth.api.getSession();
+    return session;
   } catch (error) {
     return null;
   }
