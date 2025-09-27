@@ -73,7 +73,7 @@ export async function POST(req: Request) {
         .setIssuedAt()
         .setExpirationTime("7d")
         .sign(new TextEncoder().encode(
-          process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "your-secret-key-here"
+          process.env.AUTH_SECRET || "your-secret-key-here"
         ))
     ]);
 

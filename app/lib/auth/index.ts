@@ -9,7 +9,7 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
   },
-  secret: process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "your-secret-key-here",
+  secret: process.env.AUTH_SECRET || "your-secret-key-here",
   baseURL: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
 });
 
