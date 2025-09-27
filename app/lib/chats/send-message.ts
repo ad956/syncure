@@ -1,9 +1,13 @@
 export default async function sendMessage({
   roomId,
   message,
+  messageType = "text",
+  imageUrl,
 }: {
   roomId: string;
   message: string;
+  messageType?: "text" | "image";
+  imageUrl?: string;
 }): Promise<any> {
   const endpoint = `/api/chat/messages`;
 
@@ -11,7 +15,7 @@ export default async function sendMessage({
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId, message }),
+      body: JSON.stringify({ roomId, message, messageType, imageUrl }),
     });
 
     const result = await response.json();

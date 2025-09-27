@@ -12,6 +12,7 @@ import ChatRoomList from "./ChatRoomList";
 import EmptyState from "./EmptyState";
 import { ChatModal } from "./ChatModal";
 import { LuPlus } from "react-icons/lu";
+import { playNotificationSound } from "@lib/notifications/chat-notifications";
 
 const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
   const {
@@ -27,11 +28,13 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     fetchRoomsData,
     loadMessagesData,
     sendMsg,
+    sendImageMsg,
     handleNewMessage,
   } = useChat(currentUser);
 
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [showNewChat, setShowNewChat] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<Array<{userId: string, userName: string}>>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -57,6 +60,25 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     onOpen();
   };
 
+  const handleTyping = (isTyping: boolean) => {
+    if (!selectedRoom) return;
+    
+    pusherClient.trigger(`chat-${selectedRoom._id}`, "typing", {
+      userId: currentUser._id,
+      userName: `${currentUser.firstname} ${currentUser.lastname}`,
+      isTyping,
+    });
+  };
+
+  const handleNewMessageWithNotification = (data: Message) => {
+    handleNewMessage(data);
+    
+    // Play notification sound for received messages
+    if (data.senderId._id !== currentUser._id) {
+      playNotificationSound();
+    }
+  };
+
   useEffect(() => {
     fetchRoomsData();
   }, [currentUser, refreshKey]);
@@ -68,10 +90,20 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     readMessage(selectedRoom._id);
 
     const channel = pusherClient.subscribe(`chat-${selectedRoom._id}`);
-    channel.bind("new-message", handleNewMessage);
+    channel.bind("new-message", handleNewMessageWithNotification);
+    channel.bind("typing", (data: {userId: string, userName: string, isTyping: boolean}) => {
+      setTypingUsers(prev => {
+        if (data.isTyping) {
+          return [...prev.filter(u => u.userId !== data.userId), {userId: data.userId, userName: data.userName}];
+        } else {
+          return prev.filter(u => u.userId !== data.userId);
+        }
+      });
+    });
 
     return () => {
       pusherClient.unsubscribe(`chat-${selectedRoom._id}`);
+      setTypingUsers([]);
     };
   }, [selectedRoom]);
 
@@ -147,7 +179,10 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
           messagesLoading={messagesLoading}
           loadingMore={loadingMore}
           onSendMessage={(message) => sendMsg(selectedRoom._id, message)}
+          onSendImage={(imageUrl) => sendImageMsg(selectedRoom._id, imageUrl)}
           onResend={resendMessage}
+          onTyping={handleTyping}
+          typingUsers={typingUsers}
         />
       )}
       <Toaster />

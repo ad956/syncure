@@ -7,13 +7,12 @@ import dbConfig from "@utils/db";
 import capitalizedRole from "@utils/capitalized-role";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
+import { sendChatNotification } from "@lib/notifications/chat-notifications";
 
 import { getSession } from "@lib/auth/get-session";
 
 export async function GET(req: Request) {
   const session = await getSession();
-
-  console.log("user is there ; " + session?.user.email);
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -47,8 +46,6 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const session = await getSession();
 
-  console.log("user is there ; " + session?.user.email);
-
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
@@ -56,9 +53,9 @@ export async function POST(req: Request) {
     const _id = new Types.ObjectId(session.user.id);
 
     await dbConfig();
-    const { roomId, message } = await req.json();
+    const { roomId, message, messageType, imageUrl } = await req.json();
 
-    if (!roomId || !message) {
+    if (!roomId || (!message && !imageUrl)) {
       return errorHandler("Missing required fields", STATUS_CODES.BAD_REQUEST);
     }
 
@@ -66,8 +63,17 @@ export async function POST(req: Request) {
       roomId: new Types.ObjectId(roomId),
       senderId: _id,
       senderRole: capitalizedRole(session.user.role),
-      message,
+      message: message || (messageType === "image" ? "📷 Image" : ""),
+      messageType: messageType || "text",
+      imageUrl: imageUrl || undefined,
     });
+
+    // Populate sender info for real-time update
+    await newMessage.populate("senderId", "firstname lastname profile");
+
+    // Get room participants for notifications
+    const room = await Room.findById(new Types.ObjectId(roomId));
+    const recipient = room?.participants.find(p => p.userId.toString() !== _id.toString());
 
     // update room's lastMessage and timestamp
     await Room.findByIdAndUpdate(new Types.ObjectId(roomId), {
@@ -78,10 +84,19 @@ export async function POST(req: Request) {
     // trigger Pusher event
     await pusherServer.trigger(`chat-${roomId}`, "new-message", newMessage);
 
+    // Send notification to recipient
+    if (recipient) {
+      await sendChatNotification({
+        recipientId: recipient.userId.toString(),
+        senderName: `${session.user.name}`,
+        message: message || "📷 Image",
+        messageType: messageType || "text",
+      });
+    }
+
     return NextResponse.json(newMessage);
   } catch (error) {
     console.error("Error sending message:", error);
     return errorHandler("Failed to send message", STATUS_CODES.SERVER_ERROR);
   }
 }
-

@@ -1,22 +1,52 @@
 import { Button, Input } from "@nextui-org/react";
 import React from "react";
-import { useState } from "react";
-import { FaPaperPlane } from "react-icons/fa6";
+import { useState, useRef, useCallback } from "react";
+import { FaPaperPlane, FaImage } from "react-icons/fa6";
+import { CldUploadWidget, CloudinaryUploadWidgetInfo } from "next-cloudinary";
 
 const ChatInput = React.memo(
   ({
     onSend,
+    onSendImage,
+    onTyping,
     disabled,
   }: {
     onSend: (message: string) => void;
+    onSendImage: (imageUrl: string) => void;
+    onTyping: (isTyping: boolean) => void;
     disabled: boolean;
   }) => {
     const [newMessage, setNewMessage] = useState("");
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setNewMessage(value);
+
+      // Emit typing start
+      onTyping(true);
+
+      // Clear existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Set timeout to stop typing after 2 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        onTyping(false);
+      }, 2000);
+    }, [onTyping]);
 
     const handleSend = () => {
       if (newMessage.trim() && !disabled) {
         onSend(newMessage);
         setNewMessage("");
+        onTyping(false);
+        
+        // Clear typing timeout
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
       }
     };
 
@@ -25,12 +55,34 @@ const ChatInput = React.memo(
         <Input
           placeholder="Type a message..."
           value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
+          onChange={handleInputChange}
           onKeyPress={(e) => {
             if (e.key === "Enter") {
               handleSend();
             }
           }}
+          startContent={
+            <CldUploadWidget
+              signatureEndpoint="/api/cloudinary/sign-image"
+              onSuccess={(result) => {
+                const info = result.info as CloudinaryUploadWidgetInfo;
+                onSendImage(info.secure_url);
+              }}
+            >
+              {({ open }) => (
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="flat"
+                  color="secondary"
+                  onClick={() => open()}
+                  disabled={disabled}
+                >
+                  <FaImage className="h-4 w-4" />
+                </Button>
+              )}
+            </CldUploadWidget>
+          }
           endContent={
             <Button
               isIconOnly

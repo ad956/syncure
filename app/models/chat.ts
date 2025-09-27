@@ -5,6 +5,8 @@ export interface IMessage extends mongoose.Document {
   senderId: mongoose.Schema.Types.ObjectId;
   senderRole: "Patient" | "Doctor";
   message: string;
+  messageType: "text" | "image";
+  imageUrl?: string;
   isRead: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -30,6 +32,15 @@ const messageSchema = new mongoose.Schema(
     message: {
       type: String,
       required: true,
+    },
+    messageType: {
+      type: String,
+      enum: ["text", "image"],
+      default: "text",
+    },
+    imageUrl: {
+      type: String,
+      required: false,
     },
     isRead: {
       type: Boolean,

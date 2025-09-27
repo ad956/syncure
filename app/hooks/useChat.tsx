@@ -91,6 +91,7 @@ const useChat = (currentUser: ChatUser) => {
     const optimisticMessage = {
       _id: messageId,
       message: messageText,
+      messageType: "text" as const,
       senderId: {
         _id: currentUser._id,
         firstname: currentUser.firstname,
@@ -111,6 +112,7 @@ const useChat = (currentUser: ChatUser) => {
       await sendMessage({
         roomId: roomId,
         message: messageText,
+        messageType: "text",
       });
 
       setSentMessages((prev: any) => ({
@@ -121,33 +123,62 @@ const useChat = (currentUser: ChatUser) => {
       }));
     } catch (error) {
       console.error("Failed to send message:", error);
-
       setSentMessages((prev) => ({
         ...prev,
         [roomId]: prev[roomId].map((msg: any) =>
           msg._id === messageId ? { ...msg, status: "failed" } : msg
         ),
       }));
+      toast.error("Failed to send message");
+    }
+  };
 
-      toast(
-        (t) => (
-          <div className="flex items-center gap-2">
-            <span>Failed to send message</span>
-            <button
-              onClick={() => {
-                resendMessage(roomId, optimisticMessage as unknown as Message);
-                toast.dismiss(t.id);
-              }}
-              className="px-2 py-1 text-sm bg-primary/10 hover:bg-primary/20 text-primary rounded"
-            >
-              Retry
-            </button>
-          </div>
+  const sendImageMsg = async (roomId: string, imageUrl: string) => {
+    const messageId = Date.now().toString();
+    const optimisticMessage = {
+      _id: messageId,
+      message: "📷 Image",
+      messageType: "image" as const,
+      imageUrl: imageUrl,
+      senderId: {
+        _id: currentUser._id,
+        firstname: currentUser.firstname,
+        lastname: currentUser.lastname,
+        profile: currentUser.profile,
+      },
+      createdAt: new Date().toISOString(),
+      roomId: roomId,
+      status: "sending",
+    };
+
+    setSentMessages((prev: any) => ({
+      ...prev,
+      [roomId]: [...(prev[roomId] || []), optimisticMessage],
+    }));
+
+    try {
+      await sendMessage({
+        roomId: roomId,
+        message: "📷 Image",
+        messageType: "image",
+        imageUrl: imageUrl,
+      });
+
+      setSentMessages((prev: any) => ({
+        ...prev,
+        [roomId]: prev[roomId].map((msg: any) =>
+          msg._id === messageId ? { ...msg, status: "sent" } : msg
         ),
-        {
-          duration: 4000,
-        }
-      );
+      }));
+    } catch (error) {
+      console.error("Failed to send image:", error);
+      setSentMessages((prev) => ({
+        ...prev,
+        [roomId]: prev[roomId].map((msg: any) =>
+          msg._id === messageId ? { ...msg, status: "failed" } : msg
+        ),
+      }));
+      toast.error("Failed to send image");
     }
   };
 
@@ -165,6 +196,8 @@ const useChat = (currentUser: ChatUser) => {
       await sendMessage({
         roomId: roomId,
         message: failedMessage.message,
+        messageType: failedMessage.messageType || "text",
+        imageUrl: failedMessage.imageUrl,
       });
 
       setSentMessages((prev: any) => ({
@@ -215,6 +248,7 @@ const useChat = (currentUser: ChatUser) => {
     fetchRoomsData,
     loadMessagesData,
     sendMsg,
+    sendImageMsg,
     resendMessage,
     handleNewMessage,
     setPage,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -10,6 +10,7 @@ import SpinnerLoader from "../SpinnerLoader";
 import MessageComponent from "./Message";
 import ChatInput from "./ChatInput";
 import NoMessages from "./NoMessages";
+import TypingIndicator from "./TypingIndicator";
 
 export const ChatModal: React.FC<ChatModalProps> = ({
   isOpen,
@@ -20,7 +21,10 @@ export const ChatModal: React.FC<ChatModalProps> = ({
   messagesLoading,
   loadingMore,
   onSendMessage,
+  onSendImage,
   onResend,
+  onTyping,
+  typingUsers,
 }) => {
   const getOtherParticipant = (room: Room) => {
     return room.participants.find((p) => p.userId._id !== currentUser._id)
@@ -29,6 +33,9 @@ export const ChatModal: React.FC<ChatModalProps> = ({
 
   const otherUser = getOtherParticipant(selectedRoom);
   if (!otherUser) return null;
+
+  const isOtherUserTyping = typingUsers.some(user => user.userId !== currentUser._id);
+  const typingUserName = isOtherUserTyping ? `${otherUser.firstname} ${otherUser.lastname}` : "";
 
   return (
     <Modal
@@ -81,11 +88,19 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                         onResend={() => onResend(selectedRoom._id, msg)}
                       />
                     ))}
+                    {isOtherUserTyping && (
+                      <TypingIndicator userName={typingUserName} />
+                    )}
                   </>
                 )}
               </div>
 
-              <ChatInput onSend={onSendMessage} disabled={messagesLoading} />
+              <ChatInput 
+                onSend={onSendMessage} 
+                onSendImage={onSendImage}
+                onTyping={onTyping}
+                disabled={messagesLoading} 
+              />
             </ModalBody>
           </>
         )}

@@ -1,11 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Image } from "@nextui-org/react";
 
 const MessageComponent = React.memo(
   ({ message, currentUserId, onResend }: MessageComponentProps) => {
     const isOwn = message.senderId._id === currentUserId;
     const isPending = message.status === "sending";
     const isFailed = message.status === "failed";
+    const isImage = message.messageType === "image";
 
     return (
       <motion.div
@@ -19,7 +21,19 @@ const MessageComponent = React.memo(
             isOwn ? "bg-primary/10 ml-auto" : "bg-default-100 mr-auto"
           } ${isFailed ? "opacity-50" : ""}`}
         >
-          <p className="text-small">{message.message}</p>
+          {isImage && message.imageUrl ? (
+            <div className="mb-2">
+              <Image
+                src={message.imageUrl}
+                alt="Shared image"
+                className="max-w-[200px] max-h-[200px] object-cover rounded-lg cursor-pointer"
+                onClick={() => window.open(message.imageUrl, '_blank')}
+              />
+            </div>
+          ) : (
+            <p className="text-small">{message.message}</p>
+          )}
+          
           <div className="flex items-center justify-end gap-2 mt-1">
             <span className="text-tiny text-default-400">
               {new Date(message.createdAt).toLocaleTimeString([], {
