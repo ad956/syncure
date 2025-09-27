@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Avatar } from "@nextui-org/react";
+import { FaImage } from "react-icons/fa6";
 
 const ChatRoomList: React.FC<ChatRoomListProps> = ({
   rooms,
@@ -42,11 +43,18 @@ const ChatRoomList: React.FC<ChatRoomListProps> = ({
                     {otherUser.specialty}
                   </p>
                 )}
-                <p className="text-tiny text-default-400 truncate mt-1">
-                  {room.lastMessage
-                    ? room.lastMessage.message
-                    : "No messages yet"}
-                </p>
+                <div className="flex items-center gap-1 mt-1">
+                  {room.lastMessage?.messageType === "image" && (
+                    <FaImage className="text-tiny text-default-400" />
+                  )}
+                  <p className="text-tiny text-default-400 truncate">
+                    {room.lastMessage
+                      ? room.lastMessage.messageType === "image"
+                        ? "Image"
+                        : room.lastMessage.message
+                      : "No messages yet"}
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>

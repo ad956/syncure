@@ -34,8 +34,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
   const otherUser = getOtherParticipant(selectedRoom);
   if (!otherUser) return null;
 
-  const isOtherUserTyping = typingUsers.some(user => user.userId !== currentUser._id);
-  const typingUserName = isOtherUserTyping ? `${otherUser.firstname} ${otherUser.lastname}` : "";
+  // Typing indicator removed for better performance
 
   return (
     <Modal
@@ -88,9 +87,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                         onResend={() => onResend(selectedRoom._id, msg)}
                       />
                     ))}
-                    {isOtherUserTyping && (
-                      <TypingIndicator userName={typingUserName} />
-                    )}
+                    {/* Typing indicator removed for better performance */}
                   </>
                 )}
               </div>

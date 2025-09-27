@@ -10,11 +10,14 @@ type ChatUser = {
 type Message = {
   _id: string;
   message: string;
+  messageType?: "text" | "image";
+  imageUrl?: string;
   senderId: User;
   senderRole: "Patient" | "Doctor";
   createdAt: string;
   isRead: boolean;
-  status: "sending" | "failed";
+  status?: "sending" | "sent" | "failed";
+  roomId?: string;
 };
 
 type Room = {
@@ -39,7 +42,10 @@ type ChatModalProps = {
   messagesLoading: boolean;
   loadingMore: boolean;
   onSendMessage: (message: string) => void;
+  onSendImage: (imageUrl: string) => void;
   onResend: (roomId: string, failedMessage: Message) => void;
+  onTyping: (isTyping: boolean) => void;
+  typingUsers: Array<{userId: string, userName: string}>;
 };
 
 type ChatRoomListProps = {

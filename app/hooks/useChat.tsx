@@ -100,7 +100,7 @@ const useChat = (currentUser: ChatUser) => {
       },
       createdAt: new Date().toISOString(),
       roomId: roomId,
-      status: "sending",
+      status: "sent",
     };
 
     setSentMessages((prev: any) => ({
@@ -114,15 +114,7 @@ const useChat = (currentUser: ChatUser) => {
         message: messageText,
         messageType: "text",
       });
-
-      setSentMessages((prev: any) => ({
-        ...prev,
-        [roomId]: prev[roomId].map((msg: any) =>
-          msg._id === messageId ? { ...msg, status: "sent" } : msg
-        ),
-      }));
     } catch (error) {
-      console.error("Failed to send message:", error);
       setSentMessages((prev) => ({
         ...prev,
         [roomId]: prev[roomId].map((msg: any) =>
@@ -133,11 +125,11 @@ const useChat = (currentUser: ChatUser) => {
     }
   };
 
-  const sendImageMsg = async (roomId: string, imageUrl: string) => {
+  const sendImageMsg = async (roomId: string, imageUrl: string, caption?: string) => {
     const messageId = Date.now().toString();
     const optimisticMessage = {
       _id: messageId,
-      message: "",
+      message: caption || "",
       messageType: "image" as const,
       imageUrl: imageUrl,
       senderId: {
@@ -148,7 +140,7 @@ const useChat = (currentUser: ChatUser) => {
       },
       createdAt: new Date().toISOString(),
       roomId: roomId,
-      status: "sending",
+      status: "sent",
     };
 
     setSentMessages((prev: any) => ({
@@ -159,7 +151,7 @@ const useChat = (currentUser: ChatUser) => {
     try {
       await sendMessage({
         roomId: roomId,
-        message: "",
+        message: caption || "",
         messageType: "image",
         imageUrl: imageUrl,
       });
@@ -222,17 +214,31 @@ const useChat = (currentUser: ChatUser) => {
 
   const handleNewMessage = useCallback(
     (data: Message) => {
-      if (!selectedRoom) return;
-
-      if ((data.senderId as unknown as string) === currentUser._id) {
-        return;
+      if (!data.roomId) return;
+      
+      const roomId = typeof data.roomId === 'string' ? data.roomId : data.roomId.toString();
+      
+      // Prevent duplicate messages by checking if message already exists
+      const existingMessages = data.senderId._id === currentUser._id 
+        ? sentMessages[roomId] || [] 
+        : receivedMessages[roomId] || [];
+      
+      const messageExists = existingMessages.some(msg => msg._id === data._id);
+      if (messageExists) return;
+      
+      if (data.senderId._id === currentUser._id) {
+        setSentMessages((prev: any) => ({
+          ...prev,
+          [roomId]: [...(prev[roomId] || []), { ...data, status: "sent" }],
+        }));
+      } else {
+        setReceivedMessages((prev: any) => ({
+          ...prev,
+          [roomId]: [...(prev[roomId] || []), data],
+        }));
       }
-      setReceivedMessages((prev: any) => ({
-        ...prev,
-        [selectedRoom._id]: [...(prev[selectedRoom._id] || []), data],
-      }));
     },
-    [selectedRoom, currentUser._id]
+    [currentUser._id, sentMessages, receivedMessages]
   );
 
   return {

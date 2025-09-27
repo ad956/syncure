@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { pusherClient } from "@lib/pusher";
 import { Button, Image, useDisclosure } from "@nextui-org/react";
 import { readMessage } from "@lib/chats";
@@ -60,34 +60,23 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     onOpen();
   };
 
-  const handleTyping = async (isTyping: boolean) => {
-    if (!selectedRoom) return;
-    
-    try {
-      await fetch('/api/chat/typing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomId: selectedRoom._id,
-          isTyping,
-        }),
-      });
-    } catch (error) {
-      console.error('Error sending typing indicator:', error);
-    }
-  };
+  // Typing indicator removed for better performance
 
-  const handleNewMessageWithNotification = (data: Message) => {
+  const handleNewMessageWithNotification = useCallback((data: Message) => {
     handleNewMessage(data);
     
-    // Play notification sound for received messages
+    // Only play sound for received messages (not own messages)
     if (data.senderId._id !== currentUser._id) {
       playNotificationSound();
     }
-  };
+  }, [handleNewMessage, currentUser._id]);
 
   useEffect(() => {
     fetchRoomsData();
+    
+    // Setup Novu subscriber
+    fetch('/api/novu/subscriber', { method: 'POST' })
+      .catch(error => console.error('Failed to setup Novu subscriber:', error));
   }, [currentUser, refreshKey]);
 
   useEffect(() => {
@@ -96,23 +85,28 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     loadMessagesData(selectedRoom._id, true);
     readMessage(selectedRoom._id);
 
-    const channel = pusherClient.subscribe(`chat-${selectedRoom._id}`);
+    const channelName = `chat-${selectedRoom._id}`;
+    const channel = pusherClient.subscribe(channelName);
+    
+    // Bind events
     channel.bind("new-message", handleNewMessageWithNotification);
-    channel.bind("typing", (data: {userId: string, userName: string, isTyping: boolean}) => {
-      setTypingUsers(prev => {
-        if (data.isTyping) {
-          return [...prev.filter(u => u.userId !== data.userId), {userId: data.userId, userName: data.userName}];
-        } else {
-          return prev.filter(u => u.userId !== data.userId);
-        }
-      });
+    // Typing indicator removed for better performance
+    
+    // Handle connection state
+    channel.bind('pusher:subscription_succeeded', () => {
+      console.log('Successfully subscribed to', channelName);
+    });
+    
+    channel.bind('pusher:subscription_error', (error: any) => {
+      console.error('Subscription error for', channelName, error);
     });
 
     return () => {
-      pusherClient.unsubscribe(`chat-${selectedRoom._id}`);
-      setTypingUsers([]);
+      channel.unbind_all();
+      pusherClient.unsubscribe(channelName);
+      // Typing cleanup removed
     };
-  }, [selectedRoom]);
+  }, [selectedRoom, currentUser._id]);
 
   if (loadingChats) {
     return <SpinnerLoader />;
@@ -188,8 +182,8 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
           onSendMessage={(message) => sendMsg(selectedRoom._id, message)}
           onSendImage={(imageUrl) => sendImageMsg(selectedRoom._id, imageUrl)}
           onResend={resendMessage}
-          onTyping={handleTyping}
-          typingUsers={typingUsers}
+          onTyping={() => {}} // Typing disabled
+          typingUsers={[]}
         />
       )}
       <Toaster />
