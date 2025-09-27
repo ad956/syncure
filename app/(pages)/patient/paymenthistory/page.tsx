@@ -1,4 +1,4 @@
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 import PaymentDetails from "../components/PaymentDetails";
 import getPaymentsHistory from "@lib/patient/get-payments-history";
 

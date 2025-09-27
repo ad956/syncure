@@ -1,6 +1,6 @@
 import ProfileSettings from "@components/ProfileSettings";
 import getReceptionistData from "@lib/receptionist/get-receptionist-data";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export default async function Settings() {
   const session = await getSession();

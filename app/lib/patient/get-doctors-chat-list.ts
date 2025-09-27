@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
-import { auth } from "../auth";
+import { getSession } from "../auth/get-session";
 import dbConfig from "@utils/db";
 import Patient from "@models/patient";
 
 export default async function getDoctorsChatList() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     throw new Error("Unauthorized");

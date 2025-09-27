@@ -7,11 +7,11 @@ import capitalizedRole from "@utils/capitalized-role";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 // get all rooms AKA chat-list
 export async function GET(req: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   console.log("user is there ; " + session?.user.email);
 
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
 
 // create a room AKA chat
 export async function POST(req: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   console.log("user is there ; " + session?.user.email);
 
@@ -119,3 +119,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

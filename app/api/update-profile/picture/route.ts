@@ -5,10 +5,10 @@ import { STATUS_CODES } from "@utils/constants";
 import getModelByRole from "@utils/get-model-by-role";
 import { Types } from "mongoose";
 import { revalidateTag } from "next/cache";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export async function PUT(request: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -45,3 +45,4 @@ export async function PUT(request: Request) {
     return errorHandler("Internal Server Error", STATUS_CODES.SERVER_ERROR);
   }
 }
+

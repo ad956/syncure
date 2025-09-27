@@ -1,6 +1,6 @@
 import getHospitalData from "@lib/hospital/get-hospital-data";
 import ProfileSettings from "@components/ProfileSettings";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export default async function Settings() {
   const session = await getSession();

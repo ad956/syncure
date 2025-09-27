@@ -1,6 +1,6 @@
 import getPatientMedicalHistory from "@lib/patient/get-patient-medical-history";
 import MedicalDetails from "../components/MedicalDetails";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export default async function MedicalHistory() {
   const session = await getSession();

@@ -4,10 +4,10 @@ import { Types } from "mongoose";
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export async function GET() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -61,3 +61,4 @@ export async function GET() {
     );
   }
 }
+

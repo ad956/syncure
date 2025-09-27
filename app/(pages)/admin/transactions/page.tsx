@@ -1,4 +1,4 @@
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 import Transactions from "../components/Transactions";
 import getTransactions from "@lib/admin/get-transactions";
 
