@@ -1,9 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Button, Divider, User } from "@nextui-org/react";
 import { CiLogin } from "react-icons/ci";
 import Notifications from "../Notifications";
 import Image from "next/image";
-import { signOut } from "@lib/auth/client";
+import { useRouter } from "next/navigation";
 
 type HeadbarProps = {
   user: User;
@@ -13,6 +15,13 @@ type HeadbarProps = {
 const USERS_WITH_ADD_BUTTON = ["patient", "receptionist"];
 
 export default function Headbar({ user, role }: HeadbarProps) {
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    document.cookie = "better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    router.push('/login');
+  };
+
   return (
     <div className="bg-[#f3f6fd] p-4 flex flex-row justify-between">
       <div className="flex items-center w-3/5">
@@ -54,10 +63,7 @@ export default function Headbar({ user, role }: HeadbarProps) {
           size="sm" 
           isIconOnly 
           className="bg-transparent"
-          onClick={async () => {
-            await signOut();
-            window.location.href = '/login';
-          }}
+          onClick={handleSignOut}
         >
           <CiLogin size={25} />
         </Button>
