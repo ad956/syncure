@@ -23,7 +23,10 @@ export async function POST(req: Request) {
     let user = null;
     let userRole = "";
 
-    for (const role of allowedRoles) {
+    // Optimize: Check roles in order of most common usage
+    const orderedRoles = ["patient", "doctor", "receptionist", "hospital", "admin"];
+    
+    for (const role of orderedRoles) {
       const UserModel = getModelByRole(role);
       const foundUser = await UserModel.findOne(
         {
@@ -54,38 +57,36 @@ export async function POST(req: Request) {
       return errorHandler("Invalid credentials", STATUS_CODES.UNAUTHORIZED);
     }
 
-    const UserModel = getModelByRole(userRole);
-    await UserModel.findByIdAndUpdate(user._id, { $set: { otp: "" } });
+    // Parallel operations: Clear OTP and create JWT
+    const [, token] = await Promise.all([
+      getModelByRole(userRole).findByIdAndUpdate(user._id, { $set: { otp: "" } }),
+      new SignJWT({
+        user: {
+          id: user._id.toString(),
+          email: user.email,
+          name: `${user.firstname} ${user.lastname}`,
+          image: user.profile,
+          role: userRole,
+        }
+      })
+        .setProtectedHeader({ alg: "HS256" })
+        .setIssuedAt()
+        .setExpirationTime("7d")
+        .sign(new TextEncoder().encode(
+          process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "your-secret-key-here"
+        ))
+    ]);
 
-    const userlog = {
+    // Log user activity asynchronously (don't wait)
+    logUserActivity({
       username: user.username,
       name: `${user.firstname} ${user.lastname}`,
       email: user.email,
       role: userRole,
       action: "login",
-    };
-    await logUserActivity(userlog, req);
+    }, req).catch(error => console.error("Logging failed:", error));
 
-    // Create JWT token manually (like NextAuth did)
-    const secret = new TextEncoder().encode(
-      process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "your-secret-key-here"
-    );
-
-    const token = await new SignJWT({
-      user: {
-        id: user._id.toString(),
-        email: user.email,
-        name: `${user.firstname} ${user.lastname}`,
-        image: user.profile,
-        role: userRole,
-      }
-    })
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime("7d")
-      .sign(secret);
-
-    // Set Better Auth compatible cookie
+    // Set cookie
     const cookieStore = cookies();
     cookieStore.set("better-auth.session_token", token, {
       httpOnly: true,
