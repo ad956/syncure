@@ -12,12 +12,12 @@ import {
 } from "react-icons/lu";
 import { ResponsiveLine } from "@nivo/line";
 import Dashboard from "./components/Dashboard";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export default async function Hospital() {
-  const session = await auth.api.getSession();
-  const hospital = await getHospitalData(session?.user.id);
-  const hospitalDetails = await getHospitalDetails(session?.user.id);
+  const session = await getSession();
+  const hospital = await getHospitalData(session?.user?.id);
+  const hospitalDetails = await getHospitalDetails(session?.user?.id);
 
   return (
     <section className="bg-[#f3f6fd] p-5 overflow-y-scroll scrollbar h-screen">

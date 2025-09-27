@@ -1,4 +1,4 @@
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
 import getHospitalData from "@lib/hospital/get-hospital-data";
@@ -15,8 +15,8 @@ export default async function HospitalLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession();
-  const hospital = await getHospitalData(session?.user.id);
+  const session = await getSession();
+  const hospital = await getHospitalData(session?.user?.id);
 
   return (
     <main className="h-screen flex">

@@ -4,7 +4,7 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 import Transaction from "@models/transaction";
 import { Types } from "mongoose";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 interface pendingTransactionReqBody {
   txnDocumentId: string;
@@ -14,7 +14,7 @@ interface pendingTransactionReqBody {
 
 // saving transaction details in db
 export async function POST(req: Request) {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
 
 // save pending transaction
 export async function PUT(req: Request) {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
