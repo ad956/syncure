@@ -5,7 +5,7 @@ export default async function sendMessage({
   imageUrl,
 }: {
   roomId: string;
-  message: string;
+  message?: string;
   messageType?: "text" | "image";
   imageUrl?: string;
 }): Promise<any> {

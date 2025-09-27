@@ -137,7 +137,7 @@ const useChat = (currentUser: ChatUser) => {
     const messageId = Date.now().toString();
     const optimisticMessage = {
       _id: messageId,
-      message: "📷 Image",
+      message: "",
       messageType: "image" as const,
       imageUrl: imageUrl,
       senderId: {
@@ -159,7 +159,7 @@ const useChat = (currentUser: ChatUser) => {
     try {
       await sendMessage({
         roomId: roomId,
-        message: "📷 Image",
+        message: "",
         messageType: "image",
         imageUrl: imageUrl,
       });

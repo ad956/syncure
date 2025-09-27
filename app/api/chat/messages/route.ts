@@ -55,18 +55,25 @@ export async function POST(req: Request) {
     await dbConfig();
     const { roomId, message, messageType, imageUrl } = await req.json();
 
-    if (!roomId || (!message && !imageUrl)) {
+    if (!roomId || (messageType !== "image" && !message) || (messageType === "image" && !imageUrl)) {
       return errorHandler("Missing required fields", STATUS_CODES.BAD_REQUEST);
     }
 
-    const newMessage = await Message.create({
+    const messageData: any = {
       roomId: new Types.ObjectId(roomId),
       senderId: _id,
       senderRole: capitalizedRole(session.user.role),
-      message: message || (messageType === "image" ? "📷 Image" : ""),
       messageType: messageType || "text",
-      imageUrl: imageUrl || undefined,
-    });
+    };
+
+    if (messageType === "image") {
+      messageData.imageUrl = imageUrl;
+      if (message && message.trim()) messageData.message = message;
+    } else {
+      messageData.message = message;
+    }
+
+    const newMessage = await Message.create(messageData);
 
     // Populate sender info for real-time update
     await newMessage.populate("senderId", "firstname lastname profile");
@@ -86,12 +93,16 @@ export async function POST(req: Request) {
 
     // Send notification to recipient
     if (recipient) {
-      await sendChatNotification({
-        recipientId: recipient.userId.toString(),
-        senderName: `${session.user.name}`,
-        message: message || "📷 Image",
-        messageType: messageType || "text",
-      });
+      try {
+        await sendChatNotification({
+          recipientId: recipient.userId.toString(),
+          senderName: session.user.name,
+          message: messageType === "image" ? "📷 Sent an image" : (message || ""),
+          messageType: messageType || "text",
+        });
+      } catch (notificationError) {
+        console.error("Failed to send notification:", notificationError);
+      }
     }
 
     return NextResponse.json(newMessage);

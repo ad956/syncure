@@ -60,14 +60,21 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     onOpen();
   };
 
-  const handleTyping = (isTyping: boolean) => {
+  const handleTyping = async (isTyping: boolean) => {
     if (!selectedRoom) return;
     
-    pusherClient.trigger(`chat-${selectedRoom._id}`, "typing", {
-      userId: currentUser._id,
-      userName: `${currentUser.firstname} ${currentUser.lastname}`,
-      isTyping,
-    });
+    try {
+      await fetch('/api/chat/typing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: selectedRoom._id,
+          isTyping,
+        }),
+      });
+    } catch (error) {
+      console.error('Error sending typing indicator:', error);
+    }
   };
 
   const handleNewMessageWithNotification = (data: Message) => {

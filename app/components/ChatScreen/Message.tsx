@@ -22,16 +22,21 @@ const MessageComponent = React.memo(
           } ${isFailed ? "opacity-50" : ""}`}
         >
           {isImage && message.imageUrl ? (
-            <div className="mb-2">
+            <div>
               <Image
                 src={message.imageUrl}
                 alt="Shared image"
                 className="max-w-[200px] max-h-[200px] object-cover rounded-lg cursor-pointer"
                 onClick={() => window.open(message.imageUrl, '_blank')}
               />
+              {message.message && message.message.trim() && message.message !== "📷 Image" && (
+                <p className="text-small mt-2">{message.message}</p>
+              )}
             </div>
           ) : (
-            <p className="text-small">{message.message}</p>
+            message.message && message.message.trim() && (
+              <p className="text-small">{message.message}</p>
+            )
           )}
           
           <div className="flex items-center justify-end gap-2 mt-1">

@@ -13,8 +13,13 @@ export async function sendChatNotification({
   message: string;
   messageType?: "text" | "image";
 }) {
+  if (!process.env.NOVU_API_KEY) {
+    console.warn("NOVU_API_KEY not configured, skipping notification");
+    return;
+  }
+
   try {
-    await novu.trigger("chat-message", {
+    const result = await novu.trigger("chat-message", {
       to: {
         subscriberId: recipientId,
       },
@@ -24,6 +29,7 @@ export async function sendChatNotification({
         timestamp: new Date().toISOString(),
       },
     });
+    console.log("Notification sent successfully:", result.data?.transactionId);
   } catch (error) {
     console.error("Failed to send chat notification:", error);
   }
@@ -31,10 +37,25 @@ export async function sendChatNotification({
 
 export function playNotificationSound() {
   if (typeof window !== "undefined") {
-    const audio = new Audio("/sounds/message-notification.mp3");
-    audio.volume = 0.5;
-    audio.play().catch(error => {
+    try {
+      // Create a simple beep sound using Web Audio API as fallback
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (error) {
       console.log("Could not play notification sound:", error);
-    });
+    }
   }
 }
