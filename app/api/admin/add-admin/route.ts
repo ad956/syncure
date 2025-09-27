@@ -6,14 +6,14 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 import hashPassword from "@utils/hash-password";
 
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 import { NewAdminTemplate, sendEmail } from "@lib/emails";
 import { render } from "@react-email/render";
 
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const session = await getSession();
 
     if (!session) {
       return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);

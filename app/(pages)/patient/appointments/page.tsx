@@ -4,8 +4,8 @@ import getPatientData from "@lib/patient/get-patient-data";
 import { auth } from "@lib/auth";
 
 export default async function Appointments() {
-  const session = await auth();
-  const patient = await getPatientData(session?.user.id);
+  const session = await getSession();
+  const patient = await getPatientData(session?.user?.id);
 
   const { _id, firstname, lastname, email } = patient;
 

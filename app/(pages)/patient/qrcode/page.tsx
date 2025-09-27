@@ -4,8 +4,8 @@ import QRCode from "../components/QR";
 import { auth } from "@lib/auth";
 
 export default async function QRCodePage() {
-  const session = await auth();
-  const patient = await getPatientData(session?.user.id);
+  const session = await getSession();
+  const patient = await getPatientData(session?.user?.id);
 
   return (
     <Card
