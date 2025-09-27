@@ -1,10 +1,10 @@
 import getDoctorData from "@lib/doctor/get-doctor-data";
 import Dashboard from "./components/Dashboard";
-import { auth } from "@lib/auth";
+// TODO: Import Better Auth
 
 export default async function Doctor() {
-  const session = await auth();
-  const doctor = await getDoctorData(session?.user.id);
+  // TODO: Replace with Better Auth session
+  const doctor = await getDoctorData('temp-doctor-id');
 
   return <Dashboard doctor={doctor} />;
 }

@@ -1,4 +1,4 @@
-import { auth } from "@lib/auth";
+// TODO: Import Better Auth
 import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
 import getHospitalData from "@lib/hospital/get-hospital-data";
@@ -15,8 +15,8 @@ export default async function HospitalLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  const hospital = await getHospitalData(session?.user.id);
+  // TODO: Replace with Better Auth session
+  const hospital = await getHospitalData('temp-hospital-id');
 
   return (
     <main className="h-screen flex">

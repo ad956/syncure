@@ -1,2 +1,1 @@
-import { handlers } from "@lib/auth";
-export const { GET, POST } = handlers;
+// NextAuth route removed - will be replaced with Better Auth

@@ -36,13 +36,13 @@ import {
   StatItem,
   WaitingRoomStatus,
 } from "./components/Graphs";
-import { auth } from "@lib/auth";
+// TODO: Import Better Auth
 
 export default async function ReceptionistPage() {
-  const session = await auth();
-  const receptionist = await getReceptionistData(session?.user.id);
+  // TODO: Replace with Better Auth session
+  const receptionist = await getReceptionistData('temp-receptionist-id');
 
-  const pendingPatients = await getPendingAppointments(session?.user.id);
+  const pendingPatients = await getPendingAppointments('temp-receptionist-id');
 
   const pendingAppointments = pendingPatients.patientDetails.length;
   const approvedAppointments = receptionist.dailyCount.approved;

@@ -38,7 +38,8 @@ class ErrorBoundary extends React.Component<
 
   handleLogout = async () => {
     console.log("Logging out...");
-    signOut({ redirectTo: "/login" });
+    // TODO: Replace with Better Auth signOut
+    window.location.href = '/login';
   };
 
   render(): ReactNode {

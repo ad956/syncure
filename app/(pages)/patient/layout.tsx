@@ -4,7 +4,7 @@ import Headbar from "@components/Headbar";
 import getPatientData from "@lib/patient/get-patient-data";
 
 import type { Metadata } from "next";
-import { auth } from "@lib/auth";
+// TODO: Import Better Auth
 
 export const metadata: Metadata = {
   title: "Syncure",
@@ -16,8 +16,8 @@ export default async function PatientLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  const patient = await getPatientData(session?.user.id);
+  // TODO: Replace with Better Auth session
+  const patient = await getPatientData('temp-patient-id');
 
   return (
     <main className="h-screen flex">

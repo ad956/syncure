@@ -11,7 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { signIn } from "next-auth/react";
+// TODO: Replace with Better Auth signIn
 
 interface userDataType {
   userData: {
@@ -77,16 +77,23 @@ export default function OtpSection({ userData }: userDataType) {
 
   const handleSubmit = async () => {
     const otpString = otp.join("");
-    const response = await signIn("credentials", {
-      usernameOrEmail: userData.usernameOrEmail,
-      role: userData.role,
-      otp: otpString,
-      action: userData.action,
-      redirect: false,
+    
+    // TODO: Replace with Better Auth implementation
+    const response = await fetch('/api/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        usernameOrEmail: userData.usernameOrEmail,
+        role: userData.role,
+        otp: otpString,
+        action: userData.action,
+      }),
     });
 
-    if (response?.error) {
-      setShowError(response.error);
+    const result = await response.json();
+
+    if (!response.ok) {
+      setShowError(result.message || 'OTP verification failed');
       resetOtpInputs();
     } else {
       setShowError("");

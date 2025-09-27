@@ -6,11 +6,11 @@ import PatientTabs from "./components/PatientTabs";
 
 import getPatientData from "@lib/patient/get-patient-data";
 import getUpcomingAppointments from "@lib/patient/get-upcoming-appointments";
-import { auth } from "@lib/auth";
+// TODO: Import Better Auth
 
 export default async function PatientPage() {
-  const session = await auth();
-  const patient = await getPatientData(session?.user.id);
+  // TODO: Replace with Better Auth session
+  const patient = await getPatientData('temp-patient-id');
   const upcomingAppointments = await getUpcomingAppointments();
 
   return (

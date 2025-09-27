@@ -4,21 +4,23 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 import Receptionist from "@models/receptionist";
 import { Types } from "mongoose";
-import { auth } from "@/lib/auth";
+// TODO: Import Better Auth
 
 export async function GET(request: Request) {
-  const session = await auth();
+  // TODO: Replace with Better Auth session validation
+  // const session = await auth();
 
-  console.log("session : " + session);
+  // console.log("session : " + session);
 
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  }
+  // if (!session) {
+  //   return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  // }
 
-  const { id, role } = session.user;
+  // const { id, role } = session.user;
 
   try {
-    const receptionist_id = new Types.ObjectId(id);
+    // TODO: Get receptionist ID from Better Auth session
+    const receptionist_id = new Types.ObjectId('temp-receptionist-id');
     await dbConfig();
 
     const projection = {

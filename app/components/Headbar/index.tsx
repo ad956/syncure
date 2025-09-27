@@ -50,16 +50,17 @@ export default function Headbar({ user, role }: HeadbarProps) {
         />
         <Divider orientation="vertical" className="h-8" />
 
-        <form
-          action={async () => {
-            "use server";
-            await signOut();
+        <Button 
+          size="sm" 
+          isIconOnly 
+          className="bg-transparent"
+          onClick={() => {
+            // TODO: Replace with Better Auth signOut
+            window.location.href = '/login';
           }}
         >
-          <Button size="sm" type="submit" isIconOnly className="bg-transparent">
-            <CiLogin size={25} />
-          </Button>
-        </form>
+          <CiLogin size={25} />
+        </Button>
       </div>
     </div>
   );
