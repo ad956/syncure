@@ -32,8 +32,9 @@ const messageSchema = new mongoose.Schema(
     message: {
       type: String,
       required: function() {
-        return this.messageType !== 'image';
+        return this.messageType === 'text';
       },
+      default: "",
     },
     messageType: {
       type: String,
@@ -42,7 +43,9 @@ const messageSchema = new mongoose.Schema(
     },
     imageUrl: {
       type: String,
-      required: false,
+      required: function() {
+        return this.messageType === 'image';
+      },
     },
     isRead: {
       type: Boolean,

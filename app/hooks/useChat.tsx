@@ -133,11 +133,11 @@ const useChat = (currentUser: ChatUser) => {
     }
   };
 
-  const sendImageMsg = async (roomId: string, imageUrl: string) => {
+  const sendImageMsg = async (roomId: string, imageUrl: string, caption?: string) => {
     const messageId = Date.now().toString();
     const optimisticMessage = {
       _id: messageId,
-      message: "",
+      message: caption || "",
       messageType: "image" as const,
       imageUrl: imageUrl,
       senderId: {
@@ -159,7 +159,7 @@ const useChat = (currentUser: ChatUser) => {
     try {
       await sendMessage({
         roomId: roomId,
-        message: "",
+        message: caption || "",
         messageType: "image",
         imageUrl: imageUrl,
       });
@@ -222,17 +222,26 @@ const useChat = (currentUser: ChatUser) => {
 
   const handleNewMessage = useCallback(
     (data: Message) => {
-      if (!selectedRoom) return;
-
-      if ((data.senderId as unknown as string) === currentUser._id) {
-        return;
+      if (!data.roomId) return;
+      
+      // Handle message for any room, not just selected room
+      const roomId = typeof data.roomId === 'string' ? data.roomId : data.roomId.toString();
+      
+      if (data.senderId._id === currentUser._id) {
+        // Update sent messages for own messages
+        setSentMessages((prev: any) => ({
+          ...prev,
+          [roomId]: [...(prev[roomId] || []), { ...data, status: "sent" }],
+        }));
+      } else {
+        // Update received messages for others' messages
+        setReceivedMessages((prev: any) => ({
+          ...prev,
+          [roomId]: [...(prev[roomId] || []), data],
+        }));
       }
-      setReceivedMessages((prev: any) => ({
-        ...prev,
-        [selectedRoom._id]: [...(prev[selectedRoom._id] || []), data],
-      }));
     },
-    [selectedRoom, currentUser._id]
+    [currentUser._id]
   );
 
   return {

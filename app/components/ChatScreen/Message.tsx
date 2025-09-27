@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Image } from "@nextui-org/react";
+import { FaImage } from "react-icons/fa6";
 
 const MessageComponent = React.memo(
   ({ message, currentUserId, onResend }: MessageComponentProps) => {
+    const [imageError, setImageError] = useState(false);
     const isOwn = message.senderId._id === currentUserId;
     const isPending = message.status === "sending";
     const isFailed = message.status === "failed";
@@ -22,20 +24,29 @@ const MessageComponent = React.memo(
           } ${isFailed ? "opacity-50" : ""}`}
         >
           {isImage && message.imageUrl ? (
-            <div>
-              <Image
-                src={message.imageUrl}
-                alt="Shared image"
-                className="max-w-[200px] max-h-[200px] object-cover rounded-lg cursor-pointer"
-                onClick={() => window.open(message.imageUrl, '_blank')}
-              />
-              {message.message && message.message.trim() && message.message !== "📷 Image" && (
-                <p className="text-small mt-2">{message.message}</p>
+            <div className="space-y-2">
+              {imageError ? (
+                <div className="flex items-center gap-2 p-3 bg-default-100 rounded-lg max-w-[200px]">
+                  <FaImage className="text-default-400" />
+                  <span className="text-small text-default-500">Image failed to load</span>
+                </div>
+              ) : (
+                <Image
+                  src={message.imageUrl}
+                  alt="Shared image"
+                  className="max-w-[200px] max-h-[200px] object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => window.open(message.imageUrl, '_blank')}
+                  onError={() => setImageError(true)}
+                  loading="lazy"
+                />
+              )}
+              {message.message && message.message.trim() && (
+                <p className="text-small">{message.message}</p>
               )}
             </div>
           ) : (
             message.message && message.message.trim() && (
-              <p className="text-small">{message.message}</p>
+              <p className="text-small whitespace-pre-wrap">{message.message}</p>
             )
           )}
           

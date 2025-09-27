@@ -64,7 +64,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     if (!selectedRoom) return;
     
     try {
-      await fetch('/api/chat/typing', {
+      const response = await fetch('/api/chat/typing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -72,6 +72,10 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
           isTyping,
         }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('Error sending typing indicator:', error);
     }
@@ -80,10 +84,13 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
   const handleNewMessageWithNotification = (data: Message) => {
     handleNewMessage(data);
     
-    // Play notification sound for received messages
+    // Only play sound for received messages (not own messages)
     if (data.senderId._id !== currentUser._id) {
       playNotificationSound();
     }
+    
+    // Refresh rooms to update last message
+    fetchRoomsData();
   };
 
   useEffect(() => {
@@ -96,23 +103,39 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     loadMessagesData(selectedRoom._id, true);
     readMessage(selectedRoom._id);
 
-    const channel = pusherClient.subscribe(`chat-${selectedRoom._id}`);
+    const channelName = `chat-${selectedRoom._id}`;
+    const channel = pusherClient.subscribe(channelName);
+    
+    // Bind events
     channel.bind("new-message", handleNewMessageWithNotification);
     channel.bind("typing", (data: {userId: string, userName: string, isTyping: boolean}) => {
-      setTypingUsers(prev => {
-        if (data.isTyping) {
-          return [...prev.filter(u => u.userId !== data.userId), {userId: data.userId, userName: data.userName}];
-        } else {
-          return prev.filter(u => u.userId !== data.userId);
-        }
-      });
+      // Only show typing for other users
+      if (data.userId !== currentUser._id) {
+        setTypingUsers(prev => {
+          if (data.isTyping) {
+            return [...prev.filter(u => u.userId !== data.userId), {userId: data.userId, userName: data.userName}];
+          } else {
+            return prev.filter(u => u.userId !== data.userId);
+          }
+        });
+      }
+    });
+    
+    // Handle connection state
+    channel.bind('pusher:subscription_succeeded', () => {
+      console.log('Successfully subscribed to', channelName);
+    });
+    
+    channel.bind('pusher:subscription_error', (error: any) => {
+      console.error('Subscription error for', channelName, error);
     });
 
     return () => {
-      pusherClient.unsubscribe(`chat-${selectedRoom._id}`);
+      channel.unbind_all();
+      pusherClient.unsubscribe(channelName);
       setTypingUsers([]);
     };
-  }, [selectedRoom]);
+  }, [selectedRoom, currentUser._id]);
 
   if (loadingChats) {
     return <SpinnerLoader />;

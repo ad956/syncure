@@ -12,5 +12,22 @@ export const pusherClient = new PusherClient(
   process.env.NEXT_PUBLIC_PUSHER_KEY!,
   {
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    enabledTransports: ['ws', 'wss'],
+    forceTLS: true,
   }
 );
+
+// Add connection event listeners for debugging
+if (typeof window !== 'undefined') {
+  pusherClient.connection.bind('connected', () => {
+    console.log('Pusher connected');
+  });
+  
+  pusherClient.connection.bind('disconnected', () => {
+    console.log('Pusher disconnected');
+  });
+  
+  pusherClient.connection.bind('error', (error: any) => {
+    console.error('Pusher connection error:', error);
+  });
+}

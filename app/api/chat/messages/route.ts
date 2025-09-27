@@ -55,8 +55,16 @@ export async function POST(req: Request) {
     await dbConfig();
     const { roomId, message, messageType, imageUrl } = await req.json();
 
-    if (!roomId || (messageType !== "image" && !message) || (messageType === "image" && !imageUrl)) {
-      return errorHandler("Missing required fields", STATUS_CODES.BAD_REQUEST);
+    if (!roomId) {
+      return errorHandler("Room ID is required", STATUS_CODES.BAD_REQUEST);
+    }
+    
+    if (messageType === "image" && !imageUrl) {
+      return errorHandler("Image URL is required for image messages", STATUS_CODES.BAD_REQUEST);
+    }
+    
+    if (messageType === "text" && !message?.trim()) {
+      return errorHandler("Message text is required for text messages", STATUS_CODES.BAD_REQUEST);
     }
 
     const messageData: any = {
@@ -64,13 +72,11 @@ export async function POST(req: Request) {
       senderId: _id,
       senderRole: capitalizedRole(session.user.role),
       messageType: messageType || "text",
+      message: message || "",
     };
 
     if (messageType === "image") {
       messageData.imageUrl = imageUrl;
-      if (message && message.trim()) messageData.message = message;
-    } else {
-      messageData.message = message;
     }
 
     const newMessage = await Message.create(messageData);
@@ -88,8 +94,16 @@ export async function POST(req: Request) {
       updatedAt: new Date(),
     });
 
-    // trigger Pusher event
-    await pusherServer.trigger(`chat-${roomId}`, "new-message", newMessage);
+    // Trigger Pusher event with better error handling
+    try {
+      await pusherServer.trigger(`chat-${roomId}`, "new-message", {
+        ...newMessage.toObject(),
+        roomId: roomId, // Ensure roomId is included
+      });
+      console.log(`Message broadcasted to chat-${roomId}`);
+    } catch (pusherError) {
+      console.error("Failed to broadcast message via Pusher:", pusherError);
+    }
 
     // Send notification to recipient
     if (recipient) {
@@ -97,7 +111,7 @@ export async function POST(req: Request) {
         await sendChatNotification({
           recipientId: recipient.userId.toString(),
           senderName: session.user.name,
-          message: messageType === "image" ? "📷 Sent an image" : (message || ""),
+          message: messageType === "image" ? "Sent an image" : (message || ""),
           messageType: messageType || "text",
         });
       } catch (notificationError) {

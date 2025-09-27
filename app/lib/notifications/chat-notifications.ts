@@ -1,4 +1,5 @@
 import { Novu } from "@novu/node";
+import { ensureSubscriber } from "@lib/novu/setup-workflows";
 
 const novu = new Novu(process.env.NOVU_API_KEY || "");
 
@@ -19,19 +20,29 @@ export async function sendChatNotification({
   }
 
   try {
+    // Ensure subscriber exists
+    await ensureSubscriber(recipientId);
+    
+    const notificationMessage = messageType === "image" ? "Sent an image" : message;
+    
     const result = await novu.trigger("chat-message", {
       to: {
         subscriberId: recipientId,
       },
       payload: {
         senderName,
-        message: messageType === "image" ? "📷 Sent an image" : message,
+        message: notificationMessage,
+        messageType,
         timestamp: new Date().toISOString(),
       },
     });
-    console.log("Notification sent successfully:", result.data?.transactionId);
+    
+    console.log("Novu notification sent:", result.data?.transactionId);
+    return result;
   } catch (error) {
-    console.error("Failed to send chat notification:", error);
+    console.error("Failed to send Novu notification:", error);
+    // Don't throw error to prevent message sending from failing
+    return null;
   }
 }
 
