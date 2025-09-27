@@ -6,10 +6,10 @@ import { STATUS_CODES } from "@utils/constants";
 
 import { Types } from "mongoose";
 import { Doctor, Patient } from "@models/index";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export async function GET(request: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   console.log("user is there ; " + session?.user.email);
 
@@ -67,3 +67,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

@@ -4,10 +4,10 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 import getModelByRole from "@utils/get-model-by-role";
 import { Types } from "mongoose";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export async function PUT(req: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -57,3 +57,4 @@ export async function PUT(req: Request) {
     );
   }
 }
+

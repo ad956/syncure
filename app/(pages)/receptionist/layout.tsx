@@ -3,7 +3,7 @@ import Sidebar from "@components/Sidebar";
 
 import type { Metadata } from "next";
 import getReceptionistData from "@lib/receptionist/get-receptionist-data";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export const metadata: Metadata = {
   title: "Syncure",
@@ -15,8 +15,8 @@ export default async function ReceptionistLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  const receptionist = await getReceptionistData(session?.user.id);
+  const session = await getSession();
+  const receptionist = await getReceptionistData(session?.user?.id);
 
   return (
     <main className="h-screen flex">

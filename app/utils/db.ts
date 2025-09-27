@@ -16,6 +16,10 @@ export default async function dbConfig() {
 
   const db = await mongoose.connect(uri, {
     dbName: "syncure",
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    bufferCommands: false,
   });
 
   connection.isConnected = db.connections[0].readyState;

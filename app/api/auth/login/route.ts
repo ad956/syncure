@@ -53,23 +53,23 @@ export async function POST(req: Request) {
     }
 
     const generatedOTP = generateSecureOTP();
-    user.otp = generatedOTP;
-    await user.save();
+    
+    // Update OTP and send email in parallel
+    const [updateResult] = await Promise.all([
+      UserModel.findByIdAndUpdate(user._id, { otp: generatedOTP }),
+      // Send email asynchronously without waiting
+      sendEmail({
+        to: user.email,
+        subject: "OTP Verification",
+        html: render(OtpTemplate(user.firstname, generatedOTP)),
+        from: {
+          name: "Syncure",
+          address: "support@patientfitnesstracker.com",
+        },
+      }).catch(error => console.error("Email sending failed:", error))
+    ]);
 
-    const mailSent = await sendEmail({
-      to: user.email,
-      subject: "OTP Verification",
-      html: render(OtpTemplate(user.firstname, generatedOTP)),
-      from: {
-        name: "Syncure",
-        address: "support@patientfitnesstracker.com",
-      },
-    });
-
-    if (!mailSent) {
-      return errorHandler("Email Sending Failed", STATUS_CODES.SERVER_ERROR);
-    }
-
+    // Return immediately without waiting for email
     return NextResponse.json({ message: "ok" }, { status: 201 });
   } catch (error: any) {
     console.error("Error during login: ", error);

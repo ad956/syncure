@@ -1,49 +1,54 @@
 import { NextResponse } from "next/server";
-import { auth } from "@lib/auth";
-
-const secret = process.env.AUTH_SECRET;
+import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
 const PRIVATE_ROUTES = [
   "/patient",
-  "/receptionist",
+  "/receptionist", 
   "/doctor",
   "/hospital",
   "/admin",
 ];
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-
-  // Check for private routes
+  
   const isPrivateRoute = PRIVATE_ROUTES.some((route) =>
     nextUrl.pathname.startsWith(route)
   );
 
-  // Apply authentication middleware logic to private routes
   if (isPrivateRoute) {
-    // Not authenticated
-    if (!isLoggedIn) {
+    const token = req.cookies.get("better-auth.session_token")?.value;
+
+    if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    const userRole = req.auth?.user?.role;
-    const requestedRoute = nextUrl.pathname;
+    try {
+      const secret = new TextEncoder().encode(
+        process.env.AUTH_SECRET || "your-secret-key-here"
+      );
+      
+      const { payload } = await jwtVerify(token, secret);
+      const userRole = payload.user?.role;
 
-    // Ensure user can only access routes matching their role
-    const isAuthorized = PRIVATE_ROUTES.some(
-      (route) =>
-        requestedRoute.startsWith(route) &&
-        requestedRoute.includes(`/${userRole}`)
-    );
+      if (!userRole) {
+        return NextResponse.redirect(new URL("/login", req.url));
+      }
 
-    if (!isAuthorized) {
-      return NextResponse.redirect(new URL("/unauthorized", req.url));
+      const requestedRoute = nextUrl.pathname;
+      const isAuthorized = requestedRoute.startsWith(`/${userRole}`);
+
+      if (!isAuthorized) {
+        return NextResponse.redirect(new URL("/unauthorized", req.url));
+      }
+    } catch (error) {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   }
-  // Continue with the request
+  
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [

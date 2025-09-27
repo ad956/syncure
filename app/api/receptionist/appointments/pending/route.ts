@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { Patient, BookedAppointment, Receptionist } from "@models/index";
 import { Types } from "mongoose";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
 export async function GET(request: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -84,3 +84,4 @@ export async function GET(request: Request) {
     return errorHandler("Internal Server Error", STATUS_CODES.SERVER_ERROR);
   }
 }
+

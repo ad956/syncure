@@ -8,11 +8,9 @@ import { generateSecureOTP } from "@utils/generate-otp";
 import getModelByRole from "@utils/get-model-by-role";
 
 export async function POST(req: Request) {
-  await dbConfig();
   const { role } = await req.json();
 
   try {
-    // validate the incoming body
     if (!role || typeof role !== "string") {
       return errorHandler(
         "Invalid request body. Please provide a valid role.",
@@ -20,8 +18,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // find person with exact role in demo_users collection
-    const demoUser = await DemoUser.findOne({ role });
+    await dbConfig();
+
+    const generatedOTP = generateSecureOTP();
+
+    // Parallel operations
+    const [demoUser, UserModel] = await Promise.all([
+      DemoUser.findOne({ role }),
+      Promise.resolve(getModelByRole(role))
+    ]);
 
     if (!demoUser) {
       return errorHandler(
@@ -30,27 +35,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // get a user model with matching role
-    const UserModel = getModelByRole(role);
-
-    const generatedOTP = generateSecureOTP();
-
-    // find a user which has the same ObjectId as demo users
-    const userData = await UserModel.findByIdAndUpdate(demoUser.referenceId, {
-      otp: generatedOTP,
-    });
+    const userData = await UserModel.findByIdAndUpdate(
+      demoUser.referenceId,
+      { otp: generatedOTP },
+      { new: true, select: 'username firstname lastname email role' }
+    );
 
     if (!userData) {
       return errorHandler("Demo user data not found", STATUS_CODES.NOT_FOUND);
     }
-
-    const userLog = {
-      username: userData.username,
-      name: `${userData.firstname} ${userData.lastname}`,
-      email: userData.email,
-      role: userData.role,
-      action: "demouser-login",
-    };
 
     return NextResponse.json(
       {
@@ -64,7 +57,7 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error during login: ", error);
+    console.error("Error during demo login: ", error);
     return errorHandler("Internal Server Error", STATUS_CODES.SERVER_ERROR);
   }
 }

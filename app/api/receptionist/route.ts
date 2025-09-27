@@ -4,21 +4,17 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 import Receptionist from "@models/receptionist";
 import { Types } from "mongoose";
-import { auth } from "@/lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export async function GET(request: Request) {
-  const session = await auth();
-
-  console.log("session : " + session);
+  const session = await getSession();
 
   if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+    return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
   }
 
-  const { id, role } = session.user;
-
   try {
-    const receptionist_id = new Types.ObjectId(id);
+    const receptionist_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const projection = {

@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
 import Patient from "@models/patient";
 import { Types } from "mongoose";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
-export async function GET() {
-  const session = await auth();
-
-  console.log("session : " + session);
+export async function GET(request: Request) {
+  const session = await getSession();
 
   if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+    return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
   }
   try {
     const patient_id = new Types.ObjectId(session.user.id);

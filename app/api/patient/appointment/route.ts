@@ -4,14 +4,14 @@ import { render } from "@react-email/render";
 import { AppointmentBookedTemplate, sendEmail } from "@lib/emails";
 import sendNotification from "@lib/novu";
 import { Patient, BookedAppointment, Doctor } from "@models/index";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
 // getting patient's approved appointments
 export async function GET() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -64,7 +64,7 @@ export async function GET() {
 
 // booking an appointment
 export async function POST(req: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -151,3 +151,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

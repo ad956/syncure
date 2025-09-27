@@ -15,6 +15,7 @@ import { CiHospital1 } from "react-icons/ci";
 import { FaHospital } from "react-icons/fa";
 import { IconType } from "react-icons";
 import { LiaUserNurseSolid, LiaUserSolid } from "react-icons/lia";
+import { BsChatDots } from "react-icons/bs";
 import BaseUrl from "@utils/base-url";
 
 // Define icon mapping
@@ -22,6 +23,7 @@ const iconMapping: Record<string, IconType> = {
   dashboard: MdOutlineSpaceDashboard,
   qrcode: IoQrCodeOutline,
   appointments: AiOutlineSchedule,
+  chat: BsChatDots,
   payments: MdOutlineCurrencyRupee,
   medicalHistory: CiHospital1,
   settings: IoSettingsOutline,
@@ -112,6 +114,7 @@ const patientSidebarConfig: SidebarItem[] = [
   { title: "Dashboard", uri: "", icon: "dashboard" },
   { title: "QR Code", uri: "qrcode", icon: "qrcode" },
   { title: "Appointments", uri: "appointments", icon: "appointments" },
+  { title: "Chat", uri: "chat", icon: "chat" },
   { title: "Payments", uri: "paymenthistory", icon: "payments" },
   { title: "Medical History", uri: "medicalhistory", icon: "medicalHistory" },
   { title: "Settings", uri: "settings", icon: "settings" },
@@ -129,6 +132,7 @@ const receptionistSidebarConfig: SidebarItem[] = [
 const doctorSidebarConfig: SidebarItem[] = [
   { title: "Dashboard", uri: "", icon: "dashboard" },
   { title: "Appointments", uri: "appointments", icon: "appointments" },
+  { title: "Chat", uri: "chat", icon: "chat" },
   { title: "Patients", uri: "patients", icon: "patients" },
   { title: "Medical Records", uri: "records", icon: "medicalHistory" },
   { title: "Settings", uri: "settings", icon: "settings" },

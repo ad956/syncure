@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
@@ -11,7 +11,7 @@ export async function GET(request: Request): Promise<Response> {
     const page = parseInt(url.searchParams.get("page") || "1");
     const limit = parseInt(url.searchParams.get("limit") || "10");
 
-    const session = await auth();
+    const session = await getSession();
 
     if (!session) {
       return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -99,3 +99,4 @@ function getTimeSince(date: Date): string {
   if (interval > 1) return Math.floor(interval) + " minutes ago";
   return Math.floor(seconds) + " seconds ago";
 }
+

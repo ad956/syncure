@@ -11,7 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { signIn } from "next-auth/react";
+
 
 interface userDataType {
   userData: {
@@ -77,18 +77,23 @@ export default function OtpSection({ userData }: userDataType) {
 
   const handleSubmit = async () => {
     const otpString = otp.join("");
-    const response = await signIn("credentials", {
-      usernameOrEmail: userData.usernameOrEmail,
-      role: userData.role,
-      otp: otpString,
-      action: userData.action,
-      redirect: false,
-    });
+    
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userData.usernameOrEmail,
+          password: otpString,
+        }),
+      });
 
-    if (response?.error) {
-      setShowError(response.error);
-      resetOtpInputs();
-    } else {
+      const result = await response.json();
+
+      if (!response.ok) {
+        setShowError(result.message || 'Login failed');
+        resetOtpInputs();
+      } else {
       setShowError("");
 
       const sendingOtpPromise = new Promise((resolve) => {
@@ -111,6 +116,10 @@ export default function OtpSection({ userData }: userDataType) {
         },
         { position: "bottom-center" }
       );
+      }
+    } catch (error) {
+      setShowError('Authentication failed');
+      resetOtpInputs();
     }
   };
 

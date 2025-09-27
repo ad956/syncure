@@ -1,10 +1,10 @@
 import { Patient, BookedAppointment, Doctor } from "@models/index";
 import dbConfig from "@utils/db";
 import { Types } from "mongoose";
-import { auth } from "../auth";
+import { getSession } from "../auth/get-session";
 
 export default async function getUpcomingAppointments() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     throw new Error("Unauthorized");

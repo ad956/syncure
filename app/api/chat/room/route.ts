@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { Room } from "@models/chat";
+import { Room, Message } from "@models/chat";
+import { Patient, Doctor } from "@models/index";
 import { Types } from "mongoose";
 
 import dbConfig from "@utils/db";
@@ -7,11 +8,11 @@ import capitalizedRole from "@utils/capitalized-role";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 // get all rooms AKA chat-list
 export async function GET(req: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   console.log("user is there ; " + session?.user.email);
 
@@ -30,20 +31,43 @@ export async function GET(req: Request) {
         $elemMatch: { userId: _id, role },
       },
     })
-      .populate([
-        {
-          path: "participants.userId",
-          match: { role: { $ne: role } }, // get the other participant's info
-          select: "firstname lastname profile",
-        },
-        {
-          path: "lastMessage",
-          select: "message createdAt isRead",
-        },
-      ])
+      .populate({
+        path: "lastMessage",
+        select: "message messageType createdAt isRead",
+      })
       .sort({ updatedAt: -1 });
 
-    return NextResponse.json(rooms);
+    // Manually populate participant details
+    const populatedRooms = await Promise.all(
+      rooms.map(async (room) => {
+        const roomObj = room.toObject();
+        
+        // Get participant details
+        const participantDetails = await Promise.all(
+          roomObj.participants.map(async (participant) => {
+            let userDetails = null;
+            
+            if (participant.role === "Patient") {
+              userDetails = await Patient.findById(participant.userId).select("firstname lastname profile");
+            } else if (participant.role === "Doctor") {
+              userDetails = await Doctor.findById(participant.userId).select("firstname lastname profile");
+            }
+            
+            return {
+              ...participant,
+              userId: userDetails || participant.userId,
+            };
+          })
+        );
+        
+        return {
+          ...roomObj,
+          participants: participantDetails,
+        };
+      })
+    );
+
+    return NextResponse.json(populatedRooms);
   } catch (error) {
     console.error("Error fetching chat rooms:", error);
     return errorHandler(
@@ -55,7 +79,7 @@ export async function GET(req: Request) {
 
 // create a room AKA chat
 export async function POST(req: Request) {
-  const session = await auth();
+  const session = await getSession();
 
   console.log("user is there ; " + session?.user.email);
 
@@ -119,3 +143,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

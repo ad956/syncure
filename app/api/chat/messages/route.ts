@@ -7,13 +7,12 @@ import dbConfig from "@utils/db";
 import capitalizedRole from "@utils/capitalized-role";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
+import { sendChatNotification } from "@lib/notifications/chat-notifications";
 
-import { auth } from "@lib/auth";
+import { getSession } from "@lib/auth/get-session";
 
 export async function GET(req: Request) {
-  const session = await auth();
-
-  console.log("user is there ; " + session?.user.email);
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -45,9 +44,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-
-  console.log("user is there ; " + session?.user.email);
+  const session = await getSession();
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
@@ -56,18 +53,34 @@ export async function POST(req: Request) {
     const _id = new Types.ObjectId(session.user.id);
 
     await dbConfig();
-    const { roomId, message } = await req.json();
+    const { roomId, message, messageType, imageUrl } = await req.json();
 
-    if (!roomId || !message) {
+    if (!roomId || (messageType !== "image" && !message) || (messageType === "image" && !imageUrl)) {
       return errorHandler("Missing required fields", STATUS_CODES.BAD_REQUEST);
     }
 
-    const newMessage = await Message.create({
+    const messageData: any = {
       roomId: new Types.ObjectId(roomId),
       senderId: _id,
       senderRole: capitalizedRole(session.user.role),
-      message,
-    });
+      messageType: messageType || "text",
+    };
+
+    if (messageType === "image") {
+      messageData.imageUrl = imageUrl;
+      if (message && message.trim()) messageData.message = message;
+    } else {
+      messageData.message = message;
+    }
+
+    const newMessage = await Message.create(messageData);
+
+    // Populate sender info for real-time update
+    await newMessage.populate("senderId", "firstname lastname profile");
+
+    // Get room participants for notifications
+    const room = await Room.findById(new Types.ObjectId(roomId));
+    const recipient = room?.participants.find(p => p.userId.toString() !== _id.toString());
 
     // update room's lastMessage and timestamp
     await Room.findByIdAndUpdate(new Types.ObjectId(roomId), {
@@ -77,6 +90,20 @@ export async function POST(req: Request) {
 
     // trigger Pusher event
     await pusherServer.trigger(`chat-${roomId}`, "new-message", newMessage);
+
+    // Send notification to recipient
+    if (recipient) {
+      try {
+        await sendChatNotification({
+          recipientId: recipient.userId.toString(),
+          senderName: session.user.name,
+          message: messageType === "image" ? "📷 Sent an image" : (message || ""),
+          messageType: messageType || "text",
+        });
+      } catch (notificationError) {
+        console.error("Failed to send notification:", notificationError);
+      }
+    }
 
     return NextResponse.json(newMessage);
   } catch (error) {
