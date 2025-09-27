@@ -14,7 +14,7 @@ async function processPayment(
     const orderId: string = await createOrderId(amount);
     return new Promise((resolve, reject) => {
       const options = {
-        key: process.env.RAZORPAY_KEY_ID,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: parseFloat(amount) * 100,
         currency: "INR",
         name,
@@ -67,7 +67,7 @@ async function processPayment(
       const paymentObject = new window.Razorpay(options);
       paymentObject.on("payment.failed", function (response: any) {
         paymentObject.close();
-        console.log("is it failing");
+        console.log("Payment failed:", response.error);
         reject({
           success: false,
           message: response.error.description,
