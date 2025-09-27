@@ -216,24 +216,29 @@ const useChat = (currentUser: ChatUser) => {
     (data: Message) => {
       if (!data.roomId) return;
       
-      // Handle message for any room, not just selected room
       const roomId = typeof data.roomId === 'string' ? data.roomId : data.roomId.toString();
       
+      // Prevent duplicate messages by checking if message already exists
+      const existingMessages = data.senderId._id === currentUser._id 
+        ? sentMessages[roomId] || [] 
+        : receivedMessages[roomId] || [];
+      
+      const messageExists = existingMessages.some(msg => msg._id === data._id);
+      if (messageExists) return;
+      
       if (data.senderId._id === currentUser._id) {
-        // Update sent messages for own messages
         setSentMessages((prev: any) => ({
           ...prev,
           [roomId]: [...(prev[roomId] || []), { ...data, status: "sent" }],
         }));
       } else {
-        // Update received messages for others' messages
         setReceivedMessages((prev: any) => ({
           ...prev,
           [roomId]: [...(prev[roomId] || []), data],
         }));
       }
     },
-    [currentUser._id]
+    [currentUser._id, sentMessages, receivedMessages]
   );
 
   return {

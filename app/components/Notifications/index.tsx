@@ -27,13 +27,14 @@ const CustomBellIcon = ({
 }) => {
   const [prevCount, setPrevCount] = useState(unseenCount);
 
-  useEffect(() => {
-    if (unseenCount > prevCount) {
-      const audio = new Audio("/sounds/bell.mp3");
-      audio.play();
-    }
-    setPrevCount(unseenCount);
-  }, [unseenCount, prevCount]);
+  // Disabled notification sound since Novu handles it
+  // useEffect(() => {
+  //   if (unseenCount > prevCount) {
+  //     const audio = new Audio("/sounds/bell.mp3");
+  //     audio.play();
+  //   }
+  //   setPrevCount(unseenCount);
+  // }, [unseenCount, prevCount]);
 
   return (
     <div className="relative inline-block">

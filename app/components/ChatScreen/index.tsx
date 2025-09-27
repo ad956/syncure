@@ -60,46 +60,16 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     onOpen();
   };
 
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  const handleTyping = useCallback(async (isTyping: boolean) => {
-    if (!selectedRoom) return;
-    
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-    
-    try {
-      await fetch('/api/chat/typing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomId: selectedRoom._id,
-          isTyping,
-        }),
-      });
-      
-      if (isTyping) {
-        typingTimeoutRef.current = setTimeout(() => {
-          handleTyping(false);
-        }, 3000);
-      }
-    } catch (error) {
-      console.error('Error sending typing indicator:', error);
-    }
-  }, [selectedRoom]);
+  // Typing indicator removed for better performance
 
-  const handleNewMessageWithNotification = (data: Message) => {
+  const handleNewMessageWithNotification = useCallback((data: Message) => {
     handleNewMessage(data);
     
     // Only play sound for received messages (not own messages)
     if (data.senderId._id !== currentUser._id) {
       playNotificationSound();
     }
-    
-    // Refresh rooms to update last message
-    fetchRoomsData();
-  };
+  }, [handleNewMessage, currentUser._id]);
 
   useEffect(() => {
     fetchRoomsData();
@@ -120,18 +90,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     
     // Bind events
     channel.bind("new-message", handleNewMessageWithNotification);
-    channel.bind("typing", (data: {userId: string, userName: string, isTyping: boolean}) => {
-      // Only show typing for other users
-      if (data.userId !== currentUser._id) {
-        setTypingUsers(prev => {
-          if (data.isTyping) {
-            return [...prev.filter(u => u.userId !== data.userId), {userId: data.userId, userName: data.userName}];
-          } else {
-            return prev.filter(u => u.userId !== data.userId);
-          }
-        });
-      }
-    });
+    // Typing indicator removed for better performance
     
     // Handle connection state
     channel.bind('pusher:subscription_succeeded', () => {
@@ -145,7 +104,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     return () => {
       channel.unbind_all();
       pusherClient.unsubscribe(channelName);
-      setTypingUsers([]);
+      // Typing cleanup removed
     };
   }, [selectedRoom, currentUser._id]);
 
@@ -223,8 +182,8 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
           onSendMessage={(message) => sendMsg(selectedRoom._id, message)}
           onSendImage={(imageUrl) => sendImageMsg(selectedRoom._id, imageUrl)}
           onResend={resendMessage}
-          onTyping={handleTyping}
-          typingUsers={typingUsers}
+          onTyping={() => {}} // Typing disabled
+          typingUsers={[]}
         />
       )}
       <Toaster />

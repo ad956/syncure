@@ -19,19 +19,23 @@ export async function sendChatNotification({
   }
 
   try {
+    await novu.subscribers.identify(recipientId, {});
+    
     const notificationMessage = messageType === "image" ? "📷 Sent an image" : message;
     
-    const result = await novu.trigger("chat-message", {
+    const result = await novu.trigger("syncure", {
       to: {
         subscriberId: recipientId,
       },
       payload: {
-        senderName,
+        msg: notificationMessage,
         message: notificationMessage,
+        type: "chat-msg-received",
+        senderName,
       },
     });
     
-    console.log("Novu notification sent:", result.data?.transactionId);
+    console.log("Novu notification sent successfully");
     return result;
   } catch (error) {
     console.error("Failed to send Novu notification:", error);

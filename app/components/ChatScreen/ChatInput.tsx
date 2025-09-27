@@ -17,33 +17,15 @@ const ChatInput = React.memo(
     disabled: boolean;
   }) => {
     const [newMessage, setNewMessage] = useState("");
-    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setNewMessage(value);
-
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-
-      if (value.trim()) {
-        onTyping(true);
-      } else {
-        onTyping(false);
-      }
-    }, [onTyping]);
+      setNewMessage(e.target.value);
+    }, []);
 
     const handleSend = () => {
       if (newMessage.trim() && !disabled) {
         onSend(newMessage);
         setNewMessage("");
-        onTyping(false);
-        
-        // Clear typing timeout
-        if (typingTimeoutRef.current) {
-          clearTimeout(typingTimeoutRef.current);
-        }
       }
     };
 
