@@ -23,21 +23,14 @@ const ChatInput = React.memo(
       const value = e.target.value;
       setNewMessage(value);
 
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
       if (value.trim()) {
         onTyping(true);
-        
-        if (typingTimeoutRef.current) {
-          clearTimeout(typingTimeoutRef.current);
-        }
-        
-        typingTimeoutRef.current = setTimeout(() => {
-          onTyping(false);
-        }, 1000);
       } else {
         onTyping(false);
-        if (typingTimeoutRef.current) {
-          clearTimeout(typingTimeoutRef.current);
-        }
       }
     }, [onTyping]);
 

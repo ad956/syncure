@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { pusherClient } from "@lib/pusher";
 import { Button, Image, useDisclosure } from "@nextui-org/react";
 import { readMessage } from "@lib/chats";
@@ -60,11 +60,17 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
     onOpen();
   };
 
-  const handleTyping = async (isTyping: boolean) => {
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const handleTyping = useCallback(async (isTyping: boolean) => {
     if (!selectedRoom) return;
     
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
     try {
-      const response = await fetch('/api/chat/typing', {
+      await fetch('/api/chat/typing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,13 +79,15 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
         }),
       });
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (isTyping) {
+        typingTimeoutRef.current = setTimeout(() => {
+          handleTyping(false);
+        }, 3000);
       }
     } catch (error) {
       console.error('Error sending typing indicator:', error);
     }
-  };
+  }, [selectedRoom]);
 
   const handleNewMessageWithNotification = (data: Message) => {
     handleNewMessage(data);
@@ -95,6 +103,10 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser }) => {
 
   useEffect(() => {
     fetchRoomsData();
+    
+    // Setup Novu subscriber
+    fetch('/api/novu/subscriber', { method: 'POST' })
+      .catch(error => console.error('Failed to setup Novu subscriber:', error));
   }, [currentUser, refreshKey]);
 
   useEffect(() => {
