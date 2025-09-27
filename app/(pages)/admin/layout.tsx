@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import getAdminData from "@lib/admin/get-admin-data";
-// TODO: Import Better Auth
+import { auth } from "@lib/auth";
 
 export const metadata: Metadata = {
   title: "Syncure - Admin",
@@ -14,8 +14,8 @@ export default async function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // TODO: Replace with Better Auth session
-  const admin = await getAdminData('temp-admin-id');
+  const session = await auth.api.getSession();
+  const admin = await getAdminData(session?.user.id);
 
   return (
     <main className="h-screen flex flex-row">

@@ -4,7 +4,7 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 import Transaction from "@models/transaction";
 import { Types } from "mongoose";
-// TODO: Import Better Auth
+import { auth } from "@lib/auth";
 
 interface pendingTransactionReqBody {
   txnDocumentId: string;
@@ -14,12 +14,11 @@ interface pendingTransactionReqBody {
 
 // saving transaction details in db
 export async function POST(req: Request) {
-  // TODO: Replace with Better Auth session validation
-  // const session = await auth();
+  const session = await auth.api.getSession({ headers: req.headers });
 
-  // if (!session) {
-  //   return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  // }
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
+  }
 
   const {
     transaction_id,
@@ -65,12 +64,11 @@ export async function POST(req: Request) {
 
 // save pending transaction
 export async function PUT(req: Request) {
-  // TODO: Replace with Better Auth session validation
-  // const session = await auth();
+  const session = await auth.api.getSession({ headers: req.headers });
 
-  // if (!session) {
-  //   return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  // }
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
+  }
 
   const { txnDocumentId, transaction_id, status }: pendingTransactionReqBody =
     await req.json();

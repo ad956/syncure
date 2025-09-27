@@ -12,12 +12,12 @@ import {
 } from "react-icons/lu";
 import { ResponsiveLine } from "@nivo/line";
 import Dashboard from "./components/Dashboard";
-// TODO: Import Better Auth
+import { auth } from "@lib/auth";
 
 export default async function Hospital() {
-  // TODO: Replace with Better Auth session
-  const hospital = await getHospitalData('temp-hospital-id');
-  const hospitalDetails = await getHospitalDetails('temp-hospital-id');
+  const session = await auth.api.getSession();
+  const hospital = await getHospitalData(session?.user.id);
+  const hospitalDetails = await getHospitalDetails(session?.user.id);
 
   return (
     <section className="bg-[#f3f6fd] p-5 overflow-y-scroll scrollbar h-screen">

@@ -1,7 +1,7 @@
 import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
 import getDoctorData from "@lib/doctor/get-doctor-data";
-// TODO: Import Better Auth
+import { auth } from "@lib/auth";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,8 +14,8 @@ export default async function DoctorLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // TODO: Replace with Better Auth session
-  const doctor = await getDoctorData('temp-doctor-id');
+  const session = await auth.api.getSession();
+  const doctor = await getDoctorData(session?.user.id);
 
   return (
     <main className="h-screen flex">

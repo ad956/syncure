@@ -3,7 +3,7 @@ import Sidebar from "@components/Sidebar";
 
 import type { Metadata } from "next";
 import getReceptionistData from "@lib/receptionist/get-receptionist-data";
-// TODO: Import Better Auth
+import { auth } from "@lib/auth";
 
 export const metadata: Metadata = {
   title: "Syncure",
@@ -15,8 +15,8 @@ export default async function ReceptionistLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // TODO: Replace with Better Auth session
-  const receptionist = await getReceptionistData('temp-receptionist-id');
+  const session = await auth.api.getSession();
+  const receptionist = await getReceptionistData(session?.user.id);
 
   return (
     <main className="h-screen flex">

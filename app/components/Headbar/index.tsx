@@ -3,7 +3,7 @@ import { Button, Divider, User } from "@nextui-org/react";
 import { CiLogin } from "react-icons/ci";
 import Notifications from "../Notifications";
 import Image from "next/image";
-import { signOut } from "@lib/auth";
+import { signOut } from "@lib/auth/client";
 
 type HeadbarProps = {
   user: User;
@@ -54,8 +54,8 @@ export default function Headbar({ user, role }: HeadbarProps) {
           size="sm" 
           isIconOnly 
           className="bg-transparent"
-          onClick={() => {
-            // TODO: Replace with Better Auth signOut
+          onClick={async () => {
+            await signOut();
             window.location.href = '/login';
           }}
         >

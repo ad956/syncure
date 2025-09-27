@@ -5,18 +5,16 @@ import { Types } from "mongoose";
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
-// TODO: Import Better Auth
+import { auth } from "@lib/auth";
 
 export async function GET(request: Request) {
-  // TODO: Replace with Better Auth session validation
-  // const session = await auth();
+  const session = await auth.api.getSession({ headers: request.headers });
 
-  // if (!session) {
-  //   return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  // }
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
+  }
   try {
-    // TODO: Get doctor ID from Better Auth session
-    const doctor_id = new Types.ObjectId('temp-doctor-id');
+    const doctor_id = new Types.ObjectId(session.user.id);
 
     await dbConfig();
 

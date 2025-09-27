@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { auth } from "@lib/auth";
 
 const PRIVATE_ROUTES = [
   "/patient",
@@ -9,22 +10,36 @@ const PRIVATE_ROUTES = [
   "/admin",
 ];
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
   
-  // Check for private routes
   const isPrivateRoute = PRIVATE_ROUTES.some((route) =>
     nextUrl.pathname.startsWith(route)
   );
 
-  // Apply authentication middleware logic to private routes
   if (isPrivateRoute) {
-    // TODO: Implement Better Auth authentication check
-    // For now, redirect to login
-    return NextResponse.redirect(new URL("/login", req.url));
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
+
+    if (!session) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    const userRole = session.user.role;
+    const requestedRoute = nextUrl.pathname;
+
+    const isAuthorized = PRIVATE_ROUTES.some(
+      (route) =>
+        requestedRoute.startsWith(route) &&
+        requestedRoute.includes(`/${userRole}`)
+    );
+
+    if (!isAuthorized) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
+    }
   }
   
-  // Continue with the request
   return NextResponse.next();
 }
 

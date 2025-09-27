@@ -1,5 +1,18 @@
-// Auth configuration will be implemented with Better Auth
-export const auth = null;
-export const signIn = null;
-export const signOut = null;
-export const handlers = { GET: null, POST: null };
+import { betterAuth } from "better-auth";
+import { nextCookies } from "better-auth/next-js";
+
+export const auth = betterAuth({
+  database: {
+    provider: "mongodb",
+    url: process.env.MONGODB_URI || "mongodb://localhost:27017/syncure",
+  },
+  emailAndPassword: {
+    enabled: true,
+  },
+  plugins: [nextCookies()],
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+  },
+});
+
+export type Session = typeof auth.$Infer.Session;

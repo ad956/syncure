@@ -1,1 +1,0 @@
-// NextAuth types removed - will be replaced with Better Auth types

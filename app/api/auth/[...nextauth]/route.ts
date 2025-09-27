@@ -1,1 +1,0 @@
-// NextAuth route removed - will be replaced with Better Auth

@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut } from "@lib/auth";
+import { signOut } from "@lib/auth/client";
 import { Button, Image } from "@nextui-org/react";
 import React, { ErrorInfo, ReactNode } from "react";
 
@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component<
 
   handleLogout = async () => {
     console.log("Logging out...");
-    // TODO: Replace with Better Auth signOut
+    await signOut();
     window.location.href = '/login';
   };
 

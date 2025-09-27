@@ -11,7 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-// TODO: Replace with Better Auth signIn
+import { signIn } from "@lib/auth/client";
 
 interface userDataType {
   userData: {
@@ -78,24 +78,16 @@ export default function OtpSection({ userData }: userDataType) {
   const handleSubmit = async () => {
     const otpString = otp.join("");
     
-    // TODO: Replace with Better Auth implementation
-    const response = await fetch('/api/auth/verify-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        usernameOrEmail: userData.usernameOrEmail,
-        role: userData.role,
-        otp: otpString,
-        action: userData.action,
-      }),
-    });
+    try {
+      const result = await signIn.email({
+        email: userData.usernameOrEmail,
+        password: otpString,
+      });
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      setShowError(result.message || 'OTP verification failed');
-      resetOtpInputs();
-    } else {
+      if (result.error) {
+        setShowError(result.error.message || 'Login failed');
+        resetOtpInputs();
+      } else {
       setShowError("");
 
       const sendingOtpPromise = new Promise((resolve) => {
@@ -118,6 +110,10 @@ export default function OtpSection({ userData }: userDataType) {
         },
         { position: "bottom-center" }
       );
+      }
+    } catch (error) {
+      setShowError('Authentication failed');
+      resetOtpInputs();
     }
   };
 

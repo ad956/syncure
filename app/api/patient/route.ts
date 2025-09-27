@@ -1,24 +1,20 @@
 import { NextResponse } from "next/server";
 import Patient from "@models/patient";
 import { Types } from "mongoose";
-// TODO: Import Better Auth
+import { auth } from "@lib/auth";
 
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
-export async function GET() {
-  // TODO: Replace with Better Auth session validation
-  // const session = await auth();
+export async function GET(request: Request) {
+  const session = await auth.api.getSession({ headers: request.headers });
 
-  // console.log("session : " + session);
-
-  // if (!session) {
-  //   return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  // }
+  if (!session) {
+    return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
+  }
   try {
-    // TODO: Get patient ID from Better Auth session
-    const patient_id = new Types.ObjectId('temp-patient-id');
+    const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const projection = {
