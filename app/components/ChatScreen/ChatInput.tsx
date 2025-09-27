@@ -23,18 +23,22 @@ const ChatInput = React.memo(
       const value = e.target.value;
       setNewMessage(value);
 
-      // Emit typing start
-      onTyping(true);
-
-      // Clear existing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-
-      // Set timeout to stop typing after 2 seconds of inactivity
-      typingTimeoutRef.current = setTimeout(() => {
+      if (value.trim()) {
+        onTyping(true);
+        
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+        
+        typingTimeoutRef.current = setTimeout(() => {
+          onTyping(false);
+        }, 1000);
+      } else {
         onTyping(false);
-      }, 2000);
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+      }
     }, [onTyping]);
 
     const handleSend = () => {

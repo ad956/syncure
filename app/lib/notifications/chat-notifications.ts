@@ -32,8 +32,6 @@ export async function sendChatNotification({
       payload: {
         senderName,
         message: notificationMessage,
-        messageType,
-        timestamp: new Date().toISOString(),
       },
     });
     

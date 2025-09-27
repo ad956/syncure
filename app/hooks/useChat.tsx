@@ -100,7 +100,7 @@ const useChat = (currentUser: ChatUser) => {
       },
       createdAt: new Date().toISOString(),
       roomId: roomId,
-      status: "sending",
+      status: "sent",
     };
 
     setSentMessages((prev: any) => ({
@@ -114,15 +114,7 @@ const useChat = (currentUser: ChatUser) => {
         message: messageText,
         messageType: "text",
       });
-
-      setSentMessages((prev: any) => ({
-        ...prev,
-        [roomId]: prev[roomId].map((msg: any) =>
-          msg._id === messageId ? { ...msg, status: "sent" } : msg
-        ),
-      }));
     } catch (error) {
-      console.error("Failed to send message:", error);
       setSentMessages((prev) => ({
         ...prev,
         [roomId]: prev[roomId].map((msg: any) =>
@@ -148,7 +140,7 @@ const useChat = (currentUser: ChatUser) => {
       },
       createdAt: new Date().toISOString(),
       roomId: roomId,
-      status: "sending",
+      status: "sent",
     };
 
     setSentMessages((prev: any) => ({
