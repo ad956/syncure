@@ -1,4 +1,4 @@
-import { signIn } from "@lib/auth/client";
+
 import toast from "react-hot-toast";
 
 const handleDemoUserLogin = async (
@@ -25,17 +25,22 @@ const handleDemoUserLogin = async (
       return;
     }
 
-    const loginResult = await signIn.email({
-      email: result.user.email,
-      password: result.user.otp,
+    const loginResponse = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: result.user.email,
+        password: result.user.otp,
+      }),
     });
 
-    if (!loginResult.error) {
+    if (loginResponse.ok) {
       toast.success("Login successful, redirecting...", { id: "demoLogin" });
       redirectDemoUser(role);
       return;
     } else {
-      throw new Error(loginResult.error.message || "Error while logging in as demo user");
+      const loginResult = await loginResponse.json();
+      throw new Error(loginResult.message || "Error while logging in as demo user");
     }
   } catch (error) {
     console.error("Demo login error:", error);
