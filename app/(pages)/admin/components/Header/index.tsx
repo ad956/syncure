@@ -1,14 +1,23 @@
+"use client";
+
 import { Divider, User, Button } from "@nextui-org/react";
 import Link from "next/link";
 import Notifications from "@components/Notifications";
-import { signOut } from "@lib/auth";
 import { CiLogin } from "react-icons/ci";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   admin: Admin;
 }
 
 export default function Header({ admin }: HeaderProps) {
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    document.cookie = "better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    router.push('/admin-login');
+  };
+
   return (
     <div className="bg-white p-4 flex flex-row justify-between items-center shadow-sm">
       <div className="flex gap-3 items-center">
@@ -43,7 +52,7 @@ export default function Header({ admin }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        <Notifications userId={"user._id"} />
+        <Notifications userId={admin._id} />
         <Divider orientation="vertical" className="h-8 bg-gray-300" />
 
         <User
@@ -63,16 +72,14 @@ export default function Header({ admin }: HeaderProps) {
         />
         <Divider orientation="vertical" className="h-8 bg-gray-300" />
 
-        <form
-          action={async () => {
-            "use server";
-            await signOut();
-          }}
+        <Button 
+          size="sm" 
+          onClick={handleSignOut}
+          isIconOnly 
+          className="bg-transparent"
         >
-          <Button size="sm" type="submit" isIconOnly className="bg-transparent">
-            <CiLogin size={25} />
-          </Button>
-        </form>
+          <CiLogin size={25} />
+        </Button>
       </div>
     </div>
   );
