@@ -14,14 +14,14 @@ import { getSession } from "@lib/auth/get-session";
 export async function GET(req: Request) {
   const session = await getSession();
 
-  console.log("user is there ; " + session?.user.email);
+  console.log("user is there ; " + (session as any)?.user.email);
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
   try {
-    const _id = new Types.ObjectId(session.user.id);
-    const role = capitalizedRole(session.user.role);
+    const _id = new Types.ObjectId((session as any).user.id);
+    const role = capitalizedRole((session as any).user.role);
 
     await dbConfig();
 
@@ -44,7 +44,7 @@ export async function GET(req: Request) {
         
         // Get participant details
         const participantDetails = await Promise.all(
-          roomObj.participants.map(async (participant) => {
+          roomObj.participants.map(async (participant: any) => {
             let userDetails = null;
             
             if (participant.role === "Patient") {
@@ -81,14 +81,14 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const session = await getSession();
 
-  console.log("user is there ; " + session?.user.email);
+  console.log("user is there ; " + (session as any)?.user.email);
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
   try {
-    const senderId = new Types.ObjectId(session.user.id); // Sender (logged-in user) ID
-    const role = session.user.role;
+    const senderId = new Types.ObjectId((session as any).user.id); // Sender (logged-in user) ID
+    const role = (session as any).user.role;
     await dbConfig();
 
     const { receiverId } = await req.json();

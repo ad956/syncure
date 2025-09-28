@@ -19,8 +19,8 @@ export async function POST(req: Request) {
     }
 
     await pusherServer.trigger(`chat-${roomId}`, "typing", {
-      userId: session.user.id,
-      userName: session.user.name,
+      userId: (session as any).user.id,
+      userName: (session as any).user.name,
       isTyping,
     });
 

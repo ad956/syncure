@@ -6,6 +6,11 @@ import dbConfig from "@utils/db";
 const getReceptionistData = cache(
   async (receptionistId: string | undefined) => {
     try {
+      // Return null during build time when no receptionistId is provided
+      if (!receptionistId) {
+        return null;
+      }
+
       const receptionist_id = new Types.ObjectId(receptionistId);
 
       await dbConfig();

@@ -1,12 +1,13 @@
-import { getSession } from "@lib/auth/get-session";
+export const dynamic = 'force-dynamic';
+
 import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
 import getHospitalData from "@lib/hospital/get-hospital-data";
-
+import { getSession } from "@lib/auth/get-session";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Syncure",
+  title: "Syncure - Hospital",
   description: "The page is for hospital related applications.",
 };
 
@@ -16,7 +17,11 @@ export default async function HospitalLayout({
   children: React.ReactNode;
 }>) {
   const session = await getSession();
-  const hospital = await getHospitalData(session?.user?.id);
+  const hospital = await getHospitalData((session as any)?.user?.id);
+
+  if (!hospital) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <main className="h-screen flex">

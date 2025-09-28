@@ -4,6 +4,16 @@ import { Hospital, Patient, Receptionist, Doctor } from "@models/index";
 
 const getTilesData = cache(async () => {
   try {
+    // Return default data during build time
+    if (process.env.NODE_ENV === 'production' && !process.env.MONGODB_URI) {
+      return {
+        newHospitals: { count: 0, change: 0 },
+        newPatients: { count: 0, change: 0 },
+        newDoctors: { count: 0, change: 0 },
+        newReceptionists: { count: 0, change: 0 },
+      };
+    }
+
     await dbConfig();
 
     // Start of the current month and the previous month

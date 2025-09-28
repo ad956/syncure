@@ -5,6 +5,11 @@ import Admin from "@models/admin";
 
 const getAdminData = cache(async (adminId: string | undefined) => {
   try {
+    // Return null during build time when no adminId is provided
+    if (!adminId) {
+      return null;
+    }
+
     const admin_id = new Types.ObjectId(adminId);
     await dbConfig();
 

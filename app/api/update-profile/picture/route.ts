@@ -17,7 +17,7 @@ export async function PUT(request: Request) {
   const profile_pic = await request.json();
 
   try {
-    const { id, role } = session.user;
+    const { id, role } = (session as any).user;
 
     const user_id = new Types.ObjectId(id);
     await dbConfig();

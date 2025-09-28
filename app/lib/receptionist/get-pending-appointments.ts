@@ -6,6 +6,11 @@ import { Types } from "mongoose";
 const getPendingAppointments = cache(
   async (receptionistId: string | undefined) => {
     try {
+      // Return empty result during build time when no receptionistId is provided
+      if (!receptionistId) {
+        return { patientDetails: [] };
+      }
+
       const receptionist_id = new Types.ObjectId(receptionistId);
 
       await dbConfig();

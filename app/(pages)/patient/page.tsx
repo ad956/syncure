@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Avatar, Card, Divider, Progress } from "@nextui-org/react";
 import Calendar from "./components/Calendar";
 import MedicineDetails from "./components/MedicineDetails";
@@ -10,7 +12,7 @@ import { getSession } from "@lib/auth/get-session";
 
 export default async function PatientPage() {
   const session = await getSession();
-  const patient = await getPatientData(session?.user?.id);
+  const patient = await getPatientData((session as any)?.user?.id);
   const upcomingAppointments = await getUpcomingAppointments();
 
   return (

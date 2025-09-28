@@ -6,6 +6,8 @@ import UserDistributionPie from "./components/UserDistributionPie";
 import RecentUserProvider from "./components/RecentUserProvider";
 import getTilesData from "@lib/admin/get-tiles-data";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Admin() {
   let tilesData = null;
   try {

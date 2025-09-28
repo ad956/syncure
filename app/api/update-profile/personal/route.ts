@@ -14,7 +14,7 @@ export async function PUT(req: Request) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
 
-  const { id, role } = session.user;
+  const { id, role } = (session as any).user;
   const updateData: PersonalInfoBody = await req.json();
 
   try {

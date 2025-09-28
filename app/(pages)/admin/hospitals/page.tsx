@@ -25,6 +25,8 @@ import Link from "next/link";
 import { getHospitalsList } from "@lib/admin/get-hospitals";
 import { FaExclamationCircle } from "react-icons/fa";
 
+export const dynamic = 'force-dynamic';
+
 const HospitalManagement: React.FC = () => {
   const [hospitals, setHospitals] = useState<HospitalDetails[]>([]);
   const [loading, setLoading] = useState<boolean>(false);

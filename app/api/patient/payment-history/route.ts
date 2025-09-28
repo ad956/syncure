@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   try {
     const isPending = status === "pending";
 
-    const patient_id = new Types.ObjectId(session.user.id);
+    const patient_id = new Types.ObjectId((session as any).user.id);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id);

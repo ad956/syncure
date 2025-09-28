@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import getHospitalData from "@lib/hospital/get-hospital-data";
 import getHospitalDetails from "@lib/hospital/get-hospital-details";
 import { Avatar, Card, Divider, Progress } from "@nextui-org/react";
@@ -16,8 +18,8 @@ import { getSession } from "@lib/auth/get-session";
 
 export default async function Hospital() {
   const session = await getSession();
-  const hospital = await getHospitalData(session?.user?.id);
-  const hospitalDetails = await getHospitalDetails(session?.user?.id);
+  const hospital = await getHospitalData((session as any)?.user?.id);
+  const hospitalDetails = await getHospitalDetails((session as any)?.user?.id);
 
   return (
     <section className="bg-[#f3f6fd] p-5 overflow-y-scroll scrollbar h-screen">

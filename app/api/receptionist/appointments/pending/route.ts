@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const receptionist_id = new Types.ObjectId(session.user.id);
+    const receptionist_id = new Types.ObjectId((session as any).user.id);
 
     await dbConfig();
 

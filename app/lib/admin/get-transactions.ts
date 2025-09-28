@@ -5,6 +5,11 @@ import { Admin, Transaction, Patient, Hospital } from "@models/index";
 
 const getTransactions = cache(async (adminId: string | undefined) => {
   try {
+    // Return empty array during build time when no adminId is provided
+    if (!adminId) {
+      return [];
+    }
+
     await dbConfig();
 
     const admin_id: any = new Types.ObjectId(adminId);

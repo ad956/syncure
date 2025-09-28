@@ -76,6 +76,8 @@ const departmentData = [
   { department: "Radiology", count: 2 },
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default function DoctorsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSpecialization, setSelectedSpecialization] = useState("");

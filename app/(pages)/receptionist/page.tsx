@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import {
   Card,
   Input,
@@ -40,13 +42,17 @@ import { getSession } from "@lib/auth/get-session";
 
 export default async function ReceptionistPage() {
   const session = await getSession();
-  const receptionist = await getReceptionistData(session?.user?.id);
+  const receptionist = await getReceptionistData((session as any)?.user?.id);
 
-  const pendingPatients = await getPendingAppointments(session?.user?.id);
+  if (!receptionist) {
+    return null;
+  }
 
-  const pendingAppointments = pendingPatients.patientDetails.length;
-  const approvedAppointments = receptionist.dailyCount.approved;
-  const waitingPatients = receptionist.dailyCount.waiting;
+  const pendingPatients = await getPendingAppointments((session as any)?.user?.id);
+
+  const pendingAppointments = pendingPatients?.patientDetails?.length || 0;
+  const approvedAppointments = receptionist?.dailyCount?.approved || 0;
+  const waitingPatients = receptionist?.dailyCount?.waiting || 0;
 
   return (
     <section className="bg-white bg[#f3f6fd] overflow-y-auto scrollbar">

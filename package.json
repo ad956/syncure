@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx update-browserslist-db@latest && next build",
     "start": "next start",
     "test": "npx playwright test",
     "lint": "next lint",

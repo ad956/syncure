@@ -26,6 +26,8 @@ import SpinnerLoader from "@components/SpinnerLoader";
 import { getHospitalDetails } from "@lib/admin/get-hospitals";
 import { FaExclamationCircle } from "react-icons/fa";
 
+export const dynamic = 'force-dynamic';
+
 function UserManagement({ params }: { params: { id: string } }) {
   const [users, setUsers] = useState<HospitalUserData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);

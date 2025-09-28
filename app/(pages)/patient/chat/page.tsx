@@ -1,17 +1,19 @@
+export const dynamic = 'force-dynamic';
+
 import ChatScreen from "@components/ChatScreen";
 import getPatientData from "@lib/patient/get-patient-data";
 import { getSession } from "@lib/auth/get-session";
 
 export default async function PatientChatPage() {
   const session = await getSession();
-  const patient = await getPatientData(session?.user?.id);
+  const patient = await getPatientData((session as any)?.user?.id);
 
   const currentUser = {
     _id: patient._id,
     firstname: patient.firstname,
     lastname: patient.lastname,
     profile: patient.profile,
-    role: "patient",
+    role: "Patient" as const,
   };
 
   return (

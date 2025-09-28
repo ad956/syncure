@@ -31,7 +31,7 @@ const messageSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      required: function() {
+      required: function(this: any) {
         return this.messageType === 'text';
       },
       default: "",
@@ -43,7 +43,7 @@ const messageSchema = new mongoose.Schema(
     },
     imageUrl: {
       type: String,
-      required: function() {
+      required: function(this: any) {
         return this.messageType === 'image';
       },
     },

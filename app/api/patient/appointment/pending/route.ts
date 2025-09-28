@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const { hospital_id }: { hospital_id: string } = await req.json();
 
   try {
-    const patient_id = new Types.ObjectId(session.user.id);
+    const patient_id = new Types.ObjectId((session as any).user.id);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id);

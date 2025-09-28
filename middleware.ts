@@ -30,7 +30,7 @@ export async function middleware(req: NextRequest) {
       );
       
       const { payload } = await jwtVerify(token, secret);
-      const userRole = payload.user?.role;
+      const userRole = (payload as any).user?.role;
 
       if (!userRole) {
         return NextResponse.redirect(new URL("/login", req.url));
