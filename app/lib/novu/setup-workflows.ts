@@ -18,9 +18,10 @@ export async function setupChatWorkflow() {
       steps: [
         {
           template: {
-            type: "in_app",
+            type: "in_app" as any,
             content: "{{senderName}} sent you a message: {{message}}",
             cta: {
+              type: "redirect" as any,
               data: {
                 url: "/chat",
               },
@@ -29,18 +30,13 @@ export async function setupChatWorkflow() {
         },
         {
           template: {
-            type: "push",
+            type: "push" as any,
             content: "{{senderName}}: {{message}}",
             title: "New Message",
           },
         },
       ],
-      triggers: [
-        {
-          identifier: "chat-message",
-          type: "event",
-        },
-      ],
+
     });
 
     console.log("Chat workflow created:", workflow.data);

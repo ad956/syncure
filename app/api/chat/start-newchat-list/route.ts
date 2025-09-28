@@ -11,17 +11,17 @@ import { getSession } from "@lib/auth/get-session";
 export async function GET(request: Request) {
   const session = await getSession();
 
-  console.log("user is there ; " + session?.user.email);
+  console.log("user is there ; " + (session as any)?.user.email);
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
   try {
-    const _id = new Types.ObjectId(session.user.id); // for patient || doctor
+    const _id = new Types.ObjectId((session as any).user.id); // for patient || doctor
     await dbConfig();
 
     // when patient wants to start a chat with doctor
-    if (session.user.role === "patient") {
+    if ((session as any).user.role === "patient") {
       // find all doctors who have this patient_id in their patients array
       const doctors = await Doctor.find(
         { patients: { $in: [_id] } },

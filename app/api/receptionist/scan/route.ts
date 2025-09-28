@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
-  const { email } = session.user;
+  const { email } = (session as any).user;
 
   try {
     console.log(email);

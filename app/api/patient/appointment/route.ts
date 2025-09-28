@@ -17,7 +17,7 @@ export async function GET() {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
   try {
-    const patient_id = new Types.ObjectId(session.user.id);
+    const patient_id = new Types.ObjectId((session as any).user.id);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id);
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
   try {
     const { state, city, hospital, disease, note, transaction_id } = data;
 
-    const patient_id = new Types.ObjectId(session.user.id);
+    const patient_id = new Types.ObjectId((session as any).user.id);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id);

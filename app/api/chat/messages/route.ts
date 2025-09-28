@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
   try {
-    const _id = new Types.ObjectId(session.user.id);
+    const _id = new Types.ObjectId((session as any).user.id);
 
     await dbConfig();
     const { roomId, message, messageType, imageUrl } = await req.json();
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     const messageData: any = {
       roomId: new Types.ObjectId(roomId),
       senderId: _id,
-      senderRole: capitalizedRole(session.user.role),
+      senderRole: capitalizedRole((session as any).user.role),
       messageType: messageType || "text",
       message: message || "",
     };
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
 
     // Get room participants for notifications
     const room = await Room.findById(new Types.ObjectId(roomId));
-    const recipient = room?.participants.find(p => p.userId.toString() !== _id.toString());
+    const recipient = room?.participants.find((p: any) => p.userId.toString() !== _id.toString());
 
     // update room's lastMessage and timestamp
     await Room.findByIdAndUpdate(new Types.ObjectId(roomId), {
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
       try {
         await sendChatNotification({
           recipientId: recipient.userId.toString(),
-          senderName: session.user.name,
+          senderName: (session as any).user.name,
           message: messageType === "image" ? "Sent an image" : (message || ""),
           messageType: messageType || "text",
         });

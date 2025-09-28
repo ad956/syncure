@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Card, Image } from "@nextui-org/react";
 import BookAppointment from "../components/BookAppointment";
 import getPatientData from "@lib/patient/get-patient-data";
@@ -5,7 +7,7 @@ import { getSession } from "@lib/auth/get-session";
 
 export default async function Appointments() {
   const session = await getSession();
-  const patient = await getPatientData(session?.user?.id);
+  const patient = await getPatientData((session as any)?.user?.id);
 
   const { _id, firstname, lastname, email } = patient;
 

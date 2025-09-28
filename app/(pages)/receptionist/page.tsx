@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import {
   Card,
   Input,
@@ -40,9 +42,9 @@ import { getSession } from "@lib/auth/get-session";
 
 export default async function ReceptionistPage() {
   const session = await getSession();
-  const receptionist = await getReceptionistData(session?.user?.id);
+  const receptionist = await getReceptionistData((session as any)?.user?.id);
 
-  const pendingPatients = await getPendingAppointments(session?.user?.id);
+  const pendingPatients = await getPendingAppointments((session as any)?.user?.id);
 
   const pendingAppointments = pendingPatients.patientDetails.length;
   const approvedAppointments = receptionist.dailyCount.approved;

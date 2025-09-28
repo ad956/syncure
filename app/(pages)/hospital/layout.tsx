@@ -16,7 +16,7 @@ export default async function HospitalLayout({
   children: React.ReactNode;
 }>) {
   const session = await getSession();
-  const hospital = await getHospitalData(session?.user?.id);
+  const hospital = await getHospitalData((session as any)?.user?.id);
 
   return (
     <main className="h-screen flex">

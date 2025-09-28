@@ -14,7 +14,7 @@ export async function PUT(req: Request) {
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
-  const { id, role } = session.user;
+  const { id, role } = (session as any).user;
   const { currentPassword, newPassword }: SecurityBody = await req.json();
   try {
     const user_id = new Types.ObjectId(id);

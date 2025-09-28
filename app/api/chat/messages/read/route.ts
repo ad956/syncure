@@ -11,13 +11,13 @@ import { getSession } from "@lib/auth/get-session";
 export async function POST(req: Request) {
   const session = await getSession();
 
-  console.log("user is there ; " + session?.user.email);
+  console.log("user is there ; " + (session as any)?.user.email);
 
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
   try {
-    const _id = new Types.ObjectId(session.user.id);
+    const _id = new Types.ObjectId((session as any).user.id);
 
     await dbConfig();
     const { roomId } = await req.json();

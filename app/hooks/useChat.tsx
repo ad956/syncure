@@ -216,7 +216,7 @@ const useChat = (currentUser: ChatUser) => {
     (data: Message) => {
       if (!data.roomId) return;
       
-      const roomId = typeof data.roomId === 'string' ? data.roomId : data.roomId.toString();
+      const roomId = typeof data.roomId === 'string' ? data.roomId : String(data.roomId);
       
       // Prevent duplicate messages by checking if message already exists
       const existingMessages = data.senderId._id === currentUser._id 

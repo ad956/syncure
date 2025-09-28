@@ -12,9 +12,9 @@ export async function POST() {
   }
 
   try {
-    await novu.subscribers.identify(session.user.id, {
-      firstName: session.user.name,
-      email: session.user.email,
+    await novu.subscribers.identify((session as any).user.id, {
+      firstName: (session as any).user.name,
+      email: (session as any).user.email,
     });
 
     return NextResponse.json({ success: true });

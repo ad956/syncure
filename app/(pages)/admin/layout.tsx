@@ -15,7 +15,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }>) {
   const session = await getSession();
-  const admin = await getAdminData(session?.user?.id);
+  const admin = await getAdminData((session as any)?.user?.id);
 
   return (
     <main className="h-screen flex flex-row">

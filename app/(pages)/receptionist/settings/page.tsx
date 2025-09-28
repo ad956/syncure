@@ -4,7 +4,7 @@ import { getSession } from "@lib/auth/get-session";
 
 export default async function Settings() {
   const session = await getSession();
-  const receptionist = await getReceptionistData(session?.user?.id);
+  const receptionist = await getReceptionistData((session as any)?.user?.id);
 
   return (
     <section className="h-full w-full flex flex-col overflow-y-auto">

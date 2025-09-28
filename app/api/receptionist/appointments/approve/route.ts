@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const patient_id = searchParams.get("patient_id");
 
   try {
-    const receptionist_id = new Types.ObjectId(session.user.id);
+    const receptionist_id = new Types.ObjectId((session as any).user.id);
 
     if (!patient_id) {
       return errorHandler("Patient ID is required", STATUS_CODES.BAD_REQUEST);
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   const { patient_id } = await request.json();
 
   try {
-    const receptionist_id = new Types.ObjectId(session.user.id);
+    const receptionist_id = new Types.ObjectId((session as any).user.id);
 
     await dbConfig();
 

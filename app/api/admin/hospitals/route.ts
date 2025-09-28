@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const limit = parseInt(url.searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
-    const admin_id = new Types.ObjectId(session.user.id);
+    const admin_id = new Types.ObjectId((session as any).user.id);
 
     await dbConfig();
 

@@ -16,7 +16,7 @@ export default async function ReceptionistLayout({
   children: React.ReactNode;
 }>) {
   const session = await getSession();
-  const receptionist = await getReceptionistData(session?.user?.id);
+  const receptionist = await getReceptionistData((session as any)?.user?.id);
 
   return (
     <main className="h-screen flex">
