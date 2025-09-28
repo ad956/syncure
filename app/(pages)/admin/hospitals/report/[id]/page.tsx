@@ -16,6 +16,8 @@ import { ResponsiveBar } from "@nivo/bar";
 import { getHospitalDetails } from "@lib/admin/get-hospitals";
 import SpinnerLoader from "@components/SpinnerLoader";
 
+export const dynamic = 'force-dynamic';
+
 function HospitalReports({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [reportData, setReportData] = useState(null);

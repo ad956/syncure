@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Suspense } from "react";
 import SpinnerLoader from "@components/SpinnerLoader";
 
+export const dynamic = 'force-dynamic';
+
 export default function SessionExpired() {
   return (
     <Suspense fallback={<SpinnerLoader />}>

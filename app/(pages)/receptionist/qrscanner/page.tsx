@@ -7,6 +7,8 @@ import toast, { Toaster } from "react-hot-toast";
 import scanQRCode from "@lib/receptionist/scan-qr-code";
 
 // todo : search on based on mobile as well
+export const dynamic = 'force-dynamic';
+
 const QRScanner = () => {
   const [scanResult, setScanResult] = React.useState("");
   const videoRef = useRef<HTMLVideoElement>(null);

@@ -73,7 +73,7 @@ export default function Login() {
     setLoginDisabled(
       formValidator.hasErrors() || !usernameOrEmail || !password || !isRoleValid
     );
-  }, [usernameOrEmail, password, role]);
+  }, [formValidator, isRoleValid, usernameOrEmail, password, role]);
 
   async function handleFormSubmit(
     e: React.FormEvent<HTMLFormElement>

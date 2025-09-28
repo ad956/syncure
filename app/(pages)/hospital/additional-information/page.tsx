@@ -45,6 +45,8 @@ const cardVariants = {
   },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function EditHospitalDetails() {
   const {
     data: hospitalInfo,

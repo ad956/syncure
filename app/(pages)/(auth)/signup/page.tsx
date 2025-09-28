@@ -138,7 +138,7 @@ export default function Signup() {
         !confirmPassword ||
         !isRoleValid
     );
-  }, [firstName, lastName, username, email, password, confirmPassword, role]);
+  }, [formValidator, isRoleValid, firstName, lastName, username, email, password, confirmPassword, role]);
 
   return (
     <div

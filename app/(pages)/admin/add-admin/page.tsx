@@ -9,6 +9,8 @@ import FormValidator from "@utils/form-validator";
 import { AiOutlineEyeInvisible, AiTwotoneEye } from "react-icons/ai";
 import addAdmin from "@lib/admin/add-admin";
 
+export const dynamic = 'force-dynamic';
+
 export default function AddAdmin() {
   const [formValidator] = useState(new FormValidator());
 

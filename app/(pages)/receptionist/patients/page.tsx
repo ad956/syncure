@@ -78,6 +78,8 @@ const genderData = [
   },
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
