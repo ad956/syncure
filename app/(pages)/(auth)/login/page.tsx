@@ -14,7 +14,7 @@ import {
   Selection,
 } from "@nextui-org/react";
 import { MdOutlineKey, MdOutlineAlternateEmail } from "react-icons/md";
-import { loginAction } from "@lib/actions";
+import { authClient } from "@lib/auth/client";
 import toast, { Toaster } from "react-hot-toast";
 import FormValidator from "@utils/form-validator";
 import { useRouter } from "next/navigation";
@@ -30,12 +30,7 @@ export default function Login() {
   const [roleTouched, setRoleTouched] = useState(false);
 
   const [isVisible, setIsVisible] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const [userData, setUserData] = useState({
-    usernameOrEmail: "",
-    role: "",
-    action: "",
-  });
+
 
   const isRoleValid = Array.from(role).length > 0;
 
@@ -82,27 +77,26 @@ export default function Login() {
     const formData = new FormData(e.currentTarget as HTMLFormElement);
 
     try {
-      toast.loading("Please wait ...", {
+      toast.loading("Signing in...", {
         position: "bottom-center",
       });
 
-      const response = await loginAction(formData);
+      const email = usernameOrEmail.includes('@') ? usernameOrEmail : `${usernameOrEmail}@syncure.com`;
+      const selectedRole = Array.from(role)[0] as string;
+
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+      });
+
       toast.dismiss();
 
-      if (response.error) {
-        toast.error(`${response.error.message}`);
+      if (error) {
+        toast.error(error.message || "Login failed");
       } else {
-        const userRole = formData.get("role");
-        setUserData({
-          usernameOrEmail,
-          role: userRole?.toString() || "",
-          action: "Login",
-        });
-
-        toast.success("OTP successfully sent !", {
-          position: "bottom-center",
-        });
-        setShowOtp(true);
+        toast.success("Login successful!");
+        // Redirect based on role
+        router.push(`/${selectedRole}`);
       }
     } catch (error) {
       toast.dismiss();
@@ -214,8 +208,7 @@ export default function Login() {
           >
             Forget password&nbsp;?
           </Link>
-          {/* passing the user data to otp section */}
-          {showOtp && <OtpSection userData={userData} />}
+
 
           <div className="flex flex-col sm:flex-row w-full gap-3 mt-4">
             <Button

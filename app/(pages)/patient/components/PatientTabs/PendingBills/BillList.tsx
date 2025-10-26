@@ -12,15 +12,15 @@ export default function BillList({ bills, patient }: any) {
 
   return (
     <div
-      className={`h-[120px] space-y-1 p-2 ${
-        filteredBills.length <= 2
+      className={`h-[240px] space-y-1 ${
+        filteredBills.length <= 3
           ? "overflow-y-hidden"
-          : "overflow-y-auto scrollbar"
+          : "overflow-y-auto bills-scroll"
       }`}
     >
       {filteredBills.map((bill: any, index: number) => (
         <BillItem
-          key={index}
+          key={bill._id || bill.txnDocumentId || index}
           bill={bill}
           patient={patient}
           onPaymentComplete={handlePaymentComplete}

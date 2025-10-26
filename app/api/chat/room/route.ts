@@ -1,56 +1,51 @@
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { Room, Message } from "@models/chat";
 import { Patient, Doctor } from "@models/index";
 import { Types } from "mongoose";
-
 import dbConfig from "@utils/db";
 import capitalizedRole from "@utils/capitalized-role";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
-
 import { getSession } from "@lib/auth/get-session";
+import { createSuccessResponse, createErrorResponse, createValidationErrorResponse } from "@lib/api-response";
+import { createRoomSchema } from "@lib/validations/chat";
 
-// get all rooms AKA chat-list
-export async function GET(req: Request) {
-  const session = await getSession();
-
-  console.log("user is there ; " + (session as any)?.user.email);
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  }
+export async function GET(request: NextRequest) {
   try {
-    const _id = new Types.ObjectId((session as any).user.id);
+    await dbConfig();
+    const session = await getSession();
+
+    if (!session?.user?.id) {
+      return createErrorResponse("Unauthorized access", 401);
+    }
+
+    const userId = new Types.ObjectId((session as any).user.id);
     const role = capitalizedRole((session as any).user.role);
 
-    await dbConfig();
-
-    // find all rooms where the user is a participant
     const rooms = await Room.find({
       participants: {
-        $elemMatch: { userId: _id, role },
+        $elemMatch: { userId, role },
       },
     })
       .populate({
         path: "lastMessage",
         select: "message messageType createdAt isRead",
       })
-      .sort({ updatedAt: -1 });
+      .sort({ updatedAt: -1 })
+      .lean();
 
-    // Manually populate participant details
     const populatedRooms = await Promise.all(
-      rooms.map(async (room) => {
-        const roomObj = room.toObject();
-        
-        // Get participant details
+      rooms.map(async (room: any) => {
         const participantDetails = await Promise.all(
-          roomObj.participants.map(async (participant: any) => {
+          room.participants.map(async (participant: any) => {
             let userDetails = null;
             
             if (participant.role === "Patient") {
-              userDetails = await Patient.findById(participant.userId).select("firstname lastname profile");
+              userDetails = await Patient.findById(participant.userId)
+                .select("firstname lastname profile")
+                .lean();
             } else if (participant.role === "Doctor") {
-              userDetails = await Doctor.findById(participant.userId).select("firstname lastname profile");
+              userDetails = await Doctor.findById(participant.userId)
+                .select("firstname lastname profile specialty")
+                .lean();
             }
             
             return {
@@ -61,48 +56,57 @@ export async function GET(req: Request) {
         );
         
         return {
-          ...roomObj,
+          ...room,
           participants: participantDetails,
         };
       })
     );
 
-    return NextResponse.json(populatedRooms);
-  } catch (error) {
+    return createSuccessResponse(populatedRooms);
+  } catch (error: any) {
     console.error("Error fetching chat rooms:", error);
-    return errorHandler(
-      "Failed to fetch chat rooms",
-      STATUS_CODES.SERVER_ERROR
+    return createErrorResponse(
+      "Failed to fetch chat rooms", 
+      500, 
+      process.env.NODE_ENV === 'development' ? error.message : undefined
     );
   }
 }
 
-// create a room AKA chat
-export async function POST(req: Request) {
-  const session = await getSession();
-
-  console.log("user is there ; " + (session as any)?.user.email);
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  }
+export async function POST(request: NextRequest) {
   try {
-    const senderId = new Types.ObjectId((session as any).user.id); // Sender (logged-in user) ID
-    const role = (session as any).user.role;
     await dbConfig();
+    const session = await getSession();
 
-    const { receiverId } = await req.json();
-
-    if (!receiverId) {
-      return errorHandler("Receiver ID is required", STATUS_CODES.BAD_REQUEST);
+    if (!session?.user?.id) {
+      return createErrorResponse("Unauthorized access", 401);
     }
 
-    const receiverObjectId = new Types.ObjectId(receiverId);
+    const body = await request.json();
+    const validation = createRoomSchema.safeParse({
+      participantId: body.receiverId
+    });
+    
+    if (!validation.success) {
+      return createValidationErrorResponse(validation.error.errors);
+    }
 
-    const senderRole = role === "patient" ? "Patient" : "Doctor";
-    const receiverRole = role === "patient" ? "Doctor" : "Patient";
+    const { participantId } = validation.data;
+    const senderId = new Types.ObjectId((session as any).user.id);
+    const senderRole = capitalizedRole((session as any).user.role);
+    const receiverObjectId = new Types.ObjectId(participantId);
 
-    // check if room already exists
+    // Ensure only Patient-Doctor pairing
+    if (senderRole !== 'Patient') {
+      return createErrorResponse("Only patients can initiate chats with doctors", 403);
+    }
+
+    // Verify the receiver is actually a doctor
+    const doctor = await Doctor.findById(receiverObjectId).select('_id').lean();
+    if (!doctor) {
+      return createErrorResponse("Invalid doctor ID", 404);
+    }
+
     const existingRoom = await Room.findOne({
       participants: {
         $all: [
@@ -115,31 +119,31 @@ export async function POST(req: Request) {
           {
             $elemMatch: {
               userId: receiverObjectId,
-              role: receiverRole,
+              role: 'Doctor',
             },
           },
         ],
       },
-    });
+    }).lean();
 
     if (existingRoom) {
-      return NextResponse.json(existingRoom);
+      return createSuccessResponse(existingRoom, "Chat room already exists");
     }
 
-    // create new room
     const room = await Room.create({
       participants: [
-        { userId: senderId, role: senderRole },
-        { userId: receiverObjectId, role: receiverRole },
+        { userId: senderId, role: 'Patient' },
+        { userId: receiverObjectId, role: 'Doctor' },
       ],
     });
 
-    return NextResponse.json(room);
-  } catch (error) {
+    return createSuccessResponse(room, "Chat room created successfully");
+  } catch (error: any) {
     console.error("Error creating chat room:", error);
-    return errorHandler(
-      "Failed to create chat room",
-      STATUS_CODES.SERVER_ERROR
+    return createErrorResponse(
+      "Failed to create chat room", 
+      500, 
+      process.env.NODE_ENV === 'development' ? error.message : undefined
     );
   }
 }

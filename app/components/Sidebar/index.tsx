@@ -64,35 +64,50 @@ export default function Sidebar({ userType }: SidebarProps) {
   }
 
   return (
-    <aside className="h-full md:flex flex-col items-center p-4 bg-[#f3f6fd]">
-      <Image
-        src={"/icons/patient.svg"}
-        alt="user-type-logo"
-        height={35}
-        width={35}
-        className="my-1"
-      />
-      <div className="flex flex-col justify-center gap-5 items-center my-20">
-        {sidebarConfig.map((item, index) => (
-          <Button
-            key={item.title}
-            href={`${BaseUrl}/${userType}/${item.uri}`}
-            isIconOnly
-            as={Link}
-            radius="full"
-            variant="shadow"
-            className={`${
-              selected === index ? "bg-[#1f1c2e] text-white" : "bg-gray-100"
-            }`}
-            onClick={() => handleButtonClick(index)}
-          >
-            {React.createElement(
-              iconMapping[item.icon] || MdOutlineSpaceDashboard,
-              { size: 22 }
-            )}
-          </Button>
-        ))}
+    <aside className="h-full w-16 bg-white border-r border-gray-200 flex flex-col items-center py-6 shadow-sm">
+      {/* Logo */}
+      <div className="mb-8">
+        <Image
+          src={"/icons/patient.svg"}
+          alt="user-type-logo"
+          height={32}
+          width={32}
+        />
       </div>
+
+      {/* Navigation */}
+      <nav className="flex flex-col gap-3 flex-1">
+        {sidebarConfig.map((item, index) => {
+          const IconComponent = iconMapping[item.icon] || MdOutlineSpaceDashboard;
+          const isActive = selected === index;
+          
+          return (
+            <div key={item.title} className="relative group">
+              <Button
+                href={`${BaseUrl}/${userType}/${item.uri}`}
+                isIconOnly
+                as={Link}
+                className={`w-10 h-10 min-w-10 rounded-xl transition-all duration-300 relative p-0 shadow-sm ${
+                  isActive 
+                    ? "bg-blue-50 text-blue-600 border border-blue-200 shadow-md" 
+                    : "bg-white/70 text-gray-500 hover:bg-white hover:text-gray-700 hover:shadow-md"
+                }`}
+                onClick={() => handleButtonClick(index)}
+              >
+                <IconComponent size={20} className={`transition-transform duration-200 ${
+                  isActive ? 'scale-110' : 'group-hover:scale-105'
+                }`} />
+              </Button>
+              
+              {/* Tooltip */}
+              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                {item.title}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900 rotate-45"></div>
+              </div>
+            </div>
+          );
+        })}
+      </nav>
     </aside>
   );
 }
@@ -112,7 +127,6 @@ function getSidebarConfig(userType: string) {
 
 const patientSidebarConfig: SidebarItem[] = [
   { title: "Dashboard", uri: "", icon: "dashboard" },
-  { title: "QR Code", uri: "qrcode", icon: "qrcode" },
   { title: "Appointments", uri: "appointments", icon: "appointments" },
   { title: "Chat", uri: "chat", icon: "chat" },
   { title: "Payments", uri: "paymenthistory", icon: "payments" },

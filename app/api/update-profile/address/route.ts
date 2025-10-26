@@ -5,6 +5,7 @@ import { STATUS_CODES } from "@utils/constants";
 import getModelByRole from "@utils/get-model-by-role";
 import { Types } from "mongoose";
 import { getSession } from "@lib/auth/get-session";
+import { addressUpdateSchema } from "@lib/validations/profile";
 
 export async function PUT(req: Request) {
   const session = await getSession();
@@ -14,7 +15,18 @@ export async function PUT(req: Request) {
   }
 
   const { id, role } = (session as any).user;
-  const addressData: AddressBody = await req.json();
+  const body = await req.json();
+  
+  // Validate request body
+  const validation = addressUpdateSchema.safeParse(body);
+  if (!validation.success) {
+    return errorHandler(
+      `Invalid data: ${validation.error.errors.map(e => e.message).join(', ')}`,
+      STATUS_CODES.BAD_REQUEST
+    );
+  }
+  
+  const addressData = validation.data;
 
   try {
     const user_id = new Types.ObjectId(id);

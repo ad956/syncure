@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Button, Divider, User } from "@nextui-org/react";
+import { Button, User } from "@nextui-org/react";
 import { CiLogin } from "react-icons/ci";
 import Notifications from "../Notifications";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 type HeadbarProps = {
@@ -23,51 +22,70 @@ export default function Headbar({ user, role }: HeadbarProps) {
   };
 
   return (
-    <div className="bg-[#f3f6fd] p-4 flex flex-row justify-between">
-      <div className="flex items-center w-3/5">
-        <p className="hidden ml-2 md:-ml-2 text-sm md:flex md:text-lg md:mb-3 font-medium tracking-wide">
-          Syncure
-        </p>
-      </div>
+    <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        {/* Logo and Brand */}
+        <div className="flex items-center space-x-3">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Syncure</h1>
+            <p className="text-xs text-gray-500 -mt-1 font-medium">Healthcare Platform</p>
+          </div>
+        </div>
 
-      <div className="flex justify-center items-center gap-2">
-        {USERS_WITH_ADD_BUTTON.includes(role) && (
-          <Link className="" href={`/${role}/appointments`}>
-            <Image
-              src="/icons/add-appointment.png"
-              alt="add-appointment-icon"
-              height={35}
-              width={35}
+        {/* Right Section */}
+        <div className="flex items-center space-x-4">
+          {/* Quick Actions */}
+          {USERS_WITH_ADD_BUTTON.includes(role) && (
+            <Button
+              as={Link}
+              href={`/${role}/appointments`}
+              size="sm"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+              startContent={<span className="text-lg">+</span>}
+            >
+              Book Appointment
+            </Button>
+          )}
+          
+          {/* Notifications */}
+          <div className="relative">
+            <Notifications userId={user._id} />
+          </div>
+
+          {/* User Profile */}
+          <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
+            <User
+              name={user.firstname}
+              avatarProps={{
+                src: user.profile,
+                size: "sm",
+                className: "ring-2 ring-gray-200 shadow-sm"
+              }}
+              description={
+                <Link
+                  href={`/${role}/settings`}
+                  className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                >{`@${user.username}`}</Link>
+              }
+              classNames={{
+                name: "text-sm font-medium text-gray-900",
+                description: "text-xs"
+              }}
             />
-          </Link>
-        )}
-        <Notifications userId={user._id} />
-        <Divider orientation="vertical" className="h-8" />
-
-        <User
-          name={user.firstname}
-          avatarProps={{
-            src: user.profile,
-          }}
-          className=""
-          description={
-            <Link
-              href={`/${role}/settings`}
-              className="text-xs text-danger"
-            >{`@${user.username}`}</Link>
-          }
-        />
-        <Divider orientation="vertical" className="h-8" />
-
-        <Button 
-          size="sm" 
-          isIconOnly 
-          className="bg-transparent"
-          onClick={handleSignOut}
-        >
-          <CiLogin size={25} />
-        </Button>
+            
+            {/* Sign Out */}
+            <Button 
+              size="sm" 
+              isIconOnly 
+              variant="ghost"
+              className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              onClick={handleSignOut}
+            >
+              <CiLogin size={20} />
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }

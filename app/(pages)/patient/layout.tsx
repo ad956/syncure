@@ -17,14 +17,16 @@ export default async function PatientLayout({
   children: React.ReactNode;
 }>) {
   const session = await getSession();
-  const patient = await getPatientData((session as any)?.user?.id);
+  const patient = await getPatientData(session?.user?.id);
 
   return (
-    <main className="h-screen flex">
+    <main className="h-screen flex bg-gray-50">
       <Sidebar userType="patient" />
-      <section className="flex flex-col w-full">
+      <section className="flex flex-col flex-1 min-w-0">
         <Headbar user={patient} role="patient" />
-        {children}
+        <div className="flex-1 overflow-auto">
+          {children}
+        </div>
       </section>
       <Script
         id="razorpay-checkout-js"

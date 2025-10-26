@@ -1,20 +1,18 @@
-import { NextResponse } from "next/server";
 import Patient from "@models/patient";
 import { Types } from "mongoose";
 import { getSession } from "@lib/auth/get-session";
-
 import dbConfig from "@utils/db";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
+import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 
 export async function GET(request: Request) {
-  const session = await getSession();
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
-  }
   try {
-    const patient_id = new Types.ObjectId((session as any).user.id);
+    const session = await getSession();
+
+    if (!session?.user?.id) {
+      return createErrorResponse("Unauthorized", 401);
+    }
+
+    const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const projection = {
@@ -27,17 +25,15 @@ export async function GET(request: Request) {
     const patientData = await Patient.findById(patient_id, projection);
 
     if (!patientData) {
-      return errorHandler("Patient not found", STATUS_CODES.NOT_FOUND);
+      return createErrorResponse("Patient not found", 404);
     }
 
-    console.table(patientData);
-
-    return NextResponse.json(patientData, { status: 200 });
+    return createSuccessResponse(patientData, "Patient data retrieved successfully");
   } catch (error: any) {
     console.error("Error fetching patient data:", error);
-    return errorHandler(
+    return createErrorResponse(
       error.message || "Internal Server Error",
-      STATUS_CODES.SERVER_ERROR
+      500
     );
   }
 }

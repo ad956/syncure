@@ -35,34 +35,32 @@ export default function QRCode({ text }: QRCodeProp) {
     }
   };
   return (
-    <>
-      <Card
+    <div className="flex flex-col items-center">
+      <div
         id="qr-code-card"
-        isBlurred
-        shadow="lg"
-        radius="lg"
-        className="md:h-2/5 md:w-3/6 p-5 flex flex-col justify-center items-center"
+        className="bg-white p-3 rounded-lg shadow-sm mb-3"
       >
         <SVG
           text={text}
           options={{
-            margin: 2,
-            width: 180,
+            margin: 1,
+            width: 100,
             color: {
               dark: "#000000",
               light: "#ffffff",
             },
           }}
         />
-      </Card>
+      </div>
       <Button
-        color="danger"
-        startContent={<MdOutlineFileDownload size={22} />}
-        className=""
+        size="sm"
+        variant="flat"
+        className="bg-blue-50 text-blue-600 hover:bg-blue-100"
+        startContent={<MdOutlineFileDownload size={16} />}
         onClick={handleDownloadCard}
       >
-        Download QR Code
+        Download
       </Button>
-    </>
+    </div>
   );
 }

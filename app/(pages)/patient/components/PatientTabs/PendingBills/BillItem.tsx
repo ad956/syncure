@@ -9,7 +9,6 @@ import toast from "react-hot-toast";
 import { BiChevronRight } from "react-icons/bi";
 
 export default function BillItem({
-  key,
   bill,
   patient,
   onPaymentComplete,
@@ -64,12 +63,12 @@ export default function BillItem({
       <div className="flex items-center gap-3 flex-1">
         <Avatar
           className="w-8 h-8 border-2 border-white shadow-sm"
-          src={bill.hospital.profile || "/api/placeholder/32/32"}
-          fallback={bill.hospital.name[0]}
+          src={bill.hospital?.profile}
+          fallback={bill.hospital?.name?.[0] || 'H'}
         />
         <div>
           <h3 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
-            {bill.hospital.name}
+            {bill.hospital?.name || 'Unknown Hospital'}
           </h3>
           <p className="text-xs text-gray-500">
             {getFormattedDate(new Date(bill.date))}
@@ -80,12 +79,14 @@ export default function BillItem({
       {/* right: amount & arrow */}
       <div className="flex items-center gap-3">
         <div className="text-right">
-          <p className="text-sm font-semibold text-red-500">
+          <p className="text-sm font-semibold text-gray-900">
             ₹{bill.amount.toFixed(2)}
           </p>
-          <p className="text-xs text-gray-400">Due soon</p>
+          <p className="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">
+            Due soon
+          </p>
         </div>
-        <BiChevronRight className="w-4 h-4 text-gray-300 group-hover:text-blue-500 transition-colors" />
+        <BiChevronRight className="w-4 h-4 text-gray-300 group-hover:text-purple-500 transition-colors" />
       </div>
     </motion.div>
   );

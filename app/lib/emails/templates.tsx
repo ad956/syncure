@@ -1,6 +1,15 @@
 import { Html } from "@react-email/html";
 import { getCurrentDateFormatted, getFormattedDate } from "@utils/get-date";
 
+type bookingAppointment = {
+  disease: string;
+  note: string;
+  hospital: {
+    hospital_name: string;
+    appointment_charge: number;
+  };
+};
+
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <Html>
@@ -373,95 +382,248 @@ export function AppointmentBookedTemplate({
           style={{
             margin: "0",
             marginTop: "70px",
-            padding: "92px 30px 115px",
-            background: "#f7f7f7",
-            borderRadius: "30px",
-            textAlign: "center",
+            padding: "40px 30px",
+            background: "#ffffff",
+            borderRadius: "12px",
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <div style={{ width: "100%", maxWidth: "489px", margin: "0 auto" }}>
-            <h1
-              style={{
-                margin: "0",
-                fontSize: "24px",
-                fontWeight: "500",
-                color: "#1f1f1f",
-              }}
-            >
-              Appointment Request Notification
-            </h1>
-            <p
-              style={{
-                margin: "0",
-                marginTop: "17px",
-                fontSize: "16px",
-                fontWeight: "500",
-                color: "#333",
-              }}
-            >
-              Dear {name},
-            </p>
-            <p
-              style={{
-                margin: "0",
-                marginTop: "17px",
-                fontWeight: "500",
-                letterSpacing: "0.56px",
-                color: "#333",
-              }}
-            >
-              Your appointment request for {bookedAppointmentData.disease} at{" "}
-              {bookedAppointmentData.hospital.hospital_name} has been received.
-            </p>
-            <div
-              style={{
-                marginTop: "30px",
-                textAlign: "left",
-                fontSize: "16px",
-                color: "#333",
-                fontWeight: "500",
-              }}
-            >
-              <p>
-                <strong>Patient Name:</strong> {name}
-              </p>
-              <p>
-                <strong>Email:</strong> {email}
-              </p>
-              <p>
-                <strong>Transaction ID:</strong> {transaction_id}
-              </p>
-              <p>
-                <strong>Transaction Date:</strong>{" "}
-                {getFormattedDate(new Date())}
-              </p>
-              <p>
-                <strong>Amount Paid:</strong>{" "}
-                {bookedAppointmentData.hospital.appointment_charge}
-              </p>
-              <p>
-                <strong>Hospital Name:</strong>{" "}
-                {bookedAppointmentData.hospital.hospital_name}
-              </p>
-              <p>
-                <strong>Disease:</strong> {bookedAppointmentData.disease}
-              </p>
-              <p>
-                <strong>Description:</strong> {bookedAppointmentData.note}
+          <div style={{ width: "100%", maxWidth: "600px", margin: "0 auto" }}>
+            {/* Success Header */}
+            <div style={{ textAlign: "center", marginBottom: "30px" }}>
+              <table style={{ width: "80px", height: "80px", backgroundColor: "#10b981", borderRadius: "50%", margin: "0 auto 16px" }}>
+                <tr>
+                  <td style={{ textAlign: "center", verticalAlign: "middle", width: "80px", height: "80px" }}>
+                    <span style={{ color: "white", fontSize: "36px", fontWeight: "bold", lineHeight: "80px" }}>✓</span>
+                  </td>
+                </tr>
+              </table>
+              <h1
+                style={{
+                  margin: "0",
+                  fontSize: "24px",
+                  fontWeight: "600",
+                  color: "#1f2937",
+                  marginBottom: "8px",
+                }}
+              >
+                Appointment Confirmed!
+              </h1>
+              <p
+                style={{
+                  margin: "0",
+                  fontSize: "16px",
+                  color: "#6b7280",
+                }}
+              >
+                Hi {name}, your appointment has been successfully booked
               </p>
             </div>
+
+            {/* Appointment Details */}
             <div
               style={{
-                marginTop: "30px",
-                textAlign: "center",
-                fontSize: "16px",
-                color: "#333",
-                fontWeight: "500",
+                backgroundColor: "#f9fafb",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                padding: "24px",
+                marginBottom: "24px",
               }}
             >
-              <p>
-                Your appointment request has been successfully received. Your
-                hospital will review and confirm your appointment shortly.
+              <h2
+                style={{
+                  margin: "0 0 16px 0",
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  color: "#374151",
+                }}
+              >
+                Appointment Details
+              </h2>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <tr>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#6b7280",
+                      fontWeight: "500",
+                      width: "35%",
+                    }}
+                  >
+                    Hospital:
+                  </td>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#374151",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {bookedAppointmentData.hospital.hospital_name}
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#6b7280",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Condition:
+                  </td>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#374151",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {bookedAppointmentData.disease}
+                  </td>
+                </tr>
+                {bookedAppointmentData.note && (
+                  <tr>
+                    <td
+                      style={{
+                        padding: "8px 0",
+                        color: "#6b7280",
+                        fontWeight: "500",
+                      }}
+                    >
+                      Notes:
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 0",
+                        color: "#374151",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {bookedAppointmentData.note}
+                    </td>
+                  </tr>
+                )}
+              </table>
+            </div>
+
+            {/* Payment Details */}
+            <div
+              style={{
+                backgroundColor: "#f0fdf4",
+                border: "1px solid #bbf7d0",
+                borderRadius: "8px",
+                padding: "24px",
+                marginBottom: "24px",
+              }}
+            >
+              <h2
+                style={{
+                  margin: "0 0 16px 0",
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  color: "#166534",
+                }}
+              >
+                Payment Confirmed
+              </h2>
+              <table style={{ width: "100%" }}>
+                <tr>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#166534",
+                      fontWeight: "500",
+                      width: "35%",
+                    }}
+                  >
+                    Amount Paid:
+                  </td>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#166534",
+                      fontWeight: "700",
+                      fontSize: "18px",
+                    }}
+                  >
+                    ₹{bookedAppointmentData.hospital.appointment_charge}
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#166534",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Transaction ID:
+                  </td>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#166534",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {transaction_id}
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#166534",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Date:
+                  </td>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      color: "#166534",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {getFormattedDate(new Date())}
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            {/* Next Steps */}
+            <div
+              style={{
+                backgroundColor: "#fef3c7",
+                border: "1px solid #fbbf24",
+                borderRadius: "8px",
+                padding: "20px",
+                textAlign: "center",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 12px 0",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  color: "#92400e",
+                }}
+              >
+                What's Next?
+              </h3>
+              <p
+                style={{
+                  margin: "0",
+                  fontSize: "14px",
+                  color: "#92400e",
+                  lineHeight: "1.5",
+                }}
+              >
+                The hospital will review and confirm your appointment. You'll receive a confirmation
+                email with the exact date and time within 24 hours.
               </p>
             </div>
           </div>
@@ -470,27 +632,18 @@ export function AppointmentBookedTemplate({
         <p
           style={{
             maxWidth: "400px",
-            margin: "0 auto",
-            marginTop: "90px",
+            margin: "40px auto 0",
             textAlign: "center",
-            fontWeight: "500",
-            color: "#8c8c8c",
+            fontSize: "14px",
+            color: "#6b7280",
           }}
         >
-          Need help? Ask at{" "}
+          Need help? Contact us at{" "}
           <a
-            href="mailto:support@patientfitnesstracker.com"
-            style={{ color: "#499fb6", textDecoration: "none" }}
+            href="mailto:support@syncure.com"
+            style={{ color: "#3b82f6", textDecoration: "none" }}
           >
-            support@patientfitnesstracker.com
-          </a>{" "}
-          or visit our{" "}
-          <a
-            href=""
-            target="_blank"
-            style={{ color: "#499fb6", textDecoration: "none" }}
-          >
-            Help Center
+            support@syncure.com
           </a>
         </p>
       </main>

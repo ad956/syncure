@@ -5,6 +5,9 @@ import { Types } from "mongoose";
 
 const getPatientData = cache(async (userId: string | undefined) => {
   try {
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
     const patient_id = new Types.ObjectId(userId);
     await dbConfig();
     const projection = {

@@ -1,25 +1,24 @@
-import { NextResponse } from "next/server";
 import { Patient, MedicalHistory } from "@models/index";
 import { Types } from "mongoose";
 import dbConfig from "@utils/db";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
 import { getSession } from "@lib/auth/get-session";
+import { medicalHistoryResponseSchema } from "@lib/validations/patient";
+import { createSuccessResponse, createErrorResponse, createValidationErrorResponse } from "@lib/api-response";
 
 export async function GET() {
-  const session = await getSession();
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  }
-
   try {
-    const patient_id = new Types.ObjectId((session as any).user.id);
+    const session = await getSession();
+
+    if (!session) {
+      return createErrorResponse("Unauthorized", 401);
+    }
+
+    const patient_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const patient = await Patient.findById(patient_id, { _id: 1 }).exec();
     if (!patient) {
-      return errorHandler("Patient not found", STATUS_CODES.NOT_FOUND);
+      return createErrorResponse("Patient not found", 404);
     }
 
     const medicalHistory = await MedicalHistory.find(
@@ -38,6 +37,7 @@ export async function GET() {
       .exec();
 
     const formattedMedicalHistory = medicalHistory.map((history) => ({
+      _id: history._id.toString(),
       hospital: {
         name: `${history.hospital.firstname} ${history.hospital.lastname}`,
         profile: history.hospital.profile,
@@ -52,12 +52,18 @@ export async function GET() {
       disease: history.disease,
     }));
 
-    return NextResponse.json(formattedMedicalHistory, { status: 200 });
+    // Validate response data
+    const validation = medicalHistoryResponseSchema.safeParse(formattedMedicalHistory);
+    if (!validation.success) {
+      return createValidationErrorResponse(validation.error.errors);
+    }
+
+    return createSuccessResponse(validation.data, "Medical history retrieved successfully");
   } catch (error: any) {
     console.error("Error fetching medical history of patient:", error);
-    return errorHandler(
+    return createErrorResponse(
       error.message || "Failed to fetch medical history",
-      STATUS_CODES.SERVER_ERROR
+      500
     );
   }
 }

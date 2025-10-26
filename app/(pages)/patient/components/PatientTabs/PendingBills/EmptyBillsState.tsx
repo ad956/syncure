@@ -1,43 +1,26 @@
 "use client";
 
-import { Image } from "@nextui-org/react";
 import { motion } from "framer-motion";
-import { LiaRedoAltSolid } from "react-icons/lia";
+import { IoCheckmarkCircle } from "react-icons/io5";
 
-export default function EmptyBillsState({ error, refetch }: any) {
+export default function EmptyBillsState() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.5, ease: "easeOut" }}
-      className="flex justify-center items-center h-full w-full p-4 text-default-600"
-    >
-      <Image
-        src="/images/no_pending_bills.png"
-        width={200}
-        height={100}
-        alt="no-pending-bills"
-      />
-
-      {error ? (
-        <div className="ml-4 flex items-center gap-1">
-          <p className="text-md font-medium text-red-500">{error}</p>
-          <LiaRedoAltSolid
-            className="cursor-pointer h-5 w-5 text-red-500 hover:text-red-600"
-            onClick={refetch}
-          />
+    <div className="h-full w-full flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col items-center text-center"
+      >
+        <div className="p-4 bg-green-50 rounded-full mb-4">
+          <IoCheckmarkCircle className="text-green-500 text-3xl" />
         </div>
-      ) : (
-        <div className="ml-4 flex items-center gap-1">
-          <p className="text-md font-medium text-gray-500">
-            No pending bills found.
-          </p>
-          <LiaRedoAltSolid
-            className="cursor-pointer h-5 w-5 text-gray-500 hover:text-gray-600"
-            onClick={refetch}
-          />
-        </div>
-      )}
-    </motion.div>
+        <p className="text-lg font-semibold text-gray-700 mb-2">
+          All Settled!
+        </p>
+        <p className="text-sm text-gray-500">
+          No outstanding payments
+        </p>
+      </motion.div>
+    </div>
   );
 }

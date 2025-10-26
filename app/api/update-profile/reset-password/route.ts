@@ -7,6 +7,7 @@ import hashPassword from "@utils/hash-password";
 import bcrypt from "bcryptjs";
 import { Types } from "mongoose";
 import { getSession } from "@lib/auth/get-session";
+import { passwordResetSchema } from "@lib/validations/profile";
 
 export async function PUT(req: Request) {
   const session = await getSession();
@@ -15,7 +16,18 @@ export async function PUT(req: Request) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
   const { id, role } = (session as any).user;
-  const { currentPassword, newPassword }: SecurityBody = await req.json();
+  const body = await req.json();
+  
+  // Validate request body
+  const validation = passwordResetSchema.safeParse(body);
+  if (!validation.success) {
+    return errorHandler(
+      `Invalid data: ${validation.error.errors.map(e => e.message).join(', ')}`,
+      STATUS_CODES.BAD_REQUEST
+    );
+  }
+  
+  const { currentPassword, newPassword } = validation.data;
   try {
     const user_id = new Types.ObjectId(id);
 

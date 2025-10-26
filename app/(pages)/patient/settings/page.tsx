@@ -6,10 +6,10 @@ import { getSession } from "@lib/auth/get-session";
 
 export default async function Settings() {
   const session = await getSession();
-  const patient = await getPatientData((session as any)?.user?.id);
+  const patient = await getPatientData(session?.user?.id);
 
   return (
-    <section className="h-full w-full flex flex-col overflow-y-auto">
+    <section className="h-full w-full flex flex-col overflow-y-auto bills-scroll">
       <ProfileSettings user={patient} />
     </section>
   );

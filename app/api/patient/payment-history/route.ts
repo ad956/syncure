@@ -5,6 +5,7 @@ import { STATUS_CODES } from "@utils/constants";
 import { Patient, Transaction } from "@models/index";
 import { Types } from "mongoose";
 import { getSession } from "@lib/auth/get-session";
+import { paymentHistoryResponseSchema } from "@lib/validations/patient";
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -56,16 +57,23 @@ export async function GET(request: Request) {
       if (!isPending) {
         return {
           ...formattedData,
-          disease: transaction.disease,
-          description: transaction.description,
+          disease: transaction.disease || "",
+          description: transaction.description || "",
           status: transaction.status,
         };
       }
 
-      return formattedData;
+      return {
+        ...formattedData,
+        disease: "",
+        description: "",
+        status: "Pending" as const,
+      };
     });
 
-    return NextResponse.json(formattedTransactions, { status: 200 });
+    // Validate response data
+    const validatedData = paymentHistoryResponseSchema.parse(formattedTransactions);
+    return NextResponse.json(validatedData, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching payment data:", error);
     return errorHandler(
