@@ -8,6 +8,11 @@ type EmailPayload = {
     name: string;
     address: string;
   };
+  attachments?: Array<{
+    filename: string;
+    path?: string;
+    content?: Buffer;
+  }>;
 };
 
 const smtpOptions = {

@@ -1,264 +1,248 @@
-import { useState, useCallback } from "react";
-import { fetchRooms, loadMessages, sendMessage } from "@lib/chats";
-import toast from "react-hot-toast";
+"use client";
 
-const useChat = (currentUser: ChatUser) => {
+import { useState, useCallback, useEffect } from "react";
+import { toast } from "react-hot-toast";
+
+interface ChatUser {
+  _id: string;
+  firstname: string;
+  lastname: string;
+  profile?: string;
+  role: "Patient" | "Doctor";
+}
+
+interface Message {
+  _id: string;
+  message: string;
+  messageType?: "text" | "image";
+  imageUrl?: string;
+  senderId: ChatUser;
+  senderRole: "Patient" | "Doctor";
+  createdAt: string;
+  isRead: boolean;
+  status?: "sending" | "sent" | "failed";
+  roomId?: string;
+}
+
+interface Room {
+  _id: string;
+  participants: {
+    userId: ChatUser;
+    role: "Patient" | "Doctor";
+  }[];
+  lastMessage?: Message;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+export const useChat = (currentUser: ChatUser) => {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [receivedMessages, setReceivedMessages] = useState<
-    Record<string, Message[]>
-  >({});
-  const [sentMessages, setSentMessages] = useState<Record<string, Message[]>>(
-    {}
-  );
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [page, setPage] = useState(1);
-  const [roomsError, setRoomsError] = useState("");
-  const [loadingChats, setLoadingChats] = useState(true);
-  const [messagesLoading, setMessagesLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [messages, setMessages] = useState<Record<string, Message[]>>({});
+  const [loading, setLoading] = useState({
+    rooms: true,
+    messages: false,
+    sending: false,
+  });
+  const [pagination, setPagination] = useState<Record<string, { page: number; hasMore: boolean }>>({});
 
-  const fetchRoomsData = async () => {
-    setLoadingChats(true);
-    setRoomsError("");
+  const fetchRooms = useCallback(async () => {
     try {
-      const data = await fetchRooms();
-      setLoadingChats(false);
-      setRooms(data);
+      setLoading(prev => ({ ...prev, rooms: true }));
+      const response = await fetch('/api/chat/rooms?page=1&limit=20');
+      const result: ApiResponse<{ rooms: Room[]; pagination: any }> = await response.json();
+      
+      if (result.success && result.data) {
+        setRooms(result.data.rooms);
+      } else {
+        throw new Error(result.error || 'Failed to fetch rooms');
+      }
     } catch (error) {
-      console.error("Failed to fetch rooms:", error);
-      setRoomsError("Failed to fetch chats");
-      setLoadingChats(false);
+      console.error('Error fetching rooms:', error);
+      toast.error('Failed to load chat rooms');
+    } finally {
+      setLoading(prev => ({ ...prev, rooms: false }));
     }
-  };
+  }, []);
 
-  const loadMessagesData = async (roomId: string, reset = false) => {
+  const fetchMessages = useCallback(async (roomId: string, page = 1, reset = false) => {
     try {
       if (reset) {
-        setMessagesLoading(true);
-      } else {
-        setLoadingMore(true);
+        setLoading(prev => ({ ...prev, messages: true }));
       }
-      const currentPage: any = reset ? 1 : page;
-
-      const data = await loadMessages(roomId, currentPage);
-
-      if (Array.isArray(data)) {
-        if (data.length < 50) {
-          setHasMore(false);
-        }
-
-        const sent: Message[] = [];
-        const received: Message[] = [];
-
-        data.forEach((msg) => {
-          if (msg.senderId._id === currentUser._id) {
-            sent.push({ ...msg, status: "sent" });
-          } else {
-            received.push(msg);
+      
+      const response = await fetch(`/api/chat/messages?roomId=${roomId}&page=${page}&limit=50`);
+      const result: ApiResponse<{ messages: Message[]; pagination: any }> = await response.json();
+      
+      if (result.success && result.data) {
+        const newMessages = result.data.messages;
+        
+        setMessages(prev => ({
+          ...prev,
+          [roomId]: reset ? newMessages : [...(prev[roomId] || []), ...newMessages]
+        }));
+        
+        setPagination(prev => ({
+          ...prev,
+          [roomId]: {
+            page: result.data.pagination.page,
+            hasMore: result.data.pagination.hasMore
           }
-        });
-
-        if (reset) {
-          setSentMessages((prev) => ({ ...prev, [roomId]: sent }));
-          setReceivedMessages((prev) => ({ ...prev, [roomId]: received }));
-        } else {
-          setSentMessages((prev) => ({
-            ...prev,
-            [roomId]: [...sent, ...(prev[roomId] || [])],
-          }));
-          setReceivedMessages((prev) => ({
-            ...prev,
-            [roomId]: [...received, ...(prev[roomId] || [])],
-          }));
-        }
-
-        if (!reset) {
-          setPage((prev) => prev + 1);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load messages:", error);
-      toast.error("Error loading messages");
-    } finally {
-      setMessagesLoading(false);
-      setLoadingMore(false);
-    }
-  };
-
-  const sendMsg = async (roomId: string, messageText: string) => {
-    const messageId = Date.now().toString();
-    const optimisticMessage = {
-      _id: messageId,
-      message: messageText,
-      messageType: "text" as const,
-      senderId: {
-        _id: currentUser._id,
-        firstname: currentUser.firstname,
-        lastname: currentUser.lastname,
-        profile: currentUser.profile,
-      },
-      createdAt: new Date().toISOString(),
-      roomId: roomId,
-      status: "sent",
-    };
-
-    setSentMessages((prev: any) => ({
-      ...prev,
-      [roomId]: [...(prev[roomId] || []), optimisticMessage],
-    }));
-
-    try {
-      await sendMessage({
-        roomId: roomId,
-        message: messageText,
-        messageType: "text",
-      });
-    } catch (error) {
-      setSentMessages((prev) => ({
-        ...prev,
-        [roomId]: prev[roomId].map((msg: any) =>
-          msg._id === messageId ? { ...msg, status: "failed" } : msg
-        ),
-      }));
-      toast.error("Failed to send message");
-    }
-  };
-
-  const sendImageMsg = async (roomId: string, imageUrl: string, caption?: string) => {
-    const messageId = Date.now().toString();
-    const optimisticMessage = {
-      _id: messageId,
-      message: caption || "",
-      messageType: "image" as const,
-      imageUrl: imageUrl,
-      senderId: {
-        _id: currentUser._id,
-        firstname: currentUser.firstname,
-        lastname: currentUser.lastname,
-        profile: currentUser.profile,
-      },
-      createdAt: new Date().toISOString(),
-      roomId: roomId,
-      status: "sent",
-    };
-
-    setSentMessages((prev: any) => ({
-      ...prev,
-      [roomId]: [...(prev[roomId] || []), optimisticMessage],
-    }));
-
-    try {
-      await sendMessage({
-        roomId: roomId,
-        message: caption || "",
-        messageType: "image",
-        imageUrl: imageUrl,
-      });
-
-      setSentMessages((prev: any) => ({
-        ...prev,
-        [roomId]: prev[roomId].map((msg: any) =>
-          msg._id === messageId ? { ...msg, status: "sent" } : msg
-        ),
-      }));
-    } catch (error) {
-      console.error("Failed to send image:", error);
-      setSentMessages((prev) => ({
-        ...prev,
-        [roomId]: prev[roomId].map((msg: any) =>
-          msg._id === messageId ? { ...msg, status: "failed" } : msg
-        ),
-      }));
-      toast.error("Failed to send image");
-    }
-  };
-
-  const resendMessage = async (roomId: string, failedMessage: Message) => {
-    const messageId = failedMessage._id;
-
-    setSentMessages((prev) => ({
-      ...prev,
-      [roomId]: prev[roomId].map((msg) =>
-        msg._id === messageId ? { ...msg, status: "sending" } : msg
-      ),
-    }));
-
-    try {
-      await sendMessage({
-        roomId: roomId,
-        message: failedMessage.message,
-        messageType: failedMessage.messageType || "text",
-        imageUrl: failedMessage.imageUrl,
-      });
-
-      setSentMessages((prev: any) => ({
-        ...prev,
-        [roomId]: prev[roomId].map((msg: any) =>
-          msg._id === messageId ? { ...msg, status: "sent" } : msg
-        ),
-      }));
-
-      toast.success("Message sent successfully");
-    } catch (error) {
-      setSentMessages((prev: any) => ({
-        ...prev,
-        [roomId]: prev[roomId].map((msg: any) =>
-          msg._id === messageId ? { ...msg, status: "failed" } : msg
-        ),
-      }));
-
-      toast.error("Message failed to send");
-    }
-  };
-
-  const handleNewMessage = useCallback(
-    (data: Message) => {
-      if (!data.roomId) return;
-      
-      const roomId = typeof data.roomId === 'string' ? data.roomId : String(data.roomId);
-      
-      // Prevent duplicate messages by checking if message already exists
-      const existingMessages = data.senderId._id === currentUser._id 
-        ? sentMessages[roomId] || [] 
-        : receivedMessages[roomId] || [];
-      
-      const messageExists = existingMessages.some(msg => msg._id === data._id);
-      if (messageExists) return;
-      
-      if (data.senderId._id === currentUser._id) {
-        setSentMessages((prev: any) => ({
-          ...prev,
-          [roomId]: [...(prev[roomId] || []), { ...data, status: "sent" }],
         }));
       } else {
-        setReceivedMessages((prev: any) => ({
-          ...prev,
-          [roomId]: [...(prev[roomId] || []), data],
-        }));
+        throw new Error(result.error || 'Failed to fetch messages');
       }
-    },
-    [currentUser._id, sentMessages, receivedMessages]
-  );
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      toast.error('Failed to load messages');
+    } finally {
+      setLoading(prev => ({ ...prev, messages: false }));
+    }
+  }, []);
+
+  const sendMessage = useCallback(async (roomId: string, message: string, messageType: "text" | "image" = "text", imageUrl?: string) => {
+    const tempId = `temp-${Date.now()}`;
+    const optimisticMessage: Message = {
+      _id: tempId,
+      message,
+      messageType,
+      imageUrl,
+      senderId: currentUser,
+      senderRole: currentUser.role,
+      createdAt: new Date().toISOString(),
+      isRead: false,
+      status: "sending",
+      roomId,
+    };
+
+    // Add optimistic message
+    setMessages(prev => ({
+      ...prev,
+      [roomId]: [...(prev[roomId] || []), optimisticMessage]
+    }));
+
+    try {
+      setLoading(prev => ({ ...prev, sending: true }));
+      
+      const response = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId,
+          message,
+          messageType,
+          imageUrl,
+        }),
+      });
+
+      const result: ApiResponse<Message> = await response.json();
+      
+      if (result.success && result.data) {
+        // Replace optimistic message with real one
+        setMessages(prev => ({
+          ...prev,
+          [roomId]: prev[roomId].map(msg => 
+            msg._id === tempId ? { ...result.data!, status: "sent" } : msg
+          )
+        }));
+      } else {
+        throw new Error(result.error || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      
+      // Mark message as failed
+      setMessages(prev => ({
+        ...prev,
+        [roomId]: prev[roomId].map(msg => 
+          msg._id === tempId ? { ...msg, status: "failed" } : msg
+        )
+      }));
+      
+      toast.error('Failed to send message');
+    } finally {
+      setLoading(prev => ({ ...prev, sending: false }));
+    }
+  }, [currentUser]);
+
+  const resendMessage = useCallback(async (roomId: string, failedMessage: Message) => {
+    setMessages(prev => ({
+      ...prev,
+      [roomId]: prev[roomId].map(msg => 
+        msg._id === failedMessage._id ? { ...msg, status: "sending" } : msg
+      )
+    }));
+
+    try {
+      const response = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId,
+          message: failedMessage.message,
+          messageType: failedMessage.messageType,
+          imageUrl: failedMessage.imageUrl,
+        }),
+      });
+
+      const result: ApiResponse<Message> = await response.json();
+      
+      if (result.success && result.data) {
+        setMessages(prev => ({
+          ...prev,
+          [roomId]: prev[roomId].map(msg => 
+            msg._id === failedMessage._id ? { ...result.data!, status: "sent" } : msg
+          )
+        }));
+        toast.success('Message sent successfully');
+      } else {
+        throw new Error(result.error || 'Failed to resend message');
+      }
+    } catch (error) {
+      console.error('Error resending message:', error);
+      
+      setMessages(prev => ({
+        ...prev,
+        [roomId]: prev[roomId].map(msg => 
+          msg._id === failedMessage._id ? { ...msg, status: "failed" } : msg
+        )
+      }));
+      
+      toast.error('Failed to resend message');
+    }
+  }, []);
+
+  const handleNewMessage = useCallback((newMessage: Message) => {
+    if (!newMessage.roomId) return;
+    
+    const roomId = newMessage.roomId;
+    
+    setMessages(prev => {
+      const existingMessages = prev[roomId] || [];
+      const messageExists = existingMessages.some(msg => msg._id === newMessage._id);
+      
+      if (messageExists) return prev;
+      
+      return {
+        ...prev,
+        [roomId]: [...existingMessages, newMessage]
+      };
+    });
+  }, []);
 
   return {
     rooms,
-    receivedMessages,
-    sentMessages,
-    page,
-    roomsError,
-    loadingChats,
-    messagesLoading,
-    loadingMore,
-    hasMore,
-    fetchRoomsData,
-    loadMessagesData,
-    sendMsg,
-    sendImageMsg,
+    messages,
+    loading,
+    pagination,
+    fetchRooms,
+    fetchMessages,
+    sendMessage,
     resendMessage,
     handleNewMessage,
-    setPage,
   };
 };
-
-export default useChat;

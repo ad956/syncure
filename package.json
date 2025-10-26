@@ -8,7 +8,11 @@
     "start": "next start",
     "test": "npx playwright test",
     "lint": "next lint",
-    "preview-email": "email dev"
+    "preview-email": "email dev",
+    "add-dummy-data": "node scripts/add-dummy-patient-data.js",
+    "add-john-data": "node scripts/add-john-dummy-data.js",
+    "add-health-data": "node scripts/add-dummy-data.js",
+    "fix-appointment-dates": "node scripts/fix-appointment-dates.js"
   },
   "dependencies": {
     "@internationalized/date": "^3.5.4",
@@ -25,13 +29,18 @@
     "@react-email/html": "0.0.7",
     "@react-email/section": "0.0.11",
     "@react-email/text": "0.0.7",
+    "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.2",
     "better-auth": "^1.3.18",
-    "cloudinary": "^2.2.0",
+    "cloudinary": "^2.8.0",
     "date-fns": "^3.4.0",
     "dom-to-image": "^2.6.0",
+    "formik": "^2.4.6",
     "framer-motion": "^11.1.7",
     "jose": "^5.10.0",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.3",
+    "mongodb": "^6.20.0",
     "mongoose": "^8.4.4",
     "next": "^14.2.24",
     "next-cloudinary": "^6.6.2",
@@ -47,7 +56,8 @@
     "react-email": "2.1.0",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^5.0.1",
-    "swr": "^2.3.3"
+    "swr": "^2.3.3",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",

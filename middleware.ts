@@ -1,57 +1,62 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
 
-const PRIVATE_ROUTES = [
-  "/patient",
-  "/receptionist", 
-  "/doctor",
-  "/hospital",
-  "/admin",
-];
+// Define route patterns
+const AUTH_ROUTES = ['/login', '/signup', '/admin-login'];
+const PUBLIC_API_ROUTES = ['/api/auth', '/api/demo-user', '/api/states', '/api/get-hospitals', '/api/city'];
+const PROTECTED_ROUTES = ['/patient', '/doctor', '/hospital', '/admin', '/receptionist'];
 
 export async function middleware(req: NextRequest) {
-  const { nextUrl } = req;
+  const { pathname } = req.nextUrl;
   
-  const isPrivateRoute = PRIVATE_ROUTES.some((route) =>
-    nextUrl.pathname.startsWith(route)
-  );
-
-  if (isPrivateRoute) {
-    const token = req.cookies.get("better-auth.session_token")?.value;
-
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-
-    try {
-      const secret = new TextEncoder().encode(
-        process.env.AUTH_SECRET || "your-secret-key-here"
-      );
-      
-      const { payload } = await jwtVerify(token, secret);
-      const userRole = (payload as any).user?.role;
-
-      if (!userRole) {
-        return NextResponse.redirect(new URL("/login", req.url));
-      }
-
-      const requestedRoute = nextUrl.pathname;
-      const isAuthorized = requestedRoute.startsWith(`/${userRole}`);
-
-      if (!isAuthorized) {
-        return NextResponse.redirect(new URL("/unauthorized", req.url));
-      }
-    } catch (error) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
+  // Skip middleware for static files and Next.js internals
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/api/auth/') ||
+    pathname.includes('.') ||
+    PUBLIC_API_ROUTES.some(route => pathname.startsWith(route))
+  ) {
+    return NextResponse.next();
   }
+
+  const betterAuthToken = req.cookies.get('better-auth.session_token')?.value;
+  const jwtToken = req.cookies.get('auth-token')?.value;
+  const hasValidSession = betterAuthToken || jwtToken;
   
+  const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route));
+  const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
+
+  // Redirect to login if accessing protected route without session
+  if (isProtectedRoute && !hasValidSession) {
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Redirect authenticated users away from auth pages to their dashboard
+  if (isAuthRoute && hasValidSession) {
+    // Let the auth pages handle the redirect based on user role
+    // Don't redirect here, just continue
+    return NextResponse.next();
+  }
+
+  // For protected routes, add security headers
+  if (isProtectedRoute) {
+    const response = NextResponse.next();
+    
+    // Add security headers
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    return response;
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    "/((?!login|signup|admin-login|api/demo-user|api/states|api/get-hospitals|api/city|_next/static|_next/image|.*\\.png$|.*\\.svg$|.*\\.gif$|.*\\.ico$|.*\\.jpg$|.*\\.webp$|error).*)",
+    "/((?!_next/static|_next/image|.*\\.png$|.*\\.svg$|.*\\.gif$|.*\\.ico$|.*\\.jpg$|.*\\.webp$).*)",
   ],
 };

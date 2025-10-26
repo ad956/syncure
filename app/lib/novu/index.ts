@@ -10,13 +10,15 @@ export default async function sendNotification(
 
     await novu.subscribers.identify(subscriberId, {});
 
-    novu.trigger("syncure", {
+    await novu.trigger("syncure", {
       to: {
         subscriberId,
       },
       payload: {
-        message,
+        msg: message,
         type,
+        title: "Syncure Notification",
+        body: message,
       },
     });
 

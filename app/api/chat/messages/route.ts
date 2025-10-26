@@ -1,32 +1,44 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Patient, Doctor, Message, Room } from "@models/index";
 import { pusherServer } from "@lib/pusher";
 import { Types } from "mongoose";
-
 import dbConfig from "@utils/db";
 import capitalizedRole from "@utils/capitalized-role";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
 import { sendChatNotification } from "@lib/notifications/chat-notifications";
-
 import { getSession } from "@lib/auth/get-session";
+import { createSuccessResponse, createErrorResponse, createValidationErrorResponse } from "@lib/api-response";
+import { sendMessageSchema, getMessagesSchema } from "@lib/validations/chat";
 
-export async function GET(req: Request) {
-  const session = await getSession();
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  }
-  const { searchParams } = new URL(req.url);
+export async function GET(request: NextRequest) {
   try {
     await dbConfig();
+    const session = await getSession();
 
-    const roomId = searchParams.get("roomId");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "50");
+    if (!session?.user?.id) {
+      return createErrorResponse("Unauthorized access", 401);
+    }
 
-    if (!roomId) {
-      return errorHandler("roomId is required", STATUS_CODES.BAD_REQUEST);
+    const { searchParams } = new URL(request.url);
+    const queryParams = {
+      roomId: searchParams.get("roomId"),
+      page: searchParams.get("page"),
+      limit: searchParams.get("limit"),
+    };
+
+    const validation = getMessagesSchema.safeParse(queryParams);
+    if (!validation.success) {
+      return createValidationErrorResponse(validation.error.errors);
+    }
+
+    const { roomId, page, limit } = validation.data;
+
+    const room = await Room.findOne({
+      _id: new Types.ObjectId(roomId),
+      "participants.userId": new Types.ObjectId((session as any).user.id)
+    });
+
+    if (!room) {
+      return createErrorResponse("Room not found or access denied", 404);
     }
 
     const messages = await Message.find({ roomId: new Types.ObjectId(roomId) })
@@ -34,94 +46,105 @@ export async function GET(req: Request) {
       .skip((page - 1) * limit)
       .limit(limit)
       .populate("senderId", "firstname lastname profile")
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: 1 })
+      .lean();
 
-    return NextResponse.json(messages);
-  } catch (error) {
+    return createSuccessResponse({
+      messages,
+      pagination: {
+        page,
+        limit,
+        hasMore: messages.length === limit
+      }
+    });
+  } catch (error: any) {
     console.error("Error fetching messages:", error);
-    return errorHandler("Failed to fetch messages", STATUS_CODES.SERVER_ERROR);
+    return createErrorResponse(
+      "Failed to fetch messages", 
+      500, 
+      process.env.NODE_ENV === 'development' ? error.message : undefined
+    );
   }
 }
 
-export async function POST(req: Request) {
-  const session = await getSession();
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  }
+export async function POST(request: NextRequest) {
   try {
-    const _id = new Types.ObjectId((session as any).user.id);
-
     await dbConfig();
-    const { roomId, message, messageType, imageUrl } = await req.json();
+    const session = await getSession();
 
-    if (!roomId) {
-      return errorHandler("Room ID is required", STATUS_CODES.BAD_REQUEST);
-    }
-    
-    if (messageType === "image" && !imageUrl) {
-      return errorHandler("Image URL is required for image messages", STATUS_CODES.BAD_REQUEST);
-    }
-    
-    if (messageType === "text" && !message?.trim()) {
-      return errorHandler("Message text is required for text messages", STATUS_CODES.BAD_REQUEST);
+    if (!session?.user?.id) {
+      return createErrorResponse("Unauthorized access", 401);
     }
 
-    const messageData: any = {
+    const body = await request.json();
+    const validation = sendMessageSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return createValidationErrorResponse(validation.error.errors);
+    }
+
+    const { roomId, message, messageType, imageUrl } = validation.data;
+    const userId = new Types.ObjectId((session as any).user.id);
+
+    const room = await Room.findOne({
+      _id: new Types.ObjectId(roomId),
+      "participants.userId": userId
+    });
+
+    if (!room) {
+      return createErrorResponse("Room not found or access denied", 404);
+    }
+
+    const messageData = {
       roomId: new Types.ObjectId(roomId),
-      senderId: _id,
+      senderId: userId,
       senderRole: capitalizedRole((session as any).user.role),
-      messageType: messageType || "text",
-      message: message || "",
+      messageType,
+      message,
+      ...(messageType === "image" && { imageUrl }),
     };
 
-    if (messageType === "image") {
-      messageData.imageUrl = imageUrl;
-    }
-
     const newMessage = await Message.create(messageData);
-
-    // Populate sender info for real-time update
     await newMessage.populate("senderId", "firstname lastname profile");
 
-    // Get room participants for notifications
-    const room = await Room.findById(new Types.ObjectId(roomId));
-    const recipient = room?.participants.find((p: any) => p.userId.toString() !== _id.toString());
-
-    // update room's lastMessage and timestamp
     await Room.findByIdAndUpdate(new Types.ObjectId(roomId), {
       lastMessage: newMessage._id,
       updatedAt: new Date(),
     });
 
-    // Trigger Pusher event with better error handling
+    const recipient = room.participants.find((p: any) => 
+      p.userId.toString() !== userId.toString()
+    );
+
     try {
       await pusherServer.trigger(`chat-${roomId}`, "new-message", {
         ...newMessage.toObject(),
-        roomId: roomId, // Ensure roomId is included
+        roomId,
       });
-      console.log(`Message broadcasted to chat-${roomId}`);
     } catch (pusherError) {
-      console.error("Failed to broadcast message via Pusher:", pusherError);
+      console.error("Pusher broadcast failed:", pusherError);
     }
 
-    // Send notification to recipient
     if (recipient) {
       try {
         await sendChatNotification({
           recipientId: recipient.userId.toString(),
           senderName: (session as any).user.name,
-          message: messageType === "image" ? "Sent an image" : (message || ""),
-          messageType: messageType || "text",
+          message: messageType === "image" ? "Sent an image" : message,
+          messageType,
         });
       } catch (notificationError) {
-        console.error("Failed to send notification:", notificationError);
+        console.error("Notification failed:", notificationError);
       }
     }
 
-    return NextResponse.json(newMessage);
-  } catch (error) {
+    return createSuccessResponse(newMessage, "Message sent successfully");
+  } catch (error: any) {
     console.error("Error sending message:", error);
-    return errorHandler("Failed to send message", STATUS_CODES.SERVER_ERROR);
+    return createErrorResponse(
+      "Failed to send message", 
+      500, 
+      process.env.NODE_ENV === 'development' ? error.message : undefined
+    );
   }
 }

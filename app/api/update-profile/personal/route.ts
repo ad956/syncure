@@ -6,6 +6,7 @@ import getModelByRole from "@utils/get-model-by-role";
 import { Types } from "mongoose";
 import { getSession } from "@lib/auth/get-session";
 import { revalidateTag } from "next/cache";
+import { personalUpdateSchema } from "@lib/validations/profile";
 
 export async function PUT(req: Request) {
   const session = await getSession();
@@ -15,7 +16,18 @@ export async function PUT(req: Request) {
   }
 
   const { id, role } = (session as any).user;
-  const updateData: PersonalInfoBody = await req.json();
+  const body = await req.json();
+  
+  // Validate request body
+  const validation = personalUpdateSchema.safeParse(body);
+  if (!validation.success) {
+    return errorHandler(
+      `Invalid data: ${validation.error.errors.map(e => e.message).join(', ')}`,
+      STATUS_CODES.BAD_REQUEST
+    );
+  }
+  
+  const updateData = validation.data;
 
   try {
     const user_id = new Types.ObjectId(id);
@@ -24,8 +36,8 @@ export async function PUT(req: Request) {
 
     // Remove undefined fields
     Object.keys(updateData).forEach((key) => {
-      if (updateData[key as keyof PersonalInfoBody] === undefined) {
-        delete updateData[key as keyof PersonalInfoBody];
+      if (updateData[key as keyof typeof updateData] === undefined) {
+        delete updateData[key as keyof typeof updateData];
       }
     });
 

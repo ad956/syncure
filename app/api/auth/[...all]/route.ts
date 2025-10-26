@@ -1,4 +1,3 @@
 import { auth } from "@lib/auth";
 
-export const GET = auth.handler;
-export const POST = auth.handler;
+export const { GET, POST } = auth.handler;

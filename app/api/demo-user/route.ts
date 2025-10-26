@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import DemoUser from "@models/demo-user";
+import jwt from "jsonwebtoken";
 
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
@@ -45,17 +46,42 @@ export async function POST(req: Request) {
       return errorHandler("Demo user data not found", STATUS_CODES.NOT_FOUND);
     }
 
-    return NextResponse.json(
+    // Create JWT token for demo user
+    const token = jwt.sign(
+      {
+        id: userData._id,
+        email: userData.email,
+        role: role,
+      },
+      process.env.JWT_SECRET || "fallback-secret",
+      { expiresIn: "7d" }
+    );
+
+    const response = NextResponse.json(
       {
         success: true,
         user: {
+          id: userData._id,
           email: userData.email,
-          otp: generatedOTP,
+          firstname: userData.firstname,
+          lastname: userData.lastname,
+          role: role,
         },
         message: "Demo User logged in successfully.",
       },
       { status: 200 }
     );
+
+    // Set auth cookie
+    response.cookies.set("auth-token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Error during demo login: ", error);
     return errorHandler("Internal Server Error", STATUS_CODES.SERVER_ERROR);

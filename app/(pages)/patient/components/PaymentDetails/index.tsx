@@ -8,6 +8,7 @@ import SearchInput from "@components/SearchInput";
 import StatusFilter from "@components/StatusFilter";
 import TransactionsTable from "@components/TransactionsTable";
 import useFilterTransaction from "@hooks/useFilterTransaction";
+import { PaymentHistory } from "@lib/validations/patient";
 
 const statusColorMap: any = {
   Failed: "danger",
@@ -15,9 +16,11 @@ const statusColorMap: any = {
   Pending: "warning",
 };
 
-export default function PaymentDetails({
-  paymentHistory,
-}: PaymentDetailsProps) {
+interface PaymentDetailsProps {
+  paymentHistory: PaymentHistory[];
+}
+
+export default function PaymentDetails({ paymentHistory }: PaymentDetailsProps) {
   const {
     filterValue,
     statusFilter,
@@ -35,8 +38,22 @@ export default function PaymentDetails({
     setRowsPerPage,
   } = useFilterTransaction(paymentHistory);
 
+  const handleDownloadReceipt = async (appointmentId: string) => {
+    try {
+      const response = await fetch(`/api/patient/appointments/download-receipt?appointmentId=${appointmentId}`);
+      if (response.ok) {
+        window.open(response.url, '_blank');
+      } else {
+        alert('Receipt not available');
+      }
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      alert('Failed to download receipt');
+    }
+  };
+
   const renderCell = React.useCallback(
-    (payment: Payment, columnKey: React.Key) => {
+    (payment: PaymentHistory, columnKey: React.Key) => {
       switch (columnKey) {
         case "hospital":
           return (
@@ -65,9 +82,18 @@ export default function PaymentDetails({
         case "date":
           return getFormattedDate(new Date(payment.date));
         case "amount":
-          return `₹${payment.amount.toFixed(2)}`; // Format to 2 decimal places
+          return `₹${payment.amount.toFixed(2)}`;
+        case "actions":
+          return (
+            <button
+              onClick={() => handleDownloadReceipt(payment._id!)}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              Download Receipt
+            </button>
+          );
         default:
-          return payment[columnKey as keyof Payment]?.toString() || "";
+          return payment[columnKey as keyof PaymentHistory]?.toString() || "";
       }
     },
     []

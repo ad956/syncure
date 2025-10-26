@@ -11,6 +11,7 @@ export interface Patient extends mongoose.Document {
   dob: string;
   gender: string;
   contact: string;
+  countryCode: string;
   profile: string;
   address: {
     address_line_1: string;
@@ -27,17 +28,6 @@ export interface Patient extends mongoose.Document {
     height: number;
     weight: number;
   };
-  progress: {
-    generalHealth: number;
-    waterBalance: number;
-    currentTreatment: number;
-    pendingAppointments: number;
-  };
-  medicines: {
-    name: string;
-    dosage: string;
-    frequency: string;
-  }[];
   healthConditions: number[];
 }
 
@@ -57,6 +47,7 @@ const patientSchema = new mongoose.Schema(
       enum: ["Male", "Female", "Other"],
     },
     contact: { type: String, required: false },
+    countryCode: { type: String, default: "+1" },
     profile: String,
     address: {
       _id: false,
@@ -75,21 +66,6 @@ const patientSchema = new mongoose.Schema(
       height: Number,
       weight: Number,
     },
-    progress: {
-      _id: false,
-      generalHealth: Number,
-      waterBalance: Number,
-      currentTreatment: Number,
-      pendingAppointments: Number,
-    },
-    medicines: [
-      {
-        _id: false,
-        name: String,
-        dosage: String,
-        frequency: String,
-      },
-    ],
     healthConditions: [Number],
   },
   { collection: "patient", timestamps: true }

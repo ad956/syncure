@@ -32,7 +32,7 @@ export default function MedicineDetails({ details }: MedicineDetailsProp) {
   return (
     <div
       className={`flex flex-row flex-wrap px-2 ${
-        details.length > 4 ? "overflow-y-scroll scrollbar" : ""
+        details.length > 4 ? "overflow-y-auto bills-scroll" : ""
       }`}
     >
       {details.map((medicine, index) => (

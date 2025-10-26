@@ -46,6 +46,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     isPersonalProfile ? parseDate(user.dob) : undefined
   );
   const [contact, setContact] = useState(user.contact);
+  const [countryCode, setCountryCode] = useState(user.countryCode || "+1");
   const [gender, setGender] = useState(
     isPersonalProfile ? user.gender : undefined
   );
@@ -74,6 +75,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     newPassword,
     dob,
     contact,
+    countryCode,
     gender,
     address,
   ]);
@@ -152,6 +154,10 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     setContact(e.target.value);
   };
 
+  const handleCountryCodeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCountryCode(e.target.value);
+  };
+
   const handleAddressChange =
     (field: keyof typeof address) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -169,9 +175,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
       <Button
         // isDisabled={updateDisabled} // to be done
         onClick={onUpdate}
-        color="danger"
-        variant="shadow"
-        className="mt-6"
+        className="mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium px-6 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
       >
         Update
       </Button>
@@ -188,6 +192,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
       email: email !== user.email ? email : undefined,
       gender: gender !== user.gender ? gender : undefined,
       contact: contact !== user.contact ? contact : undefined,
+      countryCode: countryCode !== user.countryCode ? countryCode : undefined,
     };
 
     if (isPersonalProfile) {
@@ -475,12 +480,30 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                   </>
                 )}
 
+                <Select
+                  name="countryCode"
+                  variant="underlined"
+                  label="Country Code"
+                  value={countryCode}
+                  defaultSelectedKeys={[countryCode]}
+                  className="max-w-xs"
+                  onChange={handleCountryCodeChange}
+                >
+                  <SelectItem key="+1">+1 (US/CA)</SelectItem>
+                  <SelectItem key="+44">+44 (UK)</SelectItem>
+                  <SelectItem key="+91">+91 (IN)</SelectItem>
+                  <SelectItem key="+86">+86 (CN)</SelectItem>
+                  <SelectItem key="+49">+49 (DE)</SelectItem>
+                  <SelectItem key="+33">+33 (FR)</SelectItem>
+                  <SelectItem key="+81">+81 (JP)</SelectItem>
+                  <SelectItem key="+61">+61 (AU)</SelectItem>
+                </Select>
                 <Input
                   name="contact"
                   type="text"
                   variant="underlined"
-                  label="Phone"
-                  value={`+${contact}`}
+                  label="Phone Number"
+                  value={contact}
                   className="max-w-xs"
                   onChange={handleContactChange}
                   isInvalid={!!formValidator.getError("contact")}

@@ -9,7 +9,7 @@ export default async function MedicalHistory() {
   const response = await getPatientMedicalHistory((session as any)?.user?.id);
 
   return (
-    <section className="md:h-full md:w-full flex flex-col items-center scrollbar overflow-y-scroll">
+    <section className="md:h-full md:w-full flex flex-col items-center bills-scroll overflow-y-auto">
       <MedicalDetails medicalDetails={response} />
     </section>
   );
