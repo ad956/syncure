@@ -61,9 +61,9 @@ export async function POST(request: NextRequest) {
     // Create family member
     const familyMember = new FamilyMember({
       patient_id: patientId,
-      name: data.name,
+      name: `${data.firstname} ${data.lastname}`,
       relation: data.relation,
-      age: data.age,
+      age: new Date().getFullYear() - new Date(data.dob).getFullYear(),
       gender: data.gender,
       contact: data.contact,
       is_active: true

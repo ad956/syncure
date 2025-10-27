@@ -6,14 +6,26 @@ export async function GET(request: NextRequest) {
     const results = {
       email: { success: false, error: null },
       novu: { success: false, error: null },
-      pdf: { success: false, error: null, url: null }
+      pdf: { success: false, error: null, url: null as string | null }
     };
 
     // Test Email with PDF attachment
     try {
       const { sendEmail, AppointmentBookedTemplate } = await import("@lib/emails");
       const { render } = await import("@react-email/render");
-      const { generateBillPDF, BillData } = await import("@lib/pdf/bill-template");
+      const { generateBillPDF } = await import("@lib/pdf/bill-template");
+      
+      interface BillData {
+        patientName: string;
+        patientEmail: string;
+        hospitalName: string;
+        disease: string;
+        note: string;
+        amount: number;
+        transactionId: string;
+        date: string;
+        billId: string;
+      }
       const { uploadPDFToCloudinary } = await import("@lib/pdf/cloudinary-upload");
 
       const emailHtml = render(

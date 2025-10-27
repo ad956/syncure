@@ -1,5 +1,11 @@
 import createOrderId from "./create-order-id";
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 async function processPayment(
   name: string,
   email: string,

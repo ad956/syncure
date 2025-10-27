@@ -82,7 +82,7 @@ export default function VitalSigns({ vitalSigns }: VitalSignsProps) {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <MdMonitorHeart className="text-red-600 text-xl" />
-          <h3 className="text-lg font-semibold text-gray-800">Today's Vitals</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Today&apos;s Vitals</h3>
         </div>
         <Button 
           onPress={onOpen}

@@ -612,7 +612,7 @@ export function AppointmentBookedTemplate({
                   color: "#92400e",
                 }}
               >
-                What's Next?
+                What&apos;s Next?
               </h3>
               <p
                 style={{
@@ -622,7 +622,7 @@ export function AppointmentBookedTemplate({
                   lineHeight: "1.5",
                 }}
               >
-                The hospital will review and confirm your appointment. You'll receive a confirmation
+                The hospital will review and confirm your appointment. You&apos;ll receive a confirmation
                 email with the exact date and time within 24 hours.
               </p>
             </div>

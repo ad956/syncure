@@ -10,6 +10,14 @@ import {
 } from "@nextui-org/react";
 import useQuery from "@hooks/useQuery";
 
+interface CitySelectorProps {
+  selectedState: string;
+  selectedCity: string;
+  onCityChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  isOpenPopover: boolean;
+  setIsOpenPopover: (open: boolean) => void;
+}
+
 export function CitySelector({
   selectedState,
   selectedCity,

@@ -70,15 +70,15 @@ export async function POST(request: NextRequest) {
     }
     
     const stateKey = Object.keys(hospitalDoc).find(key => key !== '_id' && key !== '__v');
-    const hospitals = hospitalDoc[stateKey]?.[data.city] || [];
-    const hospital = hospitals.find(h => h.hospital_name === data.hospital.name);
+    const hospitals = stateKey ? (hospitalDoc as any)[stateKey]?.[data.city] || [] : [];
+    const hospital = hospitals.find((h: any) => h.hospital_name === data.hospital.name);
     
     if (!hospital) {
       return createErrorResponse("Hospital not found", 404);
     }
 
     // Handle family member booking
-    let bookedFor = { type: 'self' as const };
+    let bookedFor: any = { type: 'self' as const };
     if (data.patient_id && data.patient_id !== 'self' && data.patient_id !== (session as any).user.id) {
       // Validate family member ID
       if (!Types.ObjectId.isValid(data.patient_id)) {
@@ -97,10 +97,10 @@ export async function POST(request: NextRequest) {
       }
 
       bookedFor = {
-        type: 'family' as const,
+        type: 'family',
         family_member_id: familyMember._id,
-        patient_name: data.patient_name || familyMember.name,
-        patient_relation: data.patient_relation || familyMember.relation
+        patient_name: (data as any).patient_name || familyMember.name,
+        patient_relation: (data as any).patient_relation || familyMember.relation
       };
     }
 

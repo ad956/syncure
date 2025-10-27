@@ -255,7 +255,7 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
               {medicationsLoading ? (
                 <MedicationSkeleton />
               ) : (
-                <MedicationTracker medications={medications.map(med => ({
+                <MedicationTracker medications={medications.map((med: any) => ({
                   id: med._id,
                   name: med.medication_name,
                   dosage: med.dosage,

@@ -10,6 +10,14 @@ import {
 } from "@nextui-org/react";
 import useQuery from "@hooks/useQuery";
 
+interface DiseaseSelectorProps {
+  selectedHospital: { hospital_id: string };
+  selectedDisease: string;
+  onDiseaseChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  isOpenDiseasePopover: boolean;
+  setIsOpenDiseasePopover: (open: boolean) => void;
+}
+
 export function DiseaseSelector({
   selectedHospital,
   selectedDisease,

@@ -46,7 +46,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     isPersonalProfile ? parseDate(user.dob) : undefined
   );
   const [contact, setContact] = useState(user.contact);
-  const [countryCode, setCountryCode] = useState(user.countryCode || "+1");
+  const [countryCode, setCountryCode] = useState((user as any).countryCode || "+1");
   const [gender, setGender] = useState(
     isPersonalProfile ? user.gender : undefined
   );
@@ -192,7 +192,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
       email: email !== user.email ? email : undefined,
       gender: gender !== user.gender ? gender : undefined,
       contact: contact !== user.contact ? contact : undefined,
-      countryCode: countryCode !== user.countryCode ? countryCode : undefined,
+      countryCode: countryCode !== (user as any).countryCode ? countryCode : undefined,
     };
 
     if (isPersonalProfile) {

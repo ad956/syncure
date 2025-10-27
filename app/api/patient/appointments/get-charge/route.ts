@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
     }
 
     const stateKey = Object.keys(hospitalDoc).find(key => key !== '_id' && key !== '__v');
-    const hospitals = hospitalDoc[stateKey]?.[city] || [];
-    const hospital = hospitals.find(h => h.hospital_name === hospitalName);
+    const hospitals = stateKey ? (hospitalDoc as any)[stateKey]?.[city] || [] : [];
+    const hospital = hospitals.find((h: any) => h.hospital_name === hospitalName);
 
     if (!hospital) {
       return createErrorResponse("Hospital not found", 404);

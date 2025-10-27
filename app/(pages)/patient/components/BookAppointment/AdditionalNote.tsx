@@ -2,6 +2,12 @@
 
 import { Textarea } from "@nextui-org/react";
 
+interface AdditionalNoteProps {
+  additionalNote: string;
+  noteError: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
 export function AdditionalNote({
   additionalNote,
   noteError,

@@ -60,9 +60,9 @@ export default function HealthMetrics({ metrics }: HealthMetricsProps) {
       ];
     }
 
-    const weightData = [];
-    const bpData = [];
-    const hrData = [];
+    const weightData: { x: string; y: number }[] = [];
+    const bpData: { x: string; y: number }[] = [];
+    const hrData: { x: string; y: number }[] = [];
 
     vitals.forEach((vital, index) => {
       const date = new Date(vital.recorded_at);

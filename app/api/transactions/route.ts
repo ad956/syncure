@@ -12,6 +12,16 @@ interface pendingTransactionReqBody {
   status: string;
 }
 
+interface TransactionType {
+  transaction_id: string;
+  patient_id: string;
+  hospital_id: string;
+  disease: string;
+  description: string;
+  amount: number;
+  status: string;
+}
+
 // saving transaction details in db
 export async function POST(req: Request) {
   const session = await getSession();

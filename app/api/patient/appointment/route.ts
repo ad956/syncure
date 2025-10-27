@@ -69,7 +69,7 @@ export async function POST(req: Request) {
   if (!session) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
-  const data: BookingAppointmentType = await req.json();
+  const data: any = await req.json();
 
   try {
     const { state, city, hospital, disease, note, transaction_id } = data;

@@ -9,9 +9,7 @@ import dbConfig from "@utils/db";
 const mongoClient = new MongoClient(process.env.MONGODB_URI!);
 
 export const auth = betterAuth({
-  database: mongodbAdapter(mongoClient, {
-    databaseName: "syncure" // Use same database
-  }),
+  database: mongodbAdapter(mongoClient.db("syncure")),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
@@ -40,7 +38,7 @@ export const auth = betterAuth({
   
   // Custom sign-in to integrate with existing users
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }: { user: any; account: any }) {
       if (account?.provider === "credential") {
         await dbConfig();
         
@@ -58,4 +56,4 @@ export const auth = betterAuth({
 });
 
 export type Session = typeof auth.$Infer.Session;
-export type User = typeof auth.$Infer.User;
+export type User = typeof auth.$Infer.Session.user;

@@ -1,3 +1,11 @@
+interface PendingBill {
+  _id: string;
+  amount: number;
+  date: string;
+  hospital: string;
+  status: string;
+}
+
 export default async function getPendingBills(): Promise<[PendingBill]> {
   const endpoint = "/api/patient/payment-history?status=pending";
 

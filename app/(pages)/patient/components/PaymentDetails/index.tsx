@@ -80,7 +80,7 @@ export default function PaymentDetails({ paymentHistory }: PaymentDetailsProps) 
             </Chip>
           );
         case "date":
-          return getFormattedDate(new Date(payment.date));
+          return payment.date ? getFormattedDate(new Date(payment.date)) : 'N/A';
         case "amount":
           return `₹${payment.amount.toFixed(2)}`;
         case "actions":

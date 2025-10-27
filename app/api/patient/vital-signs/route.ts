@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit') || '30';
     const today = searchParams.get('today');
     
-    let query = { patient_id: (session as any).user.id };
+    let query: any = { patient_id: (session as any).user.id };
     
     // If requesting today's vitals only
     if (today === 'true') {
@@ -71,7 +71,6 @@ export async function POST(request: NextRequest) {
       temperature: temperature ? parseFloat(temperature) : undefined,
       blood_sugar: bloodSugar ? parseInt(bloodSugar) : undefined,
       notes,
-      recorded_at: new Date(),
     });
 
     await newVitalSigns.save();

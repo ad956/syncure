@@ -4,7 +4,6 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
-  generateStaticParams: false,
 };
 
 export default nextConfig;

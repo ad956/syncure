@@ -57,7 +57,7 @@ export const useChat = (currentUser: ChatUser) => {
       const result: ApiResponse<{ rooms: Room[]; pagination: any }> = await response.json();
       
       if (result.success && result.data) {
-        setRooms(result.data.rooms);
+        setRooms(result.data?.rooms || []);
       } else {
         throw new Error(result.error || 'Failed to fetch rooms');
       }
@@ -89,8 +89,8 @@ export const useChat = (currentUser: ChatUser) => {
         setPagination(prev => ({
           ...prev,
           [roomId]: {
-            page: result.data.pagination.page,
-            hasMore: result.data.pagination.hasMore
+            page: result.data?.pagination?.page || 1,
+            hasMore: result.data?.pagination?.hasMore || false
           }
         }));
       } else {

@@ -29,10 +29,10 @@ export default function PatientProfileCard({ patient, patientId }: PatientProfil
 
   const handleDownloadCard = () => {
     // Hide the download button temporarily
-    const downloadBtn = document.querySelector('[data-download-btn]');
+    const downloadBtn = document.querySelector('[data-download-btn]') as HTMLElement;
     if (downloadBtn) downloadBtn.style.display = 'none';
     
-    const cardElement = document.querySelector('[data-card="patient-profile"]');
+    const cardElement = document.querySelector('[data-card="patient-profile"]') as HTMLElement;
     
     if (cardElement) {
       domtoimage

@@ -1,3 +1,14 @@
+interface bookingAppointment {
+  date: string;
+  timing: { startTime: string; endTime: string };
+  state: string;
+  city: string;
+  hospital: { name: string; id: string };
+  disease: string;
+  note?: string;
+  patient_id: string;
+}
+
 export default async function bookAppointment(
   bookAppointmentData: bookingAppointment
 ): Promise<any> {

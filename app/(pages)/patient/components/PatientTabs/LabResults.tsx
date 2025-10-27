@@ -30,7 +30,7 @@ const LabResults: React.FC = () => {
 
   return (
     <div className="h-full overflow-y-auto bills-scroll space-y-4 pr-2">
-      {labResults.map((result) => {
+      {labResults.map((result: any) => {
         const isNormal = result.status === 'Normal';
         const statusColor = isNormal ? 'green' : result.status === 'Critical' ? 'red' : 'yellow';
         

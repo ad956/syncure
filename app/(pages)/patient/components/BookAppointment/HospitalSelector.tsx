@@ -11,6 +11,20 @@ import {
 import useQuery from "@hooks/useQuery";
 import { ChangeEvent } from "react";
 
+interface BookAppointmentHospital {
+  hospital_id: string;
+  hospital_name: string;
+}
+
+interface HospitalSelectorProps {
+  selectedState: string;
+  selectedCity: string;
+  selectedHospital: BookAppointmentHospital;
+  onHospitalChange: (hospital: BookAppointmentHospital) => void;
+  isOpenHospitalPopover: boolean;
+  setIsOpenHospitalPopover: (open: boolean) => void;
+}
+
 export function HospitalSelector({
   selectedState,
   selectedCity,

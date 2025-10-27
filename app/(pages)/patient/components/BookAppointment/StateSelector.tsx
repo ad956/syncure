@@ -3,6 +3,11 @@
 import { Select, SelectItem, Spinner } from "@nextui-org/react";
 import useQuery from "@hooks/useQuery";
 
+interface StateSelectorProps {
+  selectedState: string;
+  onStateChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
 export function StateSelector({
   selectedState,
   onStateChange,

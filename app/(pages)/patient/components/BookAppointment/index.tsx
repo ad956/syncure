@@ -259,7 +259,7 @@ export default function BookAppointment({
                           <p className="font-medium text-green-800 text-sm">What happens next?</p>
                         </div>
                         <p className="text-green-700 text-xs leading-relaxed">
-                          After booking, you'll receive a confirmation email with appointment details, doctor information, and hospital directions.
+                          After booking, you&apos;ll receive a confirmation email with appointment details, doctor information, and hospital directions.
                         </p>
                       </div>
                     </CardBody>

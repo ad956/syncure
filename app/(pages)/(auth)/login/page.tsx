@@ -106,7 +106,7 @@ export default function Login() {
   }
 
   async function handleForgetPassword() {
-    if (!usernameOrEmail || userData.role === "") {
+    if (!usernameOrEmail || !isRoleValid) {
       toast.error(
         "Please enter a valid username or email address and select a role to continue.",
         {

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
           // Extract state names from document keys (excluding _id)
           const stateNames = Object.keys(doc).filter(key => key !== '_id' && key !== '__v');
           for (const stateName of stateNames) {
-            states.push({ id: doc._id.toString(), name: stateName });
+            states.push({ id: (doc._id as any).toString(), name: stateName });
           }
         }
         data = { states };
@@ -36,10 +36,10 @@ export async function GET(request: NextRequest) {
           return createErrorResponse("State not found", 404);
         }
         const stateName = Object.keys(stateDoc).find(key => key !== '_id' && key !== '__v');
-        const cities = Object.keys(stateDoc[stateName] || {}).map(cityName => ({
+        const cities = stateName ? Object.keys((stateDoc as any)[stateName] || {}).map(cityName => ({
           id: cityName,
           name: cityName
-        }));
+        })) : [];
         data = { cities, state: { id: state, name: stateName } };
         break;
         
@@ -53,10 +53,10 @@ export async function GET(request: NextRequest) {
           return createErrorResponse("State not found", 404);
         }
         const stateKey = Object.keys(hospitalDoc).find(key => key !== '_id' && key !== '__v');
-        const hospitals = (hospitalDoc[stateKey]?.[cityName] || []).map((h, index) => ({
+        const hospitals = stateKey ? ((hospitalDoc as any)[stateKey]?.[cityName] || []).map((h: any, index: number) => ({
           id: h.hospital_id || `${stateId}_${cityName}_${index}`,
           name: h.hospital_name
-        }));
+        })) : [];
         data = { hospitals, city: { id: cityName, name: cityName } };
         break;
         
