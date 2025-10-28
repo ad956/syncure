@@ -6,6 +6,8 @@ import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const session = await getSession();
 

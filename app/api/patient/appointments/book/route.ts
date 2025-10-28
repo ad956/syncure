@@ -4,7 +4,7 @@ import FamilyMember from "@models/family-member";
 import CityStateHospital from "@models/city-state-hospitals";
 import { Types } from "mongoose";
 import dbConfig from "@utils/db";
-import { getSession } from "@lib/auth/get-session";
+import { requireAuth } from "@lib/auth/api-auth";
 import { createSuccessResponse, createErrorResponse, createValidationErrorResponse } from "@lib/api-response";
 import { bookAppointmentSchema } from "@lib/validations/patient";
 import { z } from "zod";
@@ -30,10 +30,10 @@ const bookAppointmentWithPaymentSchema = bookAppointmentSchema.extend({
 export async function POST(request: NextRequest) {
   try {
     await dbConfig();
-    const session = await getSession();
-
-    if (!session?.user?.id) {
-      return createErrorResponse("Unauthorized access", 401);
+    const { error, session } = requireAuth();
+    
+    if (error) {
+      return error;
     }
 
     const body = await request.json();

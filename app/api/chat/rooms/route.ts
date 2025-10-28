@@ -6,6 +6,8 @@ import { getSession } from "@lib/auth/get-session";
 import { createSuccessResponse, createErrorResponse, createValidationErrorResponse } from "@lib/api-response";
 import { getRoomsSchema } from "@lib/validations/chat";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     await dbConfig();

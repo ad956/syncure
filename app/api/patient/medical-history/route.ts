@@ -1,16 +1,18 @@
 import { Patient, MedicalHistory } from "@models/index";
 import { Types } from "mongoose";
 import dbConfig from "@utils/db";
-import { getSession } from "@lib/auth/get-session";
+import { requireAuth } from "@lib/auth/api-auth";
 import { medicalHistoryResponseSchema } from "@lib/validations/patient";
 import { createSuccessResponse, createErrorResponse, createValidationErrorResponse } from "@lib/api-response";
 
+
+
 export async function GET() {
   try {
-    const session = await getSession();
-
-    if (!session) {
-      return createErrorResponse("Unauthorized", 401);
+    const { error, session } = requireAuth();
+    
+    if (error) {
+      return error;
     }
 
     const patient_id = new Types.ObjectId(session.user.id);

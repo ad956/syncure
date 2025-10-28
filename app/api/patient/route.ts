@@ -1,18 +1,18 @@
 import Patient from "@models/patient";
 import { Types } from "mongoose";
-import { getSession } from "@lib/auth/get-session";
 import dbConfig from "@utils/db";
 import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
+import { requireAuth } from "@lib/auth/api-auth";
 
 export async function GET(request: Request) {
   try {
-    const session = await getSession();
-
-    if (!session?.user?.id) {
-      return createErrorResponse("Unauthorized", 401);
+    const { error, session } = requireAuth();
+    
+    if (error) {
+      return error;
     }
 
-    const patient_id = new Types.ObjectId(session.user.id);
+    const patient_id = new Types.ObjectId(session!.user.id);
     await dbConfig();
 
     const projection = {

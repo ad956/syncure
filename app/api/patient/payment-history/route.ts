@@ -4,14 +4,16 @@ import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 import { Patient, Transaction } from "@models/index";
 import { Types } from "mongoose";
-import { getSession } from "@lib/auth/get-session";
+import { requireAuth } from "@lib/auth/api-auth";
 import { paymentHistoryResponseSchema } from "@lib/validations/patient";
 
-export async function GET(request: Request) {
-  const session = await getSession();
 
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+
+export async function GET(request: Request) {
+  const { error, session } = requireAuth();
+  
+  if (error) {
+    return error;
   }
   const url = new URL(request.url);
   const status = url.searchParams.get("status");

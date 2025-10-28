@@ -4,17 +4,17 @@ import { render } from "@react-email/render";
 import { AppointmentBookedTemplate, sendEmail } from "@lib/emails";
 import sendNotification from "@lib/novu";
 import { Patient, BookedAppointment, Doctor } from "@models/index";
-import { getSession } from "@lib/auth/get-session";
+import { requireAuth } from "@lib/auth/api-auth";
 import dbConfig from "@utils/db";
 import { errorHandler } from "@utils/error-handler";
 import { STATUS_CODES } from "@utils/constants";
 
 // getting patient's approved appointments
 export async function GET() {
-  const session = await getSession();
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  const { error, session } = requireAuth();
+  
+  if (error) {
+    return error;
   }
   try {
     const patient_id = new Types.ObjectId((session as any).user.id);
@@ -64,10 +64,10 @@ export async function GET() {
 
 // booking an appointment
 export async function POST(req: Request) {
-  const session = await getSession();
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+  const { error, session } = requireAuth();
+  
+  if (error) {
+    return error;
   }
   const data: any = await req.json();
 

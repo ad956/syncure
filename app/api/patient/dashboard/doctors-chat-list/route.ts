@@ -3,16 +3,18 @@ import dbConfig from "@utils/db";
 import { Patient, Doctor } from "@models/index";
 import BookedAppointment from "@models/booked-appointment";
 import { Types } from "mongoose";
-import { getSession } from "@lib/auth/get-session";
+import { requireAuth } from "@lib/auth/api-auth";
 import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
+
+
 
 export async function GET(request: NextRequest) {
   try {
     await dbConfig();
-    const session = await getSession();
-
-    if (!session?.user?.id) {
-      return createErrorResponse("Unauthorized access", 401);
+    const { error, session } = requireAuth();
+    
+    if (error) {
+      return error;
     }
 
     const patientId = new Types.ObjectId((session as any).user.id);

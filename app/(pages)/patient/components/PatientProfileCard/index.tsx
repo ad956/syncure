@@ -8,8 +8,10 @@ import domtoimage from "dom-to-image";
 
 interface PatientProfileCardProps {
   patient: {
+    _id?: string;
     firstname: string;
     lastname: string;
+    username?: string;
     email: string;
     contact: string;
     countryCode?: string;
@@ -17,9 +19,12 @@ interface PatientProfileCardProps {
     profile: string;
     age?: number;
     physicalDetails?: {
-      blood: string;
-      age: number;
+      weight?: number;
+      height?: number;
+      blood?: string;
+      age?: number;
     };
+    updatedAt?: string;
   };
   patientId: string;
 }

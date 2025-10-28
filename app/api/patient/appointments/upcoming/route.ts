@@ -2,18 +2,20 @@ import { NextResponse } from "next/server";
 import BookedAppointment from "@models/booked-appointment";
 import { Types } from "mongoose";
 import dbConfig from "@utils/db";
-import { getSession } from "@lib/auth/get-session";
+import { requireAuth } from "@lib/auth/api-auth";
 import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 import type { Session } from "@lib/types/session";
+
+
 
 export async function GET() {
   console.log("API called at:", new Date().toISOString());
   try {
     await dbConfig();
-    const session = await getSession() as Session | null;
-
-    if (!session?.user?.id) {
-      return createErrorResponse("Unauthorized access", 401);
+    const { error, session } = requireAuth();
+    
+    if (error) {
+      return error;
     }
 
     const patientId = new Types.ObjectId(session.user.id);

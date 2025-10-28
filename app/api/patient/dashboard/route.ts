@@ -4,16 +4,18 @@ import VitalSigns from '@models/vital-signs';
 import BookedAppointment from '@models/booked-appointment';
 import MedicationLog from '@models/medication-log';
 import dbConfig from '@utils/db';
-import { getSession } from '@lib/auth/get-session';
+import { requireAuth } from '@lib/auth/api-auth';
 import { createSuccessResponse, createErrorResponse } from '@lib/api-response';
+
+
 
 export async function GET() {
   try {
     await dbConfig();
-    const session = await getSession();
+    const { error, session } = requireAuth();
     
-    if (!session?.user?.id) {
-      return createErrorResponse('Unauthorized access', 401);
+    if (error) {
+      return error;
     }
 
     const patientId = (session as any).user.id;

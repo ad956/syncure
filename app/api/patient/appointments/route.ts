@@ -7,6 +7,8 @@ import dbConfig from "@utils/db";
 import { getSession } from "@lib/auth/get-session";
 import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 
+
+
 export async function GET(request: NextRequest) {
   try {
     await dbConfig();
