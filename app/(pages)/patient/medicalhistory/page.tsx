@@ -1,16 +1,19 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
-import getPatientMedicalHistory from "@lib/patient/get-patient-medical-history";
+import { useMedicalHistory } from "@hooks/useMedicalHistory";
 import MedicalDetails from "../components/MedicalDetails";
-import { getSession } from "@lib/auth/get-session";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function MedicalHistory() {
-  const session = await getSession();
-  const response = await getPatientMedicalHistory((session as any)?.user?.id);
+export default function MedicalHistory() {
+  const { medicalHistory, isLoading } = useMedicalHistory();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
 
   return (
     <section className="md:h-full md:w-full flex flex-col items-center bills-scroll overflow-y-auto">
-      <MedicalDetails medicalDetails={response} />
+      <MedicalDetails medicalDetails={medicalHistory} />
     </section>
   );
 }

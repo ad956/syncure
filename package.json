@@ -37,7 +37,6 @@
     "dom-to-image": "^2.6.0",
     "formik": "^2.4.6",
     "framer-motion": "^11.1.7",
-    "jose": "^5.10.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.3",
     "mongodb": "^6.20.0",

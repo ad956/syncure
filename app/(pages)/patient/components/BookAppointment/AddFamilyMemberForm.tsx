@@ -1,7 +1,7 @@
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import { Formik, Form, Field } from "formik";
 import { familyMemberSchema } from "@lib/validations/patient";
-import { useFamilyMembers } from "@lib/hooks/patient";
+import { useFamilyMembers } from "@hooks/useFamilyMembers";
 import toast from "react-hot-toast";
 
 interface AddFamilyMemberFormProps {
@@ -10,7 +10,7 @@ interface AddFamilyMemberFormProps {
 }
 
 export default function AddFamilyMemberForm({ onClose, onSuccess }: AddFamilyMemberFormProps) {
-  const { familyMembers, mutate } = useFamilyMembers();
+  const { familyMembers, refetch } = useFamilyMembers();
 
   const handleSubmit = async (values: any) => {
     const newMember = {
@@ -22,8 +22,7 @@ export default function AddFamilyMemberForm({ onClose, onSuccess }: AddFamilyMem
       contact: values.contact
     };
 
-    // Optimistic update
-    mutate([...familyMembers, newMember], false);
+    // Will be handled by SWR cache
     
     try {
       const response = await fetch('/api/patient/family-members', {
@@ -37,15 +36,15 @@ export default function AddFamilyMemberForm({ onClose, onSuccess }: AddFamilyMem
 
       if (data.success) {
         toast.success('Family member added successfully');
-        mutate(); // Revalidate with server data
+        refetch(); // Revalidate with server data
         onSuccess();
         onClose();
       } else {
-        mutate(); // Revert on error
+        refetch(); // Revalidate
         toast.error(data.error || 'Failed to add family member');
       }
     } catch (error) {
-      mutate(); // Revert on error
+      refetch(); // Revalidate
       toast.error('Failed to add family member');
     }
   };

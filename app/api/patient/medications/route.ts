@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
 
     return createSuccessResponse({ medications, count: medications.length });
   } catch (error: any) {
-    console.error('Error fetching medications:', error);
-    return createErrorResponse('Failed to fetch medications', 500, process.env.NODE_ENV === 'development' ? error.message : undefined);
+    console.error('Error fetching medications:', { error: error.message });
+    return createErrorResponse('Failed to fetch medications', 500);
   }
 }
 
@@ -61,9 +61,9 @@ export async function POST(request: NextRequest) {
       $inc: { activeMedications: 1 }
     });
 
-    return createSuccessResponse({ medication: newMedication }, 'Medication added successfully');
+    return createSuccessResponse({ medication: newMedication });
   } catch (error: any) {
-    console.error('Error creating medication:', error);
-    return createErrorResponse('Failed to add medication', 500, process.env.NODE_ENV === 'development' ? error.message : undefined);
+    console.error('Error creating medication:', { error: error.message });
+    return createErrorResponse('Failed to add medication', 500);
   }
 }

@@ -28,12 +28,9 @@ export async function GET(request: Request) {
       return createErrorResponse("Patient not found", 404);
     }
 
-    return createSuccessResponse(patientData, "Patient data retrieved successfully");
+    return createSuccessResponse(patientData);
   } catch (error: any) {
     console.error("Error fetching patient data:", error);
-    return createErrorResponse(
-      error.message || "Internal Server Error",
-      500
-    );
+    return createErrorResponse(error.message || "Internal Server Error", 500);
   }
 }

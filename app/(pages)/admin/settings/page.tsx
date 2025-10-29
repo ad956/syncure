@@ -1,15 +1,21 @@
-import getAdminData from "@lib/admin/get-admin-data";
+"use client";
+
 import ProfileSettings from "@components/ProfileSettings";
-import { getSession } from "@lib/auth/get-session";
+import SpinnerLoader from "@components/SpinnerLoader";
+import useSWR from 'swr';
 
-export const dynamic = 'force-dynamic';
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
-export default async function Settings() {
-  const session = await getSession();
-  const admin = await getAdminData((session as any)?.user?.id);
+export default function Settings() {
+  const { data, isLoading } = useSWR('/api/admin', fetcher);
+  const admin = data?.success ? data.data : null;
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
 
   if (!admin) {
-    return null;
+    return <div>Error loading admin data</div>;
   }
 
   return (

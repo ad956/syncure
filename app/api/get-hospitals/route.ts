@@ -1,9 +1,6 @@
-import { NextResponse } from "next/server";
 import CityStateHospital from "@models/city-state-hospitals";
-
 import dbConfig from "@utils/db";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
+import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -13,10 +10,7 @@ export async function GET(req: Request) {
 
   try {
     if (!state || !city) {
-      return errorHandler(
-        "State or city parameter is missing",
-        STATUS_CODES.BAD_REQUEST
-      );
+      return createErrorResponse("State or city parameter is missing", 400);
     }
 
     await dbConfig();
@@ -26,27 +20,18 @@ export async function GET(req: Request) {
     });
 
     if (!stateHospitals) {
-      return errorHandler(
-        "No hospitals found for the specified state",
-        STATUS_CODES.NOT_FOUND
-      );
+      return createErrorResponse("No hospitals found for the specified state", 404);
     }
 
     const cityHospitals = stateHospitals.get(state)[city];
 
     if (!cityHospitals) {
-      return errorHandler(
-        "No hospitals found in the specified city",
-        STATUS_CODES.NOT_FOUND
-      );
+      return createErrorResponse("No hospitals found in the specified city", 404);
     }
 
-    return NextResponse.json(cityHospitals, { status: 200 });
-  } catch (error) {
-    console.error(
-      "Error while fetching hospitals for booking appointments: ",
-      error
-    );
-    return errorHandler("Internal Server Error", STATUS_CODES.SERVER_ERROR);
+    return createSuccessResponse(cityHospitals);
+  } catch (error: any) {
+    console.error("Error fetching hospitals:", { error: error.message, state, city });
+    return createErrorResponse("Failed to fetch hospitals", 500);
   }
 }

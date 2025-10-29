@@ -1,16 +1,14 @@
 // RecentUserProvider.tsx
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import getRecentUsersData from "@lib/admin/get-recent-users-data"; // Import the function
+import React, { useState, useRef, useCallback } from "react";
+import { useRecentUsers } from "@hooks/useAdmin";
 import RecentActivity from "../RecentActivity";
 import SpinnerLoader from "@components/SpinnerLoader";
 
 export default function RecentUserProvider() {
-  const [recentUsers, setRecentUsers] = useState<RecentUser[]>([]);
-  const [page, setPage] = useState(1); // Start from page 1
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const { users: recentUsers, isLoading } = useRecentUsers(page, 10);
 
   const observer = useRef<IntersectionObserver | null>(null);
   const lastUserElementRef = useCallback(
@@ -18,38 +16,16 @@ export default function RecentUserProvider() {
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
+        if (entries[0].isIntersecting) {
           setPage((prevPage) => prevPage + 1);
         }
       });
       if (node) observer.current.observe(node);
     },
-    [hasMore, isLoading]
+    [isLoading]
   );
 
-  useEffect(() => {
-    // Initial data load
-    fetchRecentUsers();
-  }, [page]);
 
-  const fetchRecentUsers = async () => {
-    if (!hasMore) return;
-
-    setIsLoading(true);
-
-    try {
-      const data = await getRecentUsersData(page);
-
-      setRecentUsers((prev) =>
-        page === 1 ? data.users : [...prev, ...data.users]
-      );
-      setHasMore(data.page < data.totalPages);
-    } catch (error) {
-      console.error("Error fetching recent users:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <>

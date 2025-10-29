@@ -1,21 +1,24 @@
+"use client";
+
 import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
-import getDoctorData from "@lib/doctor/get-doctor-data";
-import { getSession } from "@lib/auth/get-session";
-import type { Metadata } from "next";
+import { useDoctor } from "@hooks/useDoctor";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export const metadata: Metadata = {
-  title: "Syncure",
-  description: "The page is for doctor related applications.",
-};
-
-export default async function DoctorLayout({
+export default function DoctorLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
-  const doctor = await getDoctorData((session as any)?.user?.id);
+  const { doctor, isLoading } = useDoctor();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
+
+  if (!doctor) {
+    return <div>Error loading doctor data</div>;
+  }
 
   return (
     <main className="h-screen flex">

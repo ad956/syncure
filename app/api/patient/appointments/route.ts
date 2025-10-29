@@ -35,7 +35,8 @@ export async function GET(request: NextRequest) {
 
     // Get state names and hospital profiles
     const stateIds = Array.from(new Set(appointments.map((apt: any) => apt.state).filter(Boolean)));
-    const stateData = await CityStateHospital.find({ _id: { $in: stateIds } }).lean();
+    const validStateIds = stateIds.filter(id => Types.ObjectId.isValid(id)).map(id => new Types.ObjectId(id));
+    const stateData = await CityStateHospital.find({ _id: { $in: validStateIds } }).lean();
     
     // Get hospital profiles using hospital.id (which is the hospital_id from citystate collection)
     const hospitalIds = Array.from(new Set(appointments.map((apt: any) => apt.hospital?.id).filter(Boolean)));
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error("Error fetching appointments:", error);
+    console.error("Error fetching appointments:", { error: error.message });
     return createErrorResponse("Failed to fetch appointments", 500);
   }
 }

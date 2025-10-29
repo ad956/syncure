@@ -1,26 +1,23 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
 import Headbar from "@components/Headbar";
 import Sidebar from "@components/Sidebar";
-import getHospitalData from "@lib/hospital/get-hospital-data";
-import { getSession } from "@lib/auth/get-session";
-import type { Metadata } from "next";
+import { useHospital } from "@hooks/useHospital";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export const metadata: Metadata = {
-  title: "Syncure - Hospital",
-  description: "The page is for hospital related applications.",
-};
-
-export default async function HospitalLayout({
+export default function HospitalLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
-  const hospital = await getHospitalData((session as any)?.user?.id);
+  const { hospital, isLoading } = useHospital();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
 
   if (!hospital) {
-    return <div>Loading...</div>;
+    return <div>Error loading hospital data</div>;
   }
 
   return (

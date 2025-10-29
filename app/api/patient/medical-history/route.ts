@@ -58,13 +58,10 @@ export async function GET() {
       return createValidationErrorResponse(validation.error.errors);
     }
 
-    return createSuccessResponse(validation.data, "Medical history retrieved successfully");
+    return createSuccessResponse(validation.data);
   } catch (error: any) {
-    console.error("Error fetching medical history of patient:", error);
-    return createErrorResponse(
-      error.message || "Failed to fetch medical history",
-      500
-    );
+    console.error("Error fetching medical history:", { error: error.message });
+    return createErrorResponse("Failed to fetch medical history", 500);
   }
 }
 

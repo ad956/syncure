@@ -2,11 +2,17 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useDoctor } from "@hooks/useDoctor";
 import StatsRow from "./StatsRow";
 import Charts from "./Charts";
 import UpcomingAppointment from "./UpcomingAppointment";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default function Dashboard({ doctor }: any) {
+export default function Dashboard() {
+  const { doctor, isLoading, error } = useDoctor();
+
+  if (isLoading) return <SpinnerLoader />;
+  if (error) return <div>Error loading doctor data</div>;
   return (
     <motion.div
       initial={{ opacity: 0 }}

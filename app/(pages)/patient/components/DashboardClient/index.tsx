@@ -30,22 +30,22 @@ import MedicationSkeleton from "../LoadingStates/MedicationSkeleton";
 import BillsSkeleton from "../LoadingStates/BillsSkeleton";
 import HealthMetricsSkeleton from "../LoadingStates/HealthMetricsSkeleton";
 import LabResultsSkeleton from "../LoadingStates/LabResultsSkeleton";
-import { 
-  usePatientProfile,
-  useAppointments, 
-  useLabResults, 
-  usePendingBills, 
-  useHealthTrends, 
-  useMedications 
-} from "@lib/hooks/patient";
+import { usePatient } from "@hooks/usePatient";
+import { useAppointments } from "@hooks/useAppointments";
+import { useMedications } from "@hooks/useMedications";
+import { useTodaysVitals } from "@hooks/useTodaysVitals";
 
 export default function DashboardClient({ patientId }: { patientId: string }) {
-  const { patient, isLoading: patientLoading, error } = usePatientProfile();
+  const { patient, isLoading: patientLoading, error } = usePatient();
   const { appointments, isLoading: appointmentsLoading } = useAppointments();
-  const { labResults, isLoading: labResultsLoading } = useLabResults();
-  const { pendingBills, isLoading: billsLoading } = usePendingBills();
-  const { healthTrends, isLoading: healthTrendsLoading } = useHealthTrends();
   const { medications, isLoading: medicationsLoading } = useMedications();
+  const { vitals: todaysVitals, isLoading: vitalsLoading } = useTodaysVitals();
+  
+  // Placeholder for other hooks - will be implemented later
+  const labResultsLoading = false;
+  const billsLoading = false;
+  const healthTrendsLoading = false;
+  const healthTrends: any[] = [];
 
 
 
@@ -68,7 +68,6 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
   };
   
   const nextAppointment = appointments?.[0] || null;
-  const todaysVitals = healthTrends || [];
   
   // Use dashboard nextAppointment data for Next Appointment card
   const displayAppointment = nextAppointment;

@@ -99,9 +99,9 @@ export async function GET(request: NextRequest) {
       console.error("Novu test failed:", novuError);
     }
 
-    return createSuccessResponse(results, "Notification tests completed");
+    return createSuccessResponse(results);
   } catch (error: any) {
     console.error("Test API error:", error);
-    return createErrorResponse("Test failed", 500, error.message);
+    return createErrorResponse("Test failed", 500);
   }
 }

@@ -3,7 +3,7 @@ import { Button } from "@nextui-org/react";
 import { FiDownload, FiCalendar } from "react-icons/fi";
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { IoFlaskOutline } from "react-icons/io5";
-import { useLabResults } from "@lib/hooks/patient";
+import { useLabResults } from "@hooks/useLabResults";
 
 const LabResults: React.FC = () => {
   const { labResults, isLoading: loading } = useLabResults();

@@ -1,19 +1,20 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
-import getPatientData from "@lib/patient/get-patient-data";
 import { Card, Link, User } from "@nextui-org/react";
 import QRCode from "../components/QR";
-import { getSession } from "@lib/auth/get-session";
-import { redirect } from "next/navigation";
+import { usePatient } from "@hooks/usePatient";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function QRCodePage() {
-  const session = await getSession();
-  
-  if (!session?.user?.id) {
-    redirect('/login');
+export default function QRCodePage() {
+  const { patient, isLoading } = usePatient();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
   }
-  
-  const patient = await getPatientData(session.user.id);
+
+  if (!patient) {
+    return <div>Error loading patient data</div>;
+  }
 
   return (
     <Card

@@ -1,23 +1,25 @@
+"use client";
+
 import Script from "next/script";
 import Sidebar from "@components/Sidebar";
 import Headbar from "@components/Headbar";
-import getPatientData from "@lib/patient/get-patient-data";
+import { usePatient } from "@hooks/usePatient";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-import type { Metadata } from "next";
-import { getSession } from "@lib/auth/get-session";
-
-export const metadata: Metadata = {
-  title: "Syncure",
-  description: "The page is for patient related applications.",
-};
-
-export default async function PatientLayout({
+export default function PatientLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
-  const patient = await getPatientData(session?.user?.id);
+  const { patient, isLoading } = usePatient();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
+
+  if (!patient) {
+    return <div>Error loading patient data</div>;
+  }
 
   return (
     <main className="h-screen flex bg-gray-50">

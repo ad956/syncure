@@ -1,12 +1,19 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
-import getPatientData from "@lib/patient/get-patient-data";
 import ProfileSettings from "@components/ProfileSettings";
-import { getSession } from "@lib/auth/get-session";
+import { usePatient } from "@hooks/usePatient";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function Settings() {
-  const session = await getSession();
-  const patient = await getPatientData(session?.user?.id);
+export default function Settings() {
+  const { patient, isLoading } = usePatient();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
+
+  if (!patient) {
+    return <div>Error loading patient data</div>;
+  }
 
   return (
     <section className="h-full w-full flex flex-col overflow-y-auto bills-scroll">

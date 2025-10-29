@@ -229,16 +229,12 @@ export async function POST(request: NextRequest) {
         booked_for: savedAppointment.booked_for,
         amount: hospital.appointment_charge
       }
-    }, "Appointment booked successfully");
+    });
 
     return response;
 
   } catch (error: any) {
-    console.error("Error booking appointment:", error);
-    return createErrorResponse(
-      "Failed to book appointment", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    console.error("Error booking appointment:", { error: error.message, stack: error.stack });
+    return createErrorResponse("Failed to book appointment", 500);
   }
 }

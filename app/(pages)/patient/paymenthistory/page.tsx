@@ -1,16 +1,19 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
-import { getSession } from "@lib/auth/get-session";
 import PaymentDetails from "../components/PaymentDetails";
-import getPaymentsHistory from "@lib/patient/get-payments-history";
+import { usePaymentHistory } from "@hooks/usePaymentHistory";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function PaymentHistory() {
-  const session = await getSession();
-  const response = await getPaymentsHistory((session as any)?.user?.id);
+export default function PaymentHistory() {
+  const { paymentHistory, isLoading } = usePaymentHistory();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
 
   return (
     <section className="md:h-full md:w-full flex flex-col gap-5 items-center overflow-hidden">
-      <PaymentDetails paymentHistory={response} />
+      <PaymentDetails paymentHistory={paymentHistory} />
     </section>
   );
 }

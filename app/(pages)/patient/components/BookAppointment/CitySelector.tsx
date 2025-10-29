@@ -8,7 +8,7 @@ import {
   PopoverContent,
   Spinner,
 } from "@nextui-org/react";
-import useQuery from "@hooks/useQuery";
+import { useCities } from "@hooks/useLocations";
 
 interface CitySelectorProps {
   selectedState: string;
@@ -25,9 +25,7 @@ export function CitySelector({
   isOpenPopover,
   setIsOpenPopover,
 }: CitySelectorProps) {
-  const { data: cities = [], isLoading } = useQuery<string[]>(
-    selectedState ? `/api/city/?state=${selectedState}` : null
-  );
+  const { cities, isLoading } = useCities(selectedState);
 
   return (
     <Popover

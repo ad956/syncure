@@ -10,7 +10,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { motion } from "framer-motion";
-import useQuery from "@hooks/useQuery";
+import { useHospitalDetails } from "@hooks/useHospital";
 import SpinnerLoader from "@components/SpinnerLoader";
 import {
   LuBuilding2,
@@ -49,10 +49,10 @@ export const dynamic = 'force-dynamic';
 
 export default function EditHospitalDetails() {
   const {
-    data: hospitalInfo,
+    hospitalDetails: hospitalInfo,
     isLoading,
     error,
-  } = useQuery<HospitalDetailsType>("/api/hospital/additional-details");
+  } = useHospitalDetails();
 
   const [formData, setFormData] = useState(hospitalInfo);
 
@@ -93,7 +93,7 @@ export default function EditHospitalDetails() {
   }
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev!,
       additionalInfo: {
         ...prev!.additionalInfo,

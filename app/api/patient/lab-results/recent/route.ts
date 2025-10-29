@@ -23,6 +23,6 @@ export async function GET() {
     return response;
   } catch (error: any) {
     console.error('Error fetching recent lab results:', error);
-    return createErrorResponse('Failed to fetch lab results', 500, process.env.NODE_ENV === 'development' ? error.message : undefined);
+    return createErrorResponse('Failed to fetch lab results', 500);
   }
 }

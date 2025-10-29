@@ -1,27 +1,25 @@
-export const dynamic = 'force-dynamic';
-
+"use client";
 
 import BookAppointment from "../components/BookAppointment";
-import getPatientData from "@lib/patient/get-patient-data";
-import { getSession } from "@lib/auth/get-session";
+import { usePatient } from "@hooks/usePatient";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function Appointments() {
-  const session = await getSession();
-  console.log('Session in appointments:', session);
-  
-  if (!session?.user?.id) {
-    return <div>No session found. Please login again.</div>;
+export default function Appointments() {
+  const { patient, isLoading } = usePatient();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
   }
-  
-  const patient = await getPatientData(session.user.id);
 
-  const { _id, firstname, lastname, email } = patient;
+  if (!patient) {
+    return <div>Error loading patient data</div>;
+  }
 
   return (
     <BookAppointment
-      patientId={_id}
-      name={`${firstname} ${lastname}`}
-      email={email}
+      patientId={patient._id}
+      name={`${patient.firstname} ${patient.lastname}`}
+      email={patient.email}
     />
   );
 }

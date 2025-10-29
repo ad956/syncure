@@ -92,10 +92,6 @@ export async function GET() {
     return response;
   } catch (error: any) {
     console.error('Error fetching dashboard data:', error);
-    return createErrorResponse(
-      'Failed to fetch dashboard data', 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse('Failed to fetch dashboard data', 500);
   }
 }

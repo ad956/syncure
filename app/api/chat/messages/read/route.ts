@@ -39,13 +39,9 @@ export async function POST(request: NextRequest) {
 
     return createSuccessResponse({
       modifiedCount: result.modifiedCount
-    }, "Messages marked as read");
+    });
   } catch (error: any) {
     console.error("Error marking messages as read:", error);
-    return createErrorResponse(
-      "Failed to mark messages as read", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse("Failed to mark messages as read", 500);
   }
 }

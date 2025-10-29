@@ -1,16 +1,23 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
-import getHospitalData from "@lib/hospital/get-hospital-data";
+import { useHospital } from "@hooks/useHospital";
 import ProfileSettings from "@components/ProfileSettings";
-import { getSession } from "@lib/auth/get-session";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function Settings() {
-  const session = await getSession();
-  const Hospital = await getHospitalData((session as any)?.user?.id);
+export default function Settings() {
+  const { hospital, isLoading } = useHospital();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
+
+  if (!hospital) {
+    return <div>Error loading hospital data</div>;
+  }
 
   return (
     <section className="h-full w-full flex flex-col overflow-y-auto">
-      <ProfileSettings user={Hospital} />
+      <ProfileSettings user={hospital} />
     </section>
   );
 }

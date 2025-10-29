@@ -5,7 +5,7 @@ import { errorHandler } from "@utils/error-handler";
 import { allowedRoles, STATUS_CODES } from "@utils/constants";
 import getModelByRole from "@utils/get-model-by-role";
 import { cookies } from "next/headers";
-import { SignJWT } from "jose";
+import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
   try {
@@ -57,25 +57,19 @@ export async function POST(req: Request) {
       return errorHandler("Invalid credentials", STATUS_CODES.UNAUTHORIZED);
     }
 
-    // Parallel operations: Clear OTP and create JWT
-    const [, token] = await Promise.all([
-      getModelByRole(userRole).findByIdAndUpdate(user._id, { $set: { otp: "" } }),
-      new SignJWT({
-        user: {
-          id: user._id.toString(),
-          email: user.email,
-          name: `${user.firstname} ${user.lastname}`,
-          image: user.profile,
-          role: userRole,
-        }
-      })
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt()
-        .setExpirationTime("7d")
-        .sign(new TextEncoder().encode(
-          process.env.AUTH_SECRET || "your-secret-key-here"
-        ))
-    ]);
+    // Clear OTP
+    await getModelByRole(userRole).findByIdAndUpdate(user._id, { $set: { otp: "" } });
+    
+    // Create JWT token
+    const token = jwt.sign(
+      {
+        id: user._id.toString(),
+        email: user.email,
+        role: userRole,
+      },
+      process.env.AUTH_SECRET || "your-secret-key-here",
+      { expiresIn: "7d" }
+    );
 
     // Log user activity asynchronously (don't wait)
     logUserActivity({

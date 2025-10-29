@@ -1,9 +1,6 @@
-import { NextResponse } from "next/server";
 import CityStateHospital from "@models/city-state-hospitals";
-
 import dbConfig from "@utils/db";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
+import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -11,10 +8,7 @@ export async function GET(req: Request) {
 
   try {
     if (!state) {
-      return errorHandler(
-        "State parameter is missing",
-        STATUS_CODES.BAD_REQUEST
-      );
+      return createErrorResponse("State parameter is missing", 400);
     }
 
     await dbConfig();
@@ -23,22 +17,19 @@ export async function GET(req: Request) {
     });
 
     if (!stateDocument) {
-      return errorHandler("State not found", STATUS_CODES.NOT_FOUND);
+      return createErrorResponse("State not found", 404);
     }
 
     // Get the cities for the given state
     const cities = Object.keys(stateDocument.get(state));
 
     if (cities.length === 0) {
-      return errorHandler(
-        "No cities found for the given state",
-        STATUS_CODES.NOT_FOUND
-      );
+      return createErrorResponse("No cities found for the given state", 404);
     }
 
-    return NextResponse.json(cities, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching state and city data:", error);
-    return errorHandler("Internal Server Error", STATUS_CODES.SERVER_ERROR);
+    return createSuccessResponse(cities);
+  } catch (error: any) {
+    console.error("Error fetching cities:", { error: error.message, state });
+    return createErrorResponse("Failed to fetch cities", 500);
   }
 }

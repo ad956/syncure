@@ -68,10 +68,6 @@ export async function GET(request: NextRequest) {
     
   } catch (error: any) {
     console.error("Error fetching location data:", error);
-    return createErrorResponse(
-      "Failed to fetch location data", 
-      500, 
-      error.message
-    );
+    return createErrorResponse("Failed to fetch location data", 500);
   }
 }
