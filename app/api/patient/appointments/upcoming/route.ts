@@ -82,10 +82,6 @@ export async function GET() {
     return response;
   } catch (error: any) {
     console.error("Error fetching upcoming appointments:", error);
-    return createErrorResponse(
-      "Failed to fetch appointments", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse("Failed to fetch appointments", 500);
   }
 }

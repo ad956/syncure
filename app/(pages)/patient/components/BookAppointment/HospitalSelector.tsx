@@ -8,7 +8,7 @@ import {
   PopoverContent,
   Spinner,
 } from "@nextui-org/react";
-import useQuery from "@hooks/useQuery";
+import { useHospitals } from "@hooks/useLocations";
 import { ChangeEvent } from "react";
 
 interface BookAppointmentHospital {
@@ -33,13 +33,7 @@ export function HospitalSelector({
   isOpenHospitalPopover,
   setIsOpenHospitalPopover,
 }: HospitalSelectorProps) {
-  const { data: hospitals = [], isLoading } = useQuery<
-    BookAppointmentHospital[]
-  >(
-    selectedState && selectedCity
-      ? `/api/get-hospitals/?state=${selectedState}&city=${selectedCity}`
-      : null
-  );
+  const { hospitals, isLoading } = useHospitals(selectedState, selectedCity);
 
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;

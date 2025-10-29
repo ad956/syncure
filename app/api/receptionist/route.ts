@@ -1,20 +1,18 @@
-import { NextResponse } from "next/server";
 import dbConfig from "@utils/db";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
 import Receptionist from "@models/receptionist";
 import { Types } from "mongoose";
 import { getSession } from "@lib/auth/get-session";
+import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 
 export async function GET(request: Request) {
-  const session = await getSession();
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.UNAUTHORIZED);
-  }
-
   try {
-    const receptionist_id = new Types.ObjectId((session as any).user.id);
+    const session = await getSession();
+
+    if (!session?.user?.id) {
+      return createErrorResponse("Unauthorized", 401);
+    }
+
+    const receptionist_id = new Types.ObjectId(session.user.id);
     await dbConfig();
 
     const projection = {
@@ -24,20 +22,15 @@ export async function GET(request: Request) {
       current_hospital: 0,
     };
 
-    const receptionistData = await Receptionist.findById(
-      receptionist_id,
-      projection
-    );
+    const receptionistData = await Receptionist.findById(receptionist_id, projection);
+    
     if (!receptionistData) {
-      return errorHandler("Receptionist not found", STATUS_CODES.NOT_FOUND);
+      return createErrorResponse("Receptionist not found", 404);
     }
 
-    return NextResponse.json(receptionistData, { status: 200 });
+    return createSuccessResponse(receptionistData);
   } catch (error: any) {
-    console.error("Error fetching receptionist data route:", error);
-    return errorHandler(
-      error.message || "Internal Server Error",
-      STATUS_CODES.SERVER_ERROR
-    );
+    console.error("Error fetching receptionist data:", { error: error.message });
+    return createErrorResponse("Failed to fetch receptionist data", 500);
   }
 }

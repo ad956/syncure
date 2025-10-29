@@ -2,7 +2,7 @@
 
 import EmptyBillsState from "./EmptyBillsState";
 import BillList from "./BillList";
-import { usePendingBills } from "@lib/hooks/patient";
+import { usePendingBills } from "@hooks/usePendingBills";
 
 interface PendingBillProps {
   patient: {

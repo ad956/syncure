@@ -29,12 +29,8 @@ export async function GET() {
     });
 
   } catch (error: any) {
-    console.error("Error fetching family members:", error);
-    return createErrorResponse(
-      "Failed to fetch family members", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    console.error("Error fetching family members:", { error: error.message });
+    return createErrorResponse("Failed to fetch family members", 500);
   }
 }
 
@@ -73,14 +69,10 @@ export async function POST(request: NextRequest) {
 
     return createSuccessResponse({
       family_member: savedMember
-    }, "Family member added successfully");
+    });
 
   } catch (error: any) {
-    console.error("Error adding family member:", error);
-    return createErrorResponse(
-      "Failed to add family member", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    console.error("Error adding family member:", { error: error.message });
+    return createErrorResponse("Failed to add family member", 500);
   }
 }

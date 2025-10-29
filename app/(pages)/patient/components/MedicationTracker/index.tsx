@@ -3,6 +3,7 @@
 import { Card, Checkbox, Chip, Button } from "@nextui-org/react";
 import { useState } from "react";
 import { FaPills, FaClock, FaCheck } from "react-icons/fa";
+import { useMedications } from "@hooks/useMedications";
 
 interface Medication {
   id: string;
@@ -21,15 +22,12 @@ interface MedicationTrackerProps {
 export default function MedicationTracker({ medications }: MedicationTrackerProps) {
   const [medicationStatus, setMedicationStatus] = useState<Record<string, boolean>>({});
 
+  const { takeMedication } = useMedications();
+
   const handleMedicationTaken = async (medicationId: string, taken: boolean) => {
     try {
-      const response = await fetch('/api/patient/medications/take', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ medicationId, wasTaken: taken })
-      });
-      
-      if (response.ok) {
+      const result = await takeMedication(medicationId);
+      if (result.success) {
         setMedicationStatus(prev => ({
           ...prev,
           [medicationId]: taken

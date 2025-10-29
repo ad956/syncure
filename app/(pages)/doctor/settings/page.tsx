@@ -1,12 +1,19 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
-import getDoctorData from "@lib/doctor/get-doctor-data";
+import { useDoctor } from "@hooks/useDoctor";
 import ProfileSettings from "@components/ProfileSettings";
-import { getSession } from "@lib/auth/get-session";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function Settings() {
-  const session = await getSession();
-  const doctor = await getDoctorData((session as any)?.user?.id);
+export default function Settings() {
+  const { doctor, isLoading } = useDoctor();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
+
+  if (!doctor) {
+    return <div>Error loading doctor data</div>;
+  }
 
   return (
     <section className="h-full w-full flex flex-col overflow-y-auto">

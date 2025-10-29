@@ -60,10 +60,6 @@ export async function GET() {
     return response;
   } catch (error: any) {
     console.error("Error fetching pending bills:", error);
-    return createErrorResponse(
-      "Failed to fetch bills", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse("Failed to fetch bills", 500);
   }
 }

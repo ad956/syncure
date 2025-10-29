@@ -1,12 +1,19 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
 import ChatScreen from "@components/ChatScreen";
-import getDoctorData from "@lib/doctor/get-doctor-data";
-import { getSession } from "@lib/auth/get-session";
+import { useDoctor } from "@hooks/useDoctor";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function DoctorChatPage() {
-  const session = await getSession();
-  const doctor = await getDoctorData((session as any)?.user?.id);
+export default function DoctorChatPage() {
+  const { doctor, isLoading } = useDoctor();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
+  }
+
+  if (!doctor) {
+    return <div>Error loading doctor data</div>;
+  }
 
   const currentUser = {
     _id: doctor._id,

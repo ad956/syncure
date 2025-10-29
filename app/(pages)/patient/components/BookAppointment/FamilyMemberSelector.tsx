@@ -1,5 +1,5 @@
 import { Select, SelectItem, Button, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@nextui-org/react";
-import { useFamilyMembers } from "@lib/hooks/use-locations";
+import { useFamilyMembers } from "@hooks/useFamilyMembers";
 import { FaPlus, FaUser } from "react-icons/fa";
 import AddFamilyMemberForm from "./AddFamilyMemberForm";
 
@@ -9,7 +9,7 @@ interface FamilyMemberSelectorProps {
 }
 
 export function FamilyMemberSelector({ selectedMember, onMemberChange }: FamilyMemberSelectorProps) {
-  const { familyMembers, loading, refetch } = useFamilyMembers();
+  const { familyMembers, isLoading: loading, refetch } = useFamilyMembers();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   return (

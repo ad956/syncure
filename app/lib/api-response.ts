@@ -2,36 +2,30 @@ import { NextResponse } from "next/server";
 
 export interface ApiResponse<T = any> {
   success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-  timestamp: string;
+  data: T;
 }
 
-export function createSuccessResponse<T>(data: T, message?: string): NextResponse {
+export function createSuccessResponse<T>(data: T): NextResponse {
+  console.log('API Success Response:', { success: true, dataType: typeof data });
   return NextResponse.json({
     success: true,
     data,
-    message,
-    timestamp: new Date().toISOString(),
   });
 }
 
-export function createErrorResponse(error: string, status: number = 500, details?: any): NextResponse {
+export function createErrorResponse(error: string, status: number = 500): NextResponse {
+  console.error('API Error Response:', { error, status });
   return NextResponse.json({
     success: false,
-    error,
-    details,
-    timestamp: new Date().toISOString(),
+    data: error,
   }, { status });
 }
 
 export function createValidationErrorResponse(errors: any): NextResponse {
   const errorMessages = errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ');
+  console.error('Validation Error:', { errors, errorMessages });
   return NextResponse.json({
     success: false,
-    error: `Validation failed: ${errorMessages}`,
-    details: errors,
-    timestamp: new Date().toISOString(),
+    data: `Validation failed: ${errorMessages}`,
   }, { status: 400 });
 }

@@ -5,7 +5,8 @@ import { Button, Select, SelectItem, Input, Textarea, Card, CardBody } from "@ne
 import { Formik, Form, Field } from "formik";
 import toast, { Toaster } from "react-hot-toast";
 import { bookAppointmentSchema, type BookAppointment } from "@lib/validations/patient";
-import { useStates, useCities, useHospitals } from "@lib/hooks/use-locations";
+import { useStates, useCities, useHospitals } from "@hooks/useLocations";
+import { useAppointments } from "@hooks/useAppointments";
 import { FamilyMemberSelector } from "./FamilyMemberSelector";
 import { PendingAppointmentsList } from "./PendingAppointmentsList";
 import { DateTimeSelector } from "./DateTimeSelector";
@@ -25,8 +26,9 @@ export default function BookAppointment({
   const [selectedState, setSelectedState] = useState("");
   const { cities } = useCities(selectedState);
   const [selectedCity, setSelectedCity] = useState("");
-  const { hospitals } = useHospitals(selectedCity);
+  const { hospitals } = useHospitals(selectedState, selectedCity);
   const [isBooking, setIsBooking] = useState(false);
+  const { bookAppointment } = useAppointments();
 
   const handleSubmit = async (values: any) => {
     try {
@@ -84,19 +86,12 @@ export default function BookAppointment({
         handler: async (response: any) => {
           try {
             // Book appointment with payment details
-            const bookingResponse = await fetch('/api/patient/appointments/book', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({
-                ...values,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpaySignature: response.razorpay_signature
-              })
+            const bookingData = await bookAppointment({
+              ...values,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature
             });
-
-            const bookingData = await bookingResponse.json();
             if (bookingData.success) {
               toast.success('Appointment booked successfully!');
               // Reset form manually since resetForm is not available here

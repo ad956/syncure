@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     const labResults = await LabResult
       .find({ patient_id: (session as any).user.id })
       .sort({ test_date: -1 })
-      .limit(10);
+      .limit(10)
+      .maxTimeMS(5000);
 
     return createSuccessResponse({
       labResults,
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     await newLabResult.save();
 
-    return createSuccessResponse({ labResult: newLabResult }, 'Lab result created successfully');
+    return createSuccessResponse({ labResult: newLabResult });
   } catch (error) {
     console.error('Error creating lab result:', error);
     return createErrorResponse('Failed to create lab result', 500);

@@ -65,11 +65,7 @@ export async function GET(request: NextRequest) {
     return createSuccessResponse(populatedRooms);
   } catch (error: any) {
     console.error("Error fetching chat rooms:", error);
-    return createErrorResponse(
-      "Failed to fetch chat rooms", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse("Failed to fetch chat rooms", 500);
   }
 }
 
@@ -127,7 +123,7 @@ export async function POST(request: NextRequest) {
     }).lean();
 
     if (existingRoom) {
-      return createSuccessResponse(existingRoom, "Chat room already exists");
+      return createSuccessResponse(existingRoom);
     }
 
     const room = await Room.create({
@@ -137,14 +133,10 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    return createSuccessResponse(room, "Chat room created successfully");
+    return createSuccessResponse(room);
   } catch (error: any) {
     console.error("Error creating chat room:", error);
-    return createErrorResponse(
-      "Failed to create chat room", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse("Failed to create chat room", 500);
   }
 }
 

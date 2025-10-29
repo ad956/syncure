@@ -1,9 +1,7 @@
-import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { getSession } from "@lib/auth/get-session";
 import dbConfig from "@utils/db";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
+import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -13,8 +11,8 @@ export async function GET(request: Request): Promise<Response> {
 
     const session = await getSession();
 
-    if (!session) {
-      return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
+    if (!session?.user?.id) {
+      return createErrorResponse("Unauthorized", 401);
     }
 
     await dbConfig();
@@ -74,13 +72,10 @@ export async function GET(request: Request): Promise<Response> {
       totalItems,
     };
 
-    return NextResponse.json(response, { status: 200 });
+    return createSuccessResponse(response);
   } catch (error: any) {
-    console.error("Error fetching new users:", error);
-    return errorHandler(
-      error.message || "Internal Server Error",
-      STATUS_CODES.SERVER_ERROR
-    );
+    console.error("Error fetching recent users:", { error: error.message });
+    return createErrorResponse("Failed to fetch recent users", 500);
   }
 }
 

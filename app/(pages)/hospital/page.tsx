@@ -1,7 +1,6 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
-import getHospitalData from "@lib/hospital/get-hospital-data";
-import getHospitalDetails from "@lib/hospital/get-hospital-details";
+import { useHospital, useHospitalDetails } from "@hooks/useHospital";
 import { Avatar, Card, Divider, Progress } from "@nextui-org/react";
 import { CiHospital1 } from "react-icons/ci";
 import {
@@ -14,12 +13,19 @@ import {
 } from "react-icons/lu";
 import { ResponsiveLine } from "@nivo/line";
 import Dashboard from "./components/Dashboard";
-import { getSession } from "@lib/auth/get-session";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function Hospital() {
-  const session = await getSession();
-  const hospital = await getHospitalData((session as any)?.user?.id);
-  const hospitalDetails = await getHospitalDetails((session as any)?.user?.id);
+export default function Hospital() {
+  const { hospital, isLoading: hospitalLoading } = useHospital();
+  const { hospitalDetails, isLoading: detailsLoading } = useHospitalDetails();
+
+  if (hospitalLoading || detailsLoading) {
+    return <SpinnerLoader />;
+  }
+
+  if (!hospital || !hospitalDetails) {
+    return <div>Error loading hospital data</div>;
+  }
 
   return (
     <section className="bg-[#f3f6fd] p-5 overflow-y-scroll scrollbar h-screen">

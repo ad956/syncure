@@ -1,21 +1,18 @@
-export const dynamic = 'force-dynamic';
+"use client";
 
 import ChatInterface from "@components/ChatScreen/ChatInterface";
-import getPatientData from "@lib/patient/get-patient-data";
-import { getSession } from "@lib/auth/get-session";
-import { redirect } from "next/navigation";
+import { usePatient } from "@hooks/usePatient";
+import SpinnerLoader from "@components/SpinnerLoader";
 
-export default async function PatientChatPage() {
-  const session = await getSession();
-  
-  if (!session?.user?.id) {
-    redirect('/login');
+export default function PatientChatPage() {
+  const { patient, isLoading } = usePatient();
+
+  if (isLoading) {
+    return <SpinnerLoader />;
   }
 
-  const patient = await getPatientData(session.user.id);
-  
   if (!patient) {
-    redirect('/login');
+    return <div>Error loading patient data</div>;
   }
 
   const currentUser = {

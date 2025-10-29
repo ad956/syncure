@@ -1,30 +1,27 @@
 import { NextResponse } from "next/server";
 import dbConfig from "@utils/db";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES } from "@utils/constants";
 import { Patient, Transaction } from "@models/index";
 import { Types } from "mongoose";
 import { getSession } from "@lib/auth/get-session";
-import { paymentHistoryResponseSchema } from "@lib/validations/patient";
+import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 
 export async function GET(request: Request) {
-  const session = await getSession();
-
-  if (!session) {
-    return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
-  }
-  const url = new URL(request.url);
-  const status = url.searchParams.get("status");
-
   try {
+    await dbConfig();
+    const session = await getSession();
+
+    if (!session?.user?.id) {
+      return createErrorResponse("Unauthorized access", 401);
+    }
+    const url = new URL(request.url);
+    const status = url.searchParams.get("status");
     const isPending = status === "pending";
 
     const patient_id = new Types.ObjectId((session as any).user.id);
-    await dbConfig();
 
     const patient = await Patient.findById(patient_id);
     if (!patient) {
-      return errorHandler("Patient not found", STATUS_CODES.NOT_FOUND);
+      return createErrorResponse("Patient not found", 404);
     }
 
     // build query
@@ -71,15 +68,13 @@ export async function GET(request: Request) {
       };
     });
 
-    // Validate response data
-    const validatedData = paymentHistoryResponseSchema.parse(formattedTransactions);
-    return NextResponse.json(validatedData, { status: 200 });
+    return createSuccessResponse({
+      transactions: formattedTransactions,
+      count: formattedTransactions.length
+    });
   } catch (error: any) {
     console.error("Error fetching payment data:", error);
-    return errorHandler(
-      error.message || "Internal Server Error",
-      STATUS_CODES.SERVER_ERROR
-    );
+    return createErrorResponse("Failed to fetch payment history", 500);
   }
 }
 

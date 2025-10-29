@@ -1,7 +1,7 @@
 "use client";
 
 import { Select, SelectItem, Spinner } from "@nextui-org/react";
-import useQuery from "@hooks/useQuery";
+import { useStates } from "@hooks/useLocations";
 
 interface StateSelectorProps {
   selectedState: string;
@@ -12,7 +12,7 @@ export function StateSelector({
   selectedState,
   onStateChange,
 }: StateSelectorProps) {
-  const { data: states = [], isLoading } = useQuery<string[]>("/api/states");
+  const { states, isLoading } = useStates();
 
   return (
     <Select

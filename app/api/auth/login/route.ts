@@ -1,13 +1,10 @@
-import { NextResponse } from "next/server";
 import { OtpTemplate, sendEmail } from "@lib/emails";
 import { render } from "@react-email/render";
-
 import dbConfig from "@utils/db";
 import { generateSecureOTP } from "@utils/generate-otp";
 import getModelByRole from "@utils/get-model-by-role";
-import { errorHandler } from "@utils/error-handler";
-import { STATUS_CODES, allowedRoles } from "@utils/constants";
-
+import { allowedRoles } from "@utils/constants";
+import { createSuccessResponse, createErrorResponse } from "@lib/api-response";
 import bcrypt from "bcryptjs";
 
 interface LoginBody {
@@ -20,14 +17,11 @@ export async function POST(req: Request) {
   const body: LoginBody = await req.json();
 
   if (!body || !body.usernameOrEmail || !body.password || !body.role) {
-    return errorHandler(
-      "Invalid request body. Please provide username or email, password, and role.",
-      STATUS_CODES.BAD_REQUEST
-    );
+    return createErrorResponse("Invalid request body. Please provide username or email, password, and role.", 400);
   }
 
   if (!allowedRoles.includes(body.role)) {
-    return errorHandler("User role isn't valid.", STATUS_CODES.BAD_REQUEST);
+    return createErrorResponse("User role isn't valid.", 400);
   }
 
   try {
@@ -46,10 +40,7 @@ export async function POST(req: Request) {
     );
 
     if (!user || !(await bcrypt.compare(body.password, user.password))) {
-      return errorHandler(
-        "Invalid username/email or password",
-        STATUS_CODES.UNAUTHORIZED
-      );
+      return createErrorResponse("Invalid username/email or password", 401);
     }
 
     const generatedOTP = generateSecureOTP();
@@ -69,10 +60,9 @@ export async function POST(req: Request) {
       }).catch(error => console.error("Email sending failed:", error))
     ]);
 
-    // Return immediately without waiting for email
-    return NextResponse.json({ message: "ok" }, { status: 201 });
+    return createSuccessResponse({ message: "OTP sent successfully" });
   } catch (error: any) {
-    console.error("Error during login: ", error);
-    return errorHandler("Internal Server Error", STATUS_CODES.SERVER_ERROR);
+    console.error("Error during login:", { error: error.message, role: body.role });
+    return createErrorResponse("Login failed", 500);
   }
 }

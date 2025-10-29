@@ -16,14 +16,17 @@ export async function loginAction(formData: FormData): Promise<any> {
       body: JSON.stringify({ usernameOrEmail, password, role }),
     });
 
-    if (!response.ok) {
-      throw new Error(`Login failed: ${response.statusText}`);
+    const result = await response.json();
+    
+    // Handle new API response format
+    if (!result.success) {
+      return { error: { message: result.data } };
     }
-
-    return await response.json();
+    
+    return result;
   } catch (error) {
     console.error("An error occurred during login:", error);
-    throw error;
+    return { error: { message: "Network error occurred" } };
   }
 }
 

@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     await newVitalSigns.save();
 
-    return createSuccessResponse({ vitalSigns: newVitalSigns }, 'Vital signs recorded successfully');
+    return createSuccessResponse({ vitalSigns: newVitalSigns });
   } catch (error) {
     console.error('Error saving vital signs:', error);
     return createErrorResponse('Failed to record vital signs', 500);

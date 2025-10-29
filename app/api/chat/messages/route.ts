@@ -59,11 +59,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error fetching messages:", error);
-    return createErrorResponse(
-      "Failed to fetch messages", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse("Failed to fetch messages", 500);
   }
 }
 
@@ -138,13 +134,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return createSuccessResponse(newMessage, "Message sent successfully");
+    return createSuccessResponse(newMessage);
   } catch (error: any) {
     console.error("Error sending message:", error);
-    return createErrorResponse(
-      "Failed to send message", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse("Failed to send message", 500);
   }
 }

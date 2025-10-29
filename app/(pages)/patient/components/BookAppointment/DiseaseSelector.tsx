@@ -8,7 +8,7 @@ import {
   PopoverContent,
   Spinner,
 } from "@nextui-org/react";
-import useQuery from "@hooks/useQuery";
+import { useDiseases } from "@hooks/useDiseases";
 
 interface DiseaseSelectorProps {
   selectedHospital: { hospital_id: string };
@@ -25,9 +25,7 @@ export function DiseaseSelector({
   isOpenDiseasePopover,
   setIsOpenDiseasePopover,
 }: DiseaseSelectorProps) {
-  const { data: diseases = [], isLoading } = useQuery<string[]>(
-    selectedHospital.hospital_id ? "/api/get-hospitals/disease/" : null
-  );
+  const { diseases, isLoading } = useDiseases(selectedHospital.hospital_id);
 
   return (
     <Popover

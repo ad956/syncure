@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }).distinct('assigned_doctor');
 
     if (assignedDoctorIds.length === 0) {
-      return createSuccessResponse([], "No assigned doctors found. Complete an appointment first.");
+      return createSuccessResponse([]);
     }
 
     const doctors = await Doctor.find({
@@ -52,11 +52,7 @@ export async function GET(request: NextRequest) {
     return createSuccessResponse(formattedDoctors);
   } catch (error: any) {
     console.error("Error fetching doctors list:", error);
-    return createErrorResponse(
-      "Failed to fetch doctors list", 
-      500, 
-      process.env.NODE_ENV === 'development' ? error.message : undefined
-    );
+    return createErrorResponse("Failed to fetch doctors list", 500);
   }
 }
 
