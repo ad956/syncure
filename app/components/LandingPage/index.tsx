@@ -5,7 +5,6 @@ import Features from "./Features";
 import Footer from "./Footer";
 import Intro from "./Intro";
 import Lifeline from "./Lifeline";
-import MobileApp from "./MobileApp";
 import ServicesOffered from "./Services";
 import Testimonial from "./Testimonial";
 import TrustedBy from "./Trustedby";
