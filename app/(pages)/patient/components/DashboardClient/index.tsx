@@ -26,6 +26,7 @@ import LabResults from "../PatientTabs/LabResults";
 import PatientProfileCard from "../PatientProfileCard";
 import SpinnerLoader from "@components/SpinnerLoader";
 import CalendarSkeleton from "../LoadingStates/CalendarSkeleton";
+import MobileAppPromo from "../MobileAppPromo";
 import MedicationSkeleton from "../LoadingStates/MedicationSkeleton";
 import BillsSkeleton from "../LoadingStates/BillsSkeleton";
 import HealthMetricsSkeleton from "../LoadingStates/HealthMetricsSkeleton";
@@ -50,7 +51,11 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
 
 
   if (patientLoading) {
-    return <SpinnerLoader />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <SpinnerLoader />
+      </div>
+    );
   }
 
   if (error || !patient) {
@@ -332,6 +337,9 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
           </div>
         </div>
       </div>
+      
+      {/* Mobile App Promotion */}
+      <MobileAppPromo />
     </div>
   );
 }

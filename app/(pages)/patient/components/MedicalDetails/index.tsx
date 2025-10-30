@@ -88,7 +88,7 @@ export default function MedicalDetails({ medicalDetails }: MedicalDetailsProps) 
   );
 
   return (
-    <Card className="w-full p-4 space-y-5 overflow-auto scrollbar">
+    <Card className="w-full p-4 space-y-5 overflow-auto scrollbar min-h-[600px]">
       <h2 className="text-2xl font-bold mb-4">Medical History</h2>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
@@ -124,6 +124,8 @@ export default function MedicalDetails({ medicalDetails }: MedicalDetailsProps) 
         sortDescriptor={sortDescriptor}
         onSortChange={setSortDescriptor}
         renderCell={renderCell}
+        emptyMessage="No medical records found"
+        emptyDescription="Your medical history will appear here once you have appointments and treatments."
       />
       <PaginationControls
         page={page}

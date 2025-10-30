@@ -40,14 +40,14 @@ export async function GET() {
       _id: history._id.toString(),
       hospital: {
         name: `${history.hospital.firstname} ${history.hospital.lastname}`,
-        profile: history.hospital.profile,
+        profile: history.hospital.profile || '',
       },
       doctor: {
         name: `${history.doctor.firstname} ${history.doctor.lastname}`,
-        profile: history.doctor.profile,
+        profile: history.doctor.profile || '',
       },
-      start_date: history.start_date,
-      end_date: history.end_date,
+      start_date: history.start_date.toISOString(),
+      end_date: history.end_date.toISOString(),
       TreatmentStatus: history.TreatmentStatus,
       disease: history.disease,
     }));

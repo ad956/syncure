@@ -4,7 +4,7 @@ import { ApiResponse } from '@lib/api-response';
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export function useStates() {
-  const { data, error, isLoading, mutate } = useSWR<ApiResponse<string[]>>(
+  const { data, error, isLoading, mutate } = useSWR<ApiResponse<{id: string, name: string}[]>>(
     '/api/states',
     fetcher
   );

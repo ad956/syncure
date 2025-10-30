@@ -74,31 +74,19 @@ export default function Calendar({
   const [appointmentDates, setAppointmentDates] = React.useState<Date[]>([]);
 
   React.useEffect(() => {
-    console.log("Calendar received appointments:", upcomingAppointments);
     if (upcomingAppointments && upcomingAppointments.length > 0) {
-      const selectedDates = upcomingAppointments.map((appointment) => {
-        const date = new Date(appointment.date);
-        // Normalize to midnight to avoid timezone issues
-        const normalizedDate = new Date(
-          date.getFullYear(),
-          date.getMonth(),
-          date.getDate()
-        );
-        console.log(
-          "Processing appointment date:",
-          appointment.date,
-          "Normalized:",
-          normalizedDate
-        );
-        return normalizedDate;
-      });
-      console.log("Setting appointment dates:", selectedDates);
-      console.log("appointmentDates array contents:", selectedDates.map(d => ({
-        date: d,
-        day: d.getDate(),
-        month: d.getMonth(),
-        year: d.getFullYear()
-      })));
+      const selectedDates = upcomingAppointments
+        .filter(appointment => appointment.date && appointment.date !== 'undefined')
+        .map((appointment) => {
+          const date = new Date(appointment.date);
+          if (isNaN(date.getTime())) {
+            console.warn('Invalid date found:', appointment.date);
+            return null;
+          }
+          return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        })
+        .filter(date => date !== null) as Date[];
+      
       setAppointmentDates(selectedDates);
     } else {
       setAppointmentDates([]);
@@ -153,7 +141,7 @@ export default function Calendar({
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-[320px]">
           <DayPicker
-          key={appointmentDates.map(d => d.toISOString()).join('-')}
+          key={appointmentDates.map(d => d.getTime()).join('-')}
           mode="multiple"
           selected={appointmentDates}
           defaultMonth={appointmentDates[0] ?? new Date()}

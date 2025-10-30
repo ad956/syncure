@@ -16,6 +16,8 @@ interface TransactionsTableProps<T> {
   sortDescriptor: SortDescriptor;
   onSortChange: (descriptor: SortDescriptor) => void;
   renderCell: (item: T, columnKey: React.Key) => React.ReactNode;
+  emptyMessage?: string;
+  emptyDescription?: string;
 }
 
 export default function TransactionsTable<T>({
@@ -23,9 +25,11 @@ export default function TransactionsTable<T>({
   sortDescriptor,
   onSortChange,
   renderCell,
+  emptyMessage = "No records found",
+  emptyDescription = "It looks like there are no records available. Please check back later."
 }: TransactionsTableProps<T>) {
   if (items.length === 0) {
-    return <NoTransactionsTable />;
+    return <NoTransactionsTable message={emptyMessage} description={emptyDescription} />;
   }
 
   const columns = Object.keys(items[0] as any);
@@ -79,14 +83,14 @@ export default function TransactionsTable<T>({
  *                                                    *
  ******************************************************/
 
-function NoTransactionsTable() {
+function NoTransactionsTable({ message, description }: { message: string; description: string }) {
   return (
     <Table
-      aria-label="No Transactions Table"
+      aria-label="No Records Table"
       style={{ minWidth: "100%", marginTop: "1rem", textAlign: "center" }}
     >
       <TableHeader>
-        <TableColumn>No Transactions</TableColumn>
+        <TableColumn>No Records</TableColumn>
       </TableHeader>
       <TableBody>
         <TableRow>
@@ -100,10 +104,9 @@ function NoTransactionsTable() {
           >
             <MdOutlineNoAccounts size={48} color="gray" />
             <Spacer y={0.5} />
-            <h4>No transactions found</h4>
+            <h4>{message}</h4>
             <p style={{ color: "$accents7" }}>
-              It looks like there are no recent transactions. Please check back
-              later.
+              {description}
             </p>
           </TableCell>
         </TableRow>

@@ -100,7 +100,7 @@ export default function PaymentDetails({ paymentHistory }: PaymentDetailsProps) 
   );
 
   return (
-    <Card className="w-full p-4 space-y-5 overflow-auto scrollbar">
+    <Card className="w-full p-4 space-y-5 overflow-auto scrollbar min-h-[600px]">
       <h2 className="text-2xl font-bold mb-4">Payment History</h2>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
@@ -136,6 +136,8 @@ export default function PaymentDetails({ paymentHistory }: PaymentDetailsProps) 
         sortDescriptor={sortDescriptor}
         onSortChange={setSortDescriptor}
         renderCell={renderCell}
+        emptyMessage="No payment records found"
+        emptyDescription="Your payment history will appear here after you make appointments and payments."
       />
       <PaginationControls
         page={page}

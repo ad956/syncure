@@ -47,7 +47,7 @@ const SpinnerLoader: React.FC = () => {
 
   const letter = "absolute top-0 left-[50%] text-black";
   return (
-    <section className="h-full w-full flex justify-center items-center ">
+    <section className="min-h-screen w-full flex justify-center items-center">
       <motion.div
         ref={scope}
         className="relative aspect-square"

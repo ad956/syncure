@@ -10,7 +10,7 @@ export function usePaymentHistory() {
   );
 
   return {
-    paymentHistory: data?.success ? data.data : [],
+    paymentHistory: data?.success && data.data?.transactions ? data.data.transactions : [],
     isLoading,
     error: data?.success === false ? data.data : error,
     refetch: mutate

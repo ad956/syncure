@@ -3,6 +3,7 @@
 import EmptyBillsState from "./EmptyBillsState";
 import BillList from "./BillList";
 import { usePendingBills } from "@hooks/usePendingBills";
+import SpinnerLoader from "@components/SpinnerLoader";
 
 interface PendingBillProps {
   patient: {
@@ -16,7 +17,11 @@ export default function PendingBills({ patient }: PendingBillProps) {
   const { pendingBills: bills, isLoading: loading } = usePendingBills();
 
   if (loading) {
-    return <div className="flex justify-center p-4">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <SpinnerLoader />
+      </div>
+    );
   }
 
   if (!bills?.length) {

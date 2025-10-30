@@ -1,5 +1,9 @@
 import SpinnerLoader from "@components/SpinnerLoader";
 
 export default function loading() {
-  return <SpinnerLoader />;
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <SpinnerLoader />
+    </div>
+  );
 }

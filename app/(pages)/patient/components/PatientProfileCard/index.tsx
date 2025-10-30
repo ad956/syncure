@@ -81,7 +81,6 @@ export default function PatientProfileCard({ patient, patientId }: PatientProfil
                   src={patient.profile}
                   className="w-16 h-16 ring-2 ring-blue-200 shadow-md"
                 />
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-gray-900 mb-2">

@@ -4,12 +4,17 @@ import { FiDownload, FiCalendar } from "react-icons/fi";
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { IoFlaskOutline } from "react-icons/io5";
 import { useLabResults } from "@hooks/useLabResults";
+import SpinnerLoader from "@components/SpinnerLoader";
 
 const LabResults: React.FC = () => {
   const { labResults, isLoading: loading } = useLabResults();
 
   if (loading) {
-    return <div className="flex justify-center p-4">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <SpinnerLoader />
+      </div>
+    );
   }
 
   if (labResults.length === 0) {
