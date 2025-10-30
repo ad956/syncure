@@ -48,7 +48,7 @@ export default function MobileAppPromo() {
             light: '#ffffff',
           },
         }}
-        className="rounded-lg border-2 border-white shadow-sm"
+
       />
     );
   };

@@ -136,10 +136,10 @@ export default function Calendar({
   }
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Perfectly centered calendar */}
+    <div className="w-full h-full flex">
+      {/* Calendar */}
       <div className="flex-1 flex items-center justify-center">
-        <div className="w-full max-w-[320px]">
+        <div className="w-full max-w-[280px]">
           <DayPicker
           key={appointmentDates.map(d => d.getTime()).join('-')}
           mode="multiple"
@@ -154,7 +154,7 @@ export default function Calendar({
             caption: "flex justify-center py-1 relative items-center text-sm font-semibold text-gray-800 mb-1",
             caption_label: "text-sm font-semibold",
             nav: "space-x-1 flex items-center",
-            nav_button: "h-7 w-7 bg-white border border-gray-200 p-0 hover:bg-gray-50 rounded-md shadow-sm transition-all duration-200",
+            nav_button: "h-7 w-7 bg-white border border-gray-200 p-0 hover:bg-gray-50 rounded-md shadow-sm transition-all duration-200 flex items-center justify-center",
             nav_button_previous: "absolute left-1",
             nav_button_next: "absolute right-1",
             table: "w-full border-collapse space-y-1",
@@ -174,23 +174,7 @@ export default function Calendar({
         </div>
       </div>
       
-      {/* Appointment indicator */}
-      <div className="flex justify-center mt-2">
-        <div className="flex items-center gap-2">
-          {appointmentDates.length > 0 ? (
-            <div className="flex items-center gap-1">
-              {appointmentDates.map((_, index) => (
-                <div key={index} className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-              ))}
-              <span className="text-xs text-gray-600 ml-1">
-                {appointmentDates.length} appointment{appointmentDates.length > 1 ? 's' : ''}
-              </span>
-            </div>
-          ) : (
-            <div className="text-xs text-gray-400">No appointments scheduled</div>
-          )}
-        </div>
-      </div>
+
 
       <AppointmentDetailsModal
         isOpen={isOpen}

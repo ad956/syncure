@@ -25,11 +25,17 @@ export async function GET(req: Request) {
 
     const cityHospitals = stateHospitals.get(state)[city];
 
-    if (!cityHospitals) {
+    if (!cityHospitals || cityHospitals.length === 0) {
       return createErrorResponse("No hospitals found in the specified city", 404);
     }
 
-    return createSuccessResponse(cityHospitals);
+    const hospitals = cityHospitals.map((hospital: any, index: number) => ({
+      id: (index + 1).toString(),
+      name: hospital.hospital_name,
+      charge: hospital.appointment_charge
+    }));
+
+    return createSuccessResponse(hospitals);
   } catch (error: any) {
     console.error("Error fetching hospitals:", { error: error.message, state, city });
     return createErrorResponse("Failed to fetch hospitals", 500);

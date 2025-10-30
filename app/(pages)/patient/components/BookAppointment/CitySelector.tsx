@@ -55,8 +55,8 @@ export function CitySelector({
           }
         >
           {cities.map((city) => (
-            <SelectItem key={city} value={city}>
-              {city}
+            <SelectItem key={city.id} value={city.id}>
+              {city.name}
             </SelectItem>
           ))}
         </Select>

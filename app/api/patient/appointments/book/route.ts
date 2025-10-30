@@ -64,13 +64,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Get hospital details and appointment charge
-    const hospitalDoc = await CityStateHospital.findById(data.state).lean();
+    const hospitalDoc = await CityStateHospital.findOne({
+      [data.state]: { $exists: true }
+    }).lean();
     if (!hospitalDoc) {
       return createErrorResponse("Hospital data not found", 404);
     }
     
-    const stateKey = Object.keys(hospitalDoc).find(key => key !== '_id' && key !== '__v');
-    const hospitals = stateKey ? (hospitalDoc as any)[stateKey]?.[data.city] || [] : [];
+    const hospitals = (hospitalDoc as any)[data.state]?.[data.city] || [];
     const hospital = hospitals.find((h: any) => h.hospital_name === data.hospital.name);
     
     if (!hospital) {
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
       state: data.state,
       city: data.city,
       hospital: {
-        id: hospital.hospital_id || new Types.ObjectId(),
+        id: data.hospital.id,
         name: data.hospital.name
       },
       disease: data.disease,

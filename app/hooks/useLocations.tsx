@@ -18,7 +18,7 @@ export function useStates() {
 }
 
 export function useCities(state: string) {
-  const { data, error, isLoading, mutate } = useSWR<ApiResponse<string[]>>(
+  const { data, error, isLoading, mutate } = useSWR<ApiResponse<{id: string, name: string}[]>>(
     state ? `/api/city?state=${state}` : null,
     fetcher
   );

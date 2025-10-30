@@ -21,11 +21,16 @@ export async function GET(req: Request) {
     }
 
     // Get the cities for the given state
-    const cities = Object.keys(stateDocument.get(state));
+    const cityNames = Object.keys(stateDocument.get(state));
 
-    if (cities.length === 0) {
+    if (cityNames.length === 0) {
       return createErrorResponse("No cities found for the given state", 404);
     }
+
+    const cities = cityNames.map((name, index) => ({
+      id: (index + 1).toString(),
+      name: name
+    }));
 
     return createSuccessResponse(cities);
   } catch (error: any) {

@@ -9,13 +9,8 @@ import {
   FaWeight,
   FaChartLine,
 } from "react-icons/fa";
-import {
-  MdReceiptLong,
-  MdLocalPharmacy,
-} from "react-icons/md";
-import {
-  IoShieldCheckmark,
-} from "react-icons/io5";
+import { MdReceiptLong, MdLocalPharmacy } from "react-icons/md";
+import { IoShieldCheckmark } from "react-icons/io5";
 import { HiOutlineClipboardDocumentCheck } from "react-icons/hi2";
 import Calendar from "../Calendar";
 import VitalSigns from "../VitalSigns";
@@ -33,22 +28,29 @@ import HealthMetricsSkeleton from "../LoadingStates/HealthMetricsSkeleton";
 import LabResultsSkeleton from "../LoadingStates/LabResultsSkeleton";
 import { usePatient } from "@hooks/usePatient";
 import { useAppointments } from "@hooks/useAppointments";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 import { useMedications } from "@hooks/useMedications";
 import { useTodaysVitals } from "@hooks/useTodaysVitals";
 
 export default function DashboardClient({ patientId }: { patientId: string }) {
   const { patient, isLoading: patientLoading, error } = usePatient();
-  const { appointments, isLoading: appointmentsLoading } = useAppointments();
+  const { data: appointmentsData, isLoading: appointmentsLoading } = useSWR(
+    "/api/patient/appointments/upcoming",
+    fetcher
+  );
+  const appointments = appointmentsData?.success
+    ? appointmentsData.data.appointments
+    : [];
   const { medications, isLoading: medicationsLoading } = useMedications();
   const { vitals: todaysVitals, isLoading: vitalsLoading } = useTodaysVitals();
-  
+
   // Placeholder for other hooks - will be implemented later
   const labResultsLoading = false;
   const billsLoading = false;
   const healthTrendsLoading = false;
   const healthTrends: any[] = [];
-
-
 
   if (patientLoading) {
     return (
@@ -66,14 +68,18 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
   const healthMetrics = {
     healthScore: 85,
     activeMedications: medications?.length || 0,
-    bmi: patient.physicalDetails?.weight && patient.physicalDetails?.height 
-      ? (patient.physicalDetails.weight / Math.pow(patient.physicalDetails.height / 100, 2)).toFixed(1)
-      : null,
-    bmiStatus: "Normal"
+    bmi:
+      patient.physicalDetails?.weight && patient.physicalDetails?.height
+        ? (
+            patient.physicalDetails.weight /
+            Math.pow(patient.physicalDetails.height / 100, 2)
+          ).toFixed(1)
+        : null,
+    bmiStatus: "Normal",
   };
-  
+
   const nextAppointment = appointments?.[0] || null;
-  
+
   // Use dashboard nextAppointment data for Next Appointment card
   const displayAppointment = nextAppointment;
 
@@ -106,10 +112,7 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
       <div className="grid grid-cols-12 gap-6">
         {/* Patient Profile Card */}
         <div className="col-span-12 lg:col-span-4">
-          <PatientProfileCard
-            patient={patient}
-            patientId={patientId}
-          />
+          <PatientProfileCard patient={patient} patientId={patientId} />
         </div>
 
         {/* Health Overview Cards */}
@@ -123,14 +126,18 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
                   </p>
                   <p className="text-lg font-bold text-gray-900">
                     {displayAppointment?.date
-                      ? new Date(displayAppointment.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })
+                      ? new Date(displayAppointment.date).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )
                       : "None"}
                   </p>
                   <p className="text-xs text-blue-600">
-                    {displayAppointment?.doctor?.name || "No upcoming appointments"}
+                    {displayAppointment?.doctor?.name ||
+                      "No upcoming appointments"}
                   </p>
                 </div>
                 <div className="p-3 bg-blue-50 rounded-full">
@@ -217,28 +224,34 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
                   </div>
                   <div className="h-[240px]">
                     {appointmentsLoading ? (
-                      <CalendarSkeleton />
+                      <div className="flex items-center justify-center h-full">
+                        <SpinnerLoader />
+                      </div>
                     ) : (
                       <Calendar upcomingAppointments={appointments} />
                     )}
                   </div>
                 </div>
-                
+
                 {/* Right: Appointment Info */}
-                <div className="w-24 flex flex-col items-center justify-center h-full border-l border-gray-100 pl-3">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-indigo-600 mb-1">
-                      {appointments?.length || 0}
-                    </div>
-                    <div className="text-xs text-gray-500 leading-tight">
-                      scheduled
-                    </div>
-                  </div>
-                  {appointments?.length > 0 && (
-                    <div className="mt-4 text-center">
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full mx-auto mb-1 animate-pulse"></div>
-                      <div className="text-xs text-gray-400">Active</div>
-                    </div>
+                <div className="w-20 flex flex-col items-center justify-center h-full border-l border-gray-100 pl-2">
+                  {appointmentsLoading ? null : (
+                    appointments?.length > 0 ? (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-indigo-600 mb-1">
+                          {appointments.length}
+                        </div>
+                        <div className="mt-2">
+                          <div className="w-2 h-2 bg-indigo-500 rounded-full mx-auto mb-1 animate-pulse"></div>
+                          <div className="text-xs text-gray-400">Active</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <div className="text-lg text-gray-400 mb-1">—</div>
+                        <div className="text-xs text-gray-400">Empty</div>
+                      </div>
+                    )
                   )}
                 </div>
               </div>
@@ -259,15 +272,17 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
               {medicationsLoading ? (
                 <MedicationSkeleton />
               ) : (
-                <MedicationTracker medications={medications.map((med: any) => ({
-                  id: med._id,
-                  name: med.medication_name,
-                  dosage: med.dosage,
-                  frequency: med.frequency,
-                  instructions: med.instructions,
-                  nextDose: "8:00 AM",
-                  wasTaken: false
-                }))} />
+                <MedicationTracker
+                  medications={medications.map((med: any) => ({
+                    id: med._id,
+                    name: med.medication_name,
+                    dosage: med.dosage,
+                    frequency: med.frequency,
+                    instructions: med.instructions,
+                    nextDose: "8:00 AM",
+                    wasTaken: false,
+                  }))}
+                />
               )}
             </Card>
           </div>
@@ -279,7 +294,9 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
                 <div className="p-1.5 bg-purple-50 rounded-lg">
                   <MdReceiptLong className="text-purple-600 text-lg" />
                 </div>
-                <h3 className="text-base font-semibold text-gray-900">Recent Bills</h3>
+                <h3 className="text-base font-semibold text-gray-900">
+                  Recent Bills
+                </h3>
               </div>
               {billsLoading ? (
                 <BillsSkeleton />
@@ -328,16 +345,12 @@ export default function DashboardClient({ patientId }: { patientId: string }) {
                   Lab Results
                 </h3>
               </div>
-              {labResultsLoading ? (
-                <LabResultsSkeleton />
-              ) : (
-                <LabResults />
-              )}
+              {labResultsLoading ? <LabResultsSkeleton /> : <LabResults />}
             </Card>
           </div>
         </div>
       </div>
-      
+
       {/* Mobile App Promotion */}
       <MobileAppPromo />
     </div>

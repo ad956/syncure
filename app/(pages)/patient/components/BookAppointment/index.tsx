@@ -23,11 +23,11 @@ export default function BookAppointment({
   name,
   email,
 }: BookAppointmentProps) {
-  const { states } = useStates();
+  const { states, isLoading: statesLoading } = useStates();
   const [selectedState, setSelectedState] = useState("");
-  const { cities } = useCities(selectedState);
+  const { cities, isLoading: citiesLoading } = useCities(selectedState);
   const [selectedCity, setSelectedCity] = useState("");
-  const { hospitals } = useHospitals(selectedState, selectedCity);
+  const { hospitals, isLoading: hospitalsLoading } = useHospitals(selectedState, selectedCity);
   const [isBooking, setIsBooking] = useState(false);
   const { bookAppointment } = useAppointments();
 
@@ -88,7 +88,14 @@ export default function BookAppointment({
           try {
             // Book appointment with payment details
             const bookingData = await bookAppointment({
-              ...values,
+              date: values.date,
+              timing: values.timing,
+              state: values.state,
+              city: values.city,
+              hospital: values.hospital,
+              disease: values.disease,
+              note: values.note,
+              patient_id: values.patient_id,
               razorpayPaymentId: response.razorpay_payment_id,
               razorpayOrderId: response.razorpay_order_id,
               razorpaySignature: response.razorpay_signature
@@ -316,18 +323,20 @@ export default function BookAppointment({
                       <div className="space-y-3">
                         <Select
                           label="State"
-                          selectedKeys={values.state ? new Set([values.state]) : new Set()}
+                          selectedKeys={values.state ? new Set([states.find(s => s.name === values.state)?.id || '']) : new Set()}
                           onSelectionChange={(keys) => {
                             const selectedKeys = Array.from(keys);
-                            const state = selectedKeys[0] as string;
-                            setFieldValue('state', state);
-                            setSelectedState(state);
+                            const stateId = selectedKeys[0] as string;
+                            const selectedStateObj = states.find(s => s.id === stateId);
+                            setFieldValue('state', selectedStateObj?.name || '');
+                            setSelectedState(selectedStateObj?.name || '');
                             setFieldValue('city', '');
                             setSelectedCity('');
                             setFieldValue('hospital', { id: '', name: '' });
                           }}
                           variant="bordered"
-                          placeholder="Choose state"
+                          placeholder={statesLoading ? "Loading states..." : "Choose state"}
+                          isLoading={statesLoading}
                           size="sm"
                         >
                           {states.map((state: any) => (
@@ -338,17 +347,20 @@ export default function BookAppointment({
                         </Select>
                         <Select
                           label="City"
-                          selectedKeys={values.city ? new Set([values.city]) : new Set()}
+                          selectedKeys={values.city ? new Set([cities.find(c => c.name === values.city)?.id || '']) : new Set()}
                           onSelectionChange={(keys) => {
                             const selectedKeys = Array.from(keys);
-                            const city = selectedKeys[0] as string;
-                            setFieldValue('city', city);
-                            setSelectedCity(`${values.state}|${city}`);
+                            const cityId = selectedKeys[0] as string;
+                            const selectedCityObj = cities.find(c => c.id === cityId);
+                            const cityName = selectedCityObj?.name || '';
+                            setFieldValue('city', cityName);
+                            setSelectedCity(cityName);
                             setFieldValue('hospital', { id: '', name: '' });
                           }}
                           isDisabled={!values.state}
                           variant="bordered"
-                          placeholder="Choose city"
+                          placeholder={citiesLoading ? "Loading cities..." : "Choose city"}
+                          isLoading={citiesLoading}
                           size="sm"
                         >
                           {cities.map((city: any) => (
@@ -359,7 +371,7 @@ export default function BookAppointment({
                         </Select>
                         <Select
                           label="Hospital"
-                          selectedKeys={values.hospital.id ? new Set([values.hospital.id]) : new Set()}
+                          selectedKeys={values.hospital.name ? new Set([hospitals.find(h => h.name === values.hospital.name)?.id || '']) : new Set()}
                           onSelectionChange={(keys) => {
                             const selectedKeys = Array.from(keys);
                             const hospitalId = selectedKeys[0] as string;
@@ -371,7 +383,8 @@ export default function BookAppointment({
                           }}
                           isDisabled={!values.city}
                           variant="bordered"
-                          placeholder="Choose hospital"
+                          placeholder={hospitalsLoading ? "Loading hospitals..." : "Choose hospital"}
+                          isLoading={hospitalsLoading}
                           size="sm"
                         >
                           {hospitals.map((hospital: any) => (
