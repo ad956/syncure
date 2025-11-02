@@ -14,7 +14,11 @@ export async function PUT(request: Request) {
     return errorHandler("Unauthorized", STATUS_CODES.BAD_REQUEST);
   }
 
-  const profile_pic = await request.json();
+  const { profilePicture } = await request.json();
+  
+  if (!profilePicture || typeof profilePicture !== 'string') {
+    return errorHandler("Profile picture URL is required", STATUS_CODES.BAD_REQUEST);
+  }
 
   try {
     const { id, role } = (session as any).user;
@@ -26,7 +30,7 @@ export async function PUT(request: Request) {
 
     const result = await UserModel.findByIdAndUpdate(
       user_id,
-      { $set: { profile: profile_pic } },
+      { $set: { profile: profilePicture } },
       { new: true }
     );
 

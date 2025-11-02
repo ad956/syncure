@@ -333,6 +333,10 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
         <div className="flex flex-col items-center mb-8">
           <CldUploadWidget
             signatureEndpoint="/api/cloudinary/sign-image"
+            options={{
+              folder: "syncure",
+              publicId: `profile_${Date.now()}`
+            }}
             onSuccess={async (result) => {
               const info = result.info as CloudinaryUploadWidgetInfo;
               const isProfileUpdated = await updateProfilePicture(

@@ -9,7 +9,7 @@ export default async function updateProfilePicture(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(profile_url),
+      body: JSON.stringify({ profile_picture: profile_url }),
     });
 
     const result = await response.json();
